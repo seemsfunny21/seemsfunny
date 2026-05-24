@@ -496,3 +496,16 @@ PEGASUS 288 - Mobile restore no Save As
 - Safe Merge Restore logic remains unchanged.
 - Desktop unchanged. No new files.
 - Cache bump to 288.
+
+PEGASUS 289 - Static label case cleanup
+- Converted static uppercase UI labels to sentence-style casing where safe.
+- Removed adaptiveTypography.js from desktop/mobile loading and service worker cache.
+- Preserved internal storage keys and lifter identifiers to avoid data loss.
+- Cache bump to 289.
+
+PEGASUS 290 - Remove unused voice module
+- Removed the unused voice.js module because it was not loaded by desktop/mobile UI and never spoke in normal use.
+- Removed voice.js from service worker cache and desktop fallback asset list.
+- Removed the dead PegasusVoice bridge from aiHandler.js and cleaned the voice-enabled log text.
+- No layout, sync, data, workout, diet or mobile module behavior changed.
+- Cache bump to 290.

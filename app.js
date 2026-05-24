@@ -1963,7 +1963,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
                 './foodRegistry.js', './slotRegistry.js', './dietAdvisor.js', './dietVariation.js', './extensions.js',
                 './ems.js', './cardio.js', './calendar.js', './gallery.js', './partner.js', './achievements.js',
                 './dragDrop.js', './reporting.js', './metabolicEngine.js', './weightTracker.js', './app.js', './debug.js',
-                './auditUI.js', './aiHandler.js', './voice.js', './mobile/mobile.html',
+                './auditUI.js', './aiHandler.js', './mobile/mobile.html',
                 './mobile/style.css', './mobile/diet-mobile.js', './mobile/cardio-mobile.js', './mobile/profile-mobile.js',
                 './mobile/car-mobile.js', './mobile/parking-mobile.js', './mobile/inventory-mobile.js', './mobile/ems-mobile.js',
                 './mobile/supplies-mobile.js', './mobile/finance-mobile.js', './mobile/social-mobile.js', './mobile/movies-mobile.js',

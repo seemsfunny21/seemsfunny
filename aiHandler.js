@@ -1,6 +1,6 @@
 /* ==========================================================================
-   PEGASUS AI HANDLER - MOBILE INTEGRATION (v1.1 MAXIMALIST)
-   Protocol: Deep Context Harvesting & Voice Response Bridge
+   PEGASUS AI HANDLER - MOBILE INTEGRATION (v1.2 CLEAN)
+   Protocol: Deep Context Harvesting
    Status: FINAL STABLE | ZERO-BUG VERIFIED
    ========================================================================== */
 
@@ -45,11 +45,6 @@ window.PegasusAI = {
 
             const mockResponse = "Αναλύθηκαν δεδομένα. Η ενέργειά σου είναι χαμηλή (Level 4). Συνιστάται λήψη κρεατίνης και 20 λεπτά Stretching.";
 
-            // 4. 🔊 VOICE OUTPUT BRIDGE
-            if (window.PegasusVoice && typeof window.PegasusVoice.speak === "function") {
-                window.PegasusVoice.speak(mockResponse);
-            }
-
             return mockResponse;
 
         } catch (error) {
@@ -72,4 +67,4 @@ window.PegasusAI = {
 
 // Σημείωση: Για λόγους ασφαλείας, το API Key δεν πρέπει να εκτίθεται ποτέ στο client-side JS.
 // Χρησιμοποιήστε το Pegasus Cloud Vault για να αποθηκεύετε κρυπτογραφημένα tokens αν χρειαστεί.
-console.log("🛡️ PEGASUS AI: Handler v1.1 Operational (Voice-Enabled).");
+console.log("🛡️ PEGASUS AI: Handler v1.2 Operational.");

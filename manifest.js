@@ -210,4 +210,4 @@ window.PegasusManifest = {
 // 🛡️ ΤΟ ΚΛΕΙΔΙ ΤΟΥ UNLOCK
 var M = window.PegasusManifest;
 
-console.log("🏛️ PEGASUS MANIFEST v18.89 LOADED. STATIC LABEL CASE CLEANUP READY.");
+console.log("🏛️ PEGASUS MANIFEST v18.90 LOADED. UNUSED VOICE MODULE REMOVED.");
