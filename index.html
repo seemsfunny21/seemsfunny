@@ -35,10 +35,10 @@
     <div style="background: #0a0a0a; border: 1px solid #00ff41; box-shadow: 0 0 40px rgba(0,255,65,0.15); padding: 35px 25px; border-radius: 24px; width: 85%; max-width: 340px; text-align: center;">
         <div style="font-size:40px; margin-bottom:5px;">🛡️</div>
         <div style="color: #00ff41; font-weight: 900; font-size: 22px; letter-spacing: 1px; margin: 10px 0 5px 0;">PEGASUS OS</div>
-        <div style="color: #888; font-size: 11px; font-weight: 800; letter-spacing: 2px; margin-bottom: 25px;">ΑΣΦΑΛΗΣ ΤΑΥΤΟΠΟΙΗΣΗ</div>
+        <div style="color: #888; font-size: 11px; font-weight: 800; letter-spacing: 2px; margin-bottom: 25px;">Ασφαλής ταυτοποίηση</div>
        <input type="password" id="pinInput" style="font-size: 32px; letter-spacing: 12px; font-weight: 900; color: #00ff41; background: #000; border: 1px solid #333; padding: 15px; border-radius: 16px; margin-bottom: 12px; width: 80%; text-align: center; box-sizing: border-box;" inputmode="numeric" maxlength="4" placeholder="••••">
-        <input type="password" id="masterKeyInput" style="font-size: 14px; letter-spacing: 2px; font-weight: 800; color: #00bcd4; background: #000; border: 1px solid #333; padding: 14px; border-radius: 16px; margin-bottom: 12px; width: 100%; text-align: center; box-sizing: border-box;" autocomplete="off" placeholder="MASTER KEY">
-        <div style="color:#666; font-size:10px; font-weight:800; letter-spacing:1px; margin-bottom:12px;">PIN + MASTER KEY ΜΙΑ ΦΟΡΑ ΤΗΝ ΗΜΕΡΑ · ΕΠΑΝΑΦΟΡΑ ΜΕΤΑ ΤΙΣ 07:00</div>
+        <input type="password" id="masterKeyInput" style="font-size: 14px; letter-spacing: 2px; font-weight: 800; color: #00bcd4; background: #000; border: 1px solid #333; padding: 14px; border-radius: 16px; margin-bottom: 12px; width: 100%; text-align: center; box-sizing: border-box;" autocomplete="off" placeholder="master key">
+        <div style="color:#666; font-size:10px; font-weight:800; letter-spacing:1px; margin-bottom:12px;">PIN + master key ΜΙΑ ΦΟΡΑ ΤΗΝ ΗΜΕΡΑ · Επαναφορά ΜΕΤΑ ΤΙΣ 07:00</div>
         <div id="pinError" style="color:#ff4444; font-size:11px; font-weight:bold; margin-bottom:15px; min-height:15px;"></div>
         <button onclick="attemptVaultUnlock()" style="width: 100%; padding: 16px; background: #00ff41; border: none; border-radius: 18px; color: #000; font-weight: 900; text-transform: none; font-size: 13px; margin-bottom: 12px; cursor: pointer;">Απασφάλιση συστήματος</button>
         <button onclick="skipVault()" style="width:100%; background:transparent; color:#666; padding:12px; border:1px solid #222; border-radius:14px; font-weight:bold; font-size:11px; cursor:pointer;">Επιστροφή / άκυρο</button>
@@ -46,13 +46,13 @@
 </div>
 
 <div id="navbar" class="navbar">
-    <button id="nav-Δευτέρα">ΔΕΥΤΕΡΑ</button>
-    <button id="nav-Τρίτη">ΤΡΙΤΗ</button>
-    <button id="nav-Τετάρτη">ΤΕΤΑΡΤΗ</button>
-    <button id="nav-Πέμπτη">ΠΕΜΠΤΗ</button>
-    <button id="nav-Παρασκευή">ΠΑΡΑΣΚΕΥΗ</button>
-    <button id="nav-Σάββατο">ΣΑΒΒΑΤΟ</button>
-    <button id="nav-Κυριακή">ΚΥΡΙΑΚΗ</button>
+    <button id="nav-Δευτέρα">Δευτέρα</button>
+    <button id="nav-Τρίτη">Τρίτη</button>
+    <button id="nav-Τετάρτη">Τετάρτη</button>
+    <button id="nav-Πέμπτη">Πέμπτη</button>
+    <button id="nav-Παρασκευή">Παρασκευή</button>
+    <button id="nav-Σάββατο">Σάββατο</button>
+    <button id="nav-Κυριακή">Κυριακή</button>
 </div>
 
 <div class="pegasus-control-bar">
@@ -68,7 +68,7 @@
         <button id="btnCalendarUI" class="p-btn">Ημερολόγιο</button>
         <button id="btnAchUI" class="p-btn">Επιτεύγματα</button>
         <button id="btnFoodUI" class="p-btn">Διατροφή</button>
-        <button id="btnPreviewUI" class="p-btn" style="color: #4CAF50 !important; border-color: #4CAF50 !important;">ΠΡΟΕΠΙΣΚΟΠΗΣΗ</button>
+        <button id="btnPreviewUI" class="p-btn" style="color: #4CAF50 !important; border-color: #4CAF50 !important;">Προεπισκόπηση</button>
         <button id="btnSettingsUI" class="p-btn btn-utility">Ρυθμίσεις</button>
         <button id="btnManualEmail" class="p-btn">EMAIL</button>
     </div>
@@ -81,7 +81,7 @@
         <button id="kcalBtn" class="p-btn kcal-container">
             🔥 <span class="kcal-value">0.0</span> kcal
         </button>
-        <button id="btnToolsUI" class="p-btn">⚙️ ΕΡΓΑΛΕΙΑ</button>
+        <button id="btnToolsUI" class="p-btn">⚙️ Εργαλεία</button>
         <button id="btnLangToggle" class="p-btn">En/Gr</button>
     </div>
 </div>
@@ -106,39 +106,39 @@
 </div>
 
 <div id="toolsPanel" class="pegasus-panel" style="width: fit-content; min-width: 270px; padding: 20px 8px; text-align: center; margin: 0 auto; display:none;">
-    <h3 style="text-align: center; margin-bottom: 15px;">ΕΡΓΑΛΕΙΑ PEGASUS</h3>
+    <h3 style="text-align: center; margin-bottom: 15px;">Εργαλεία PEGASUS</h3>
     <div class="setting-item" style="border-top: 1px solid #333; padding-top: 15px; margin-bottom: 15px; text-align: center;">
-        <p style="color: #4CAF50; font-size: 11px; margin-bottom: 8px; letter-spacing: 1px; text-align: center; font-weight: bold;">ΣΥΣΤΗΜΑ ΣΥΝΕΡΓΑΤΗ</p>
+        <p style="color: #4CAF50; font-size: 11px; margin-bottom: 8px; letter-spacing: 1px; text-align: center; font-weight: bold;">Σύστημα συνεργάτη</p>
         <input type="text" id="partnerNameInput" list="partnerList" placeholder="Όνομα συνεργάτη..."
                style="width: 100%; background: #111; color: #4CAF50; border: 1px solid #4CAF50; padding: 8px; margin-bottom: 8px; border-radius: 4px; font-family: inherit; box-sizing: border-box; text-align: center;">
         <datalist id="partnerList"></datalist>
-        <button id="btnPartnerMode" class="p-btn" style="width:100%">ΣΥΝΕΡΓΑΤΗΣ: ΑΠΕΝΕΡΓΟΣ</button>
+        <button id="btnPartnerMode" class="p-btn" style="width:100%">Συνεργάτης: ανενεργός</button>
     </div>
 <div class="settings-grid" style="display: flex; flex-direction: column; gap: 10px; align-items: center; width: 100%;">
-    <button id="btnPlanSelector" class="p-btn tools-btn" style="border-color:#4CAF50; color:#4CAF50;">📅 ΤΥΠΟΣ ΠΡΟΓΡΑΜΜΑΤΟΣ</button>
-    <button id="btnMuteTools" class="p-btn tools-btn">🔊 ΗΧΟΣ: ΕΝΕΡΓΟΣ</button>
-    <button id="btnTurboTools" class="p-btn tools-btn">🚀 TURBO: ΑΝΕΝΕΡΓΟ</button>
+    <button id="btnPlanSelector" class="p-btn tools-btn" style="border-color:#4CAF50; color:#4CAF50;">📅 Τύπος προγράμματος</button>
+    <button id="btnMuteTools" class="p-btn tools-btn">🔊 Ήχος: ενεργός</button>
+    <button id="btnTurboTools" class="p-btn tools-btn">🚀 Turbo: ανενεργό</button>
     <button id="btnExportData" class="p-btn tools-btn">💾 Αποθήκευση αρχείου</button>
     <button id="btnImportData" class="p-btn tools-btn">📂 Φόρτωση αρχείου</button>
     <input type="file" id="importFileTools" style="display:none">
-    <button id="btnMasterVault" class="p-btn tools-btn" style="border-color:#00bcd4; color:#00bcd4;">🔐 ΣΥΓΧΡΟΝΙΣΜΟΣ</button>
-    <button id="btnOpenGallery" class="p-btn tools-btn">🖼️ ΓΚΑΛΕΡΙ ΠΡΟΟΔΟΥ</button>
+    <button id="btnMasterVault" class="p-btn tools-btn" style="border-color:#00bcd4; color:#00bcd4;">🔐 Συγχρονισμός</button>
+    <button id="btnOpenGallery" class="p-btn tools-btn">🖼️ Γκαλερί προόδου</button>
     <button id="btnEMS" class="p-btn tools-btn">⚡ Καταγραφή EMS</button>
-    <button id="btnSystemAudit" class="p-btn tools-btn" style="border-color:#4CAF50; color:#4CAF50; margin-top: 10px; font-weight: 900;">🔍 ΕΛΕΓΧΟΣ PEGASUS</button>
+    <button id="btnSystemAudit" class="p-btn tools-btn" style="border-color:#4CAF50; color:#4CAF50; margin-top: 10px; font-weight: 900;">🔍 Έλεγχος PEGASUS</button>
 </div>
 </div>
 
 <div id="galleryPanel" class="pegasus-panel" style="width: 550px; height: 750px; display: none; z-index: 9999;">
-    <h3 style="text-align: center;">ΓΚΑΛΕΡΙ ΠΡΟΟΔΟΥ</h3>
+    <h3 style="text-align: center;">Γκαλερί προόδου</h3>
     <div class="upload-zone" onclick="document.getElementById('photoUpload').click()">
-        <p>➕ ΑΝΕΒΑΣΕ ΦΩΤΟΓΡΑΦΙΑ (JPG/PNG)</p>
+        <p>➕ Ανέβασε φωτογραφία (JPG/PNG)</p>
         <input type="file" id="photoUpload" accept="image/*" style="display:none" onchange="window.handlePhotoUpload(event)">
     </div>
     <div id="progressTimeline" class="timeline-container" style="margin-top:20px; height: calc(100% - 120px); overflow-y:auto;"></div>
 </div>
 
 <div id="calendarPanel" class="pegasus-panel panel-calendar" style="display:none;">
-    <h3 style="text-align: center;">ΗΜΕΡΟΛΟΓΙΟ PEGASUS</h3>
+    <h3 style="text-align: center;">Ημερολόγιο PEGASUS</h3>
     <div id="calendarContent"></div>
 </div>
 
@@ -253,7 +253,7 @@
     <div id="pcInventoryPanel" style="margin: 15px 0; padding: 12px; background: rgba(0, 255, 65, 0.03); border: 1px solid rgba(0, 255, 65, 0.15); border-radius: 8px; display: flex; align-items: center;">
         <div style="width: 65%; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 15px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                <span style="font-size: 9px; font-weight: 900; color: #00bcd4; letter-spacing: 1px;">WHEY STOCK</span>
+                <span style="font-size: 9px; font-weight: 900; color: #00bcd4; letter-spacing: 1px;">Whey stock</span>
                 <span id="pcProtValue" style="font-size: 9px; font-weight: 900; color: #eee;">-- / 2500g</span>
             </div>
             <div class="progress-track" style="width: 100%; height: 4px; background: #000; border-radius: 2px; overflow: hidden; margin-bottom: 10px;">
@@ -261,7 +261,7 @@
             </div>
 
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                <span style="font-size: 9px; font-weight: 900; color: #9c27b0; letter-spacing: 1px;">CREA STOCK</span>
+                <span style="font-size: 9px; font-weight: 900; color: #9c27b0; letter-spacing: 1px;">Crea stock</span>
                 <span id="pcCreaValue" style="font-size: 9px; font-weight: 900; color: #eee;">-- / 1000g</span>
             </div>
             <div class="progress-track" style="width: 100%; height: 4px; background: #000; border-radius: 2px; overflow: hidden;">
@@ -302,7 +302,7 @@
             <div id="libraryFoodList"></div>
         </div>
         <div class="food-section">
-            <h4 style="text-align: center; color: #4CAF50; font-size: 14px; margin-bottom: 10px;">ΜΕΝΟΥ ΚΟΥΚΙ</h4>
+            <h4 style="text-align: center; color: #4CAF50; font-size: 14px; margin-bottom: 10px;">Μενού Κούκι</h4>
             <div id="koukiQuickMenu"></div>
         </div>
     </div>
@@ -325,23 +325,23 @@
 
 <div id="previewPanel" class="pegasus-panel" style="display:none; min-width: 350px;">
     <div class="panel-header" style="display: flex; justify-content: center; align-items: center; border-bottom: 1px solid #4CAF50; padding-bottom: 10px; margin-bottom: 15px; position: relative;">
-        <h3 id="previewTitle" style="margin:0; font-size: 14px; text-align: center; width: 100%;">ΕΠΙΣΚΟΠΗΣΗ & ΠΡΟΟΔΟΣ</h3>
+        <h3 id="previewTitle" style="margin:0; font-size: 14px; text-align: center; width: 100%;">Επισκόπηση & πρόοδος</h3>
         </div>
 
     <div id="muscleProgressContainer" style="margin-bottom: 20px; padding: 10px; background: rgba(255,255,255,0.02); border-radius: 8px;"></div>
     <hr style="border: 0; border-top: 1px solid #222; margin: 15px 0;">
-    <h4 style="color: #888; font-size: 11px; text-align: center; margin-bottom: 10px; letter-spacing: 1px;">ΑΣΚΗΣΕΙΣ ΗΜΕΡΑΣ</h4>
+    <h4 style="color: #888; font-size: 11px; text-align: center; margin-bottom: 10px; letter-spacing: 1px;">Ασκήσεις ημέρας</h4>
     <div id="previewContent" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-height: 40vh; overflow-y: auto;"></div>
 </div>
 
 <div id="emsModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1a; border: 2px solid #4CAF50; padding: 25px; z-index: 99999 !important; width: 320px; border-radius: 15px; box-shadow: 0 0 30px rgba(0,0,0,1); font-family: sans-serif; color: white;">
     <h3 style="color: #4CAF50; margin-top: 0; text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px;">⚡ Καταγραφή EMS</h3>
     <div style="margin-top: 15px;">
-        <label for="emsDate" style="color: #888; font-size: 11px; display: block; margin-bottom: 5px; text-align: center;">ΗΜΕΡΟΜΗΝΙΑ ΤΕΤΑΡΤΗΣ:</label>
+        <label for="emsDate" style="color: #888; font-size: 11px; display: block; margin-bottom: 5px; text-align: center;">Ημερομηνία Τετάρτης:</label>
         <input type="date" id="emsDate" style="width:100%; background:#000; color:#4CAF50; border:1px solid #4CAF50; padding:10px; border-radius:5px; box-sizing: border-box; text-align: center;">
     </div>
     <div style="margin-top: 15px;">
-        <label for="emsAvg" style="color: #888; font-size: 11px; display: block; margin-bottom: 5px; text-align: center;">ΜΕΣΗ ΕΝΤΑΣΗ (AVG %):</label>
+        <label for="emsAvg" style="color: #888; font-size: 11px; display: block; margin-bottom: 5px; text-align: center;">Μέση ένταση (avg %):</label>
         <input type="number" id="emsAvg" step="0.1" style="width:100%; background:#000; color:#4CAF50; border:1px solid #4CAF50; padding:10px; border-radius:5px; box-sizing: border-box; text-align: center;">
     </div>
     <div style="margin-top: 15px;">
@@ -366,12 +366,12 @@
         </button>
 
         <button onclick="window.setPegasusPlan('EMS_ONLY')" style="background: #111; border: 1px solid #333; padding: 25px 15px; border-radius: 12px; min-height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s ease;">
-            <span style="color: #00bcd4; font-weight: 900; font-size: 15px; margin-bottom: 12px; letter-spacing: 1px;">EMS ONLY</span>
+            <span style="color: #00bcd4; font-weight: 900; font-size: 15px; margin-bottom: 12px; letter-spacing: 1px;">EMS only</span>
             <span style="color: #ffffff; font-size: 11px; text-align: center;">Βάρη + IMS Τετάρτη</span>
         </button>
 
         <button onclick="window.setPegasusPlan('BIKE_ONLY')" style="background: #111; border: 1px solid #333; padding: 25px 15px; border-radius: 12px; min-height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s ease;">
-            <span style="color: #ff9800; font-weight: 900; font-size: 15px; margin-bottom: 12px; letter-spacing: 1px;">BIKE ONLY</span>
+            <span style="color: #ff9800; font-weight: 900; font-size: 15px; margin-bottom: 12px; letter-spacing: 1px;">Bike only</span>
             <span style="color: #ffffff; font-size: 11px; text-align: center;">Βάρη + Ποδήλατο ΣΚ</span>
         </button>
 
@@ -390,11 +390,11 @@
         if (!vaultBtn) return;
 
         if (isConnected) {
-            vaultBtn.textContent = "☁️ CLOUD: ΣΥΝΔΕΔΕΜΕΝΟ";
+            vaultBtn.textContent = "☁️ CLOUD: Συνδεδεμένο";
             vaultBtn.style.borderColor = "#00ff41";
             vaultBtn.style.color = "#00ff41";
         } else {
-            vaultBtn.textContent = "🔐 ΣΥΓΧΡΟΝΙΣΜΟΣ";
+            vaultBtn.textContent = "🔐 Συγχρονισμός";
             vaultBtn.style.borderColor = "#00bcd4";
             vaultBtn.style.color = "#00bcd4";
         }
@@ -448,7 +448,7 @@
 
         if (errorDiv) errorDiv.textContent = "";
         if (!pin || !masterKey) {
-            if (errorDiv) errorDiv.textContent = "ΣΥΜΠΛΗΡΩΣΕ PIN ΚΑΙ MASTER KEY";
+            if (errorDiv) errorDiv.textContent = "Συμπλήρωσε PIN και master key";
             return;
         }
 
@@ -462,7 +462,7 @@
             }
             if (typeof refreshAllUI === 'function') refreshAllUI();
         } else {
-            if (errorDiv) errorDiv.textContent = "ΑΡΝΗΣΗ ΠΡΟΣΒΑΣΗΣ: ΛΑΘΟΣ PIN / MASTER KEY";
+            if (errorDiv) errorDiv.textContent = "Άρνηση πρόσβασης: λάθος PIN / master key";
             if (pinInput) pinInput.value = "";
             if (masterInput) masterInput.value = "";
         }
@@ -518,8 +518,6 @@
 <script src="app.js"></script>
 <script src="debug.js"></script>
 <script src="auditUI.js"></script>
-<script src="adaptiveTypography.js"></script>
-
 <script>
     /* PEGASUS ANTI-AUTOCOMPLETE PROTOCOL */
     document.addEventListener("DOMContentLoaded", function() {

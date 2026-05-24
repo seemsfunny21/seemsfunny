@@ -426,7 +426,7 @@ window.PegasusDiet = {
         if (isVisible) {
             container.innerHTML = "";
             container.dataset.expanded = "false";
-            if (triggerBtn) triggerBtn.innerHTML = "🧠 ΡΩΤΑ ΤΟΝ PEGASUS ADVISOR";
+            if (triggerBtn) triggerBtn.innerHTML = "🧠 Ρώτα τον PEGASUS advisor";
             return;
         }
 
@@ -486,7 +486,7 @@ window.PegasusDiet = {
         html += `</div></div>`;
         container.innerHTML = html;
         container.dataset.expanded = "true";
-        if (triggerBtn) triggerBtn.innerHTML = "🧠 ΑΠΟΚΡΥΨΗ PEGASUS ADVISOR";
+        if (triggerBtn) triggerBtn.innerHTML = "🧠 Απόκρυψη PEGASUS advisor";
         container.querySelectorAll('button[data-pegasus-advisor-add]').forEach(btn => {
             btn.addEventListener('click', () => {
                 const opt = advice.options[Number(btn.dataset.pegasusAdvisorAdd)];
@@ -496,7 +496,7 @@ window.PegasusDiet = {
                 document.getElementById('advisorMobileResult').innerHTML = '';
                 document.getElementById('advisorMobileResult').dataset.expanded = "false";
                 const btnEl = document.getElementById('dietAdvisorToggleBtn');
-                if (btnEl) btnEl.innerHTML = "🧠 ΡΩΤΑ ΤΟΝ PEGASUS ADVISOR";
+                if (btnEl) btnEl.innerHTML = "🧠 Ρώτα τον PEGASUS advisor";
             });
         });
     },
@@ -636,7 +636,7 @@ window.PegasusDiet = {
                 <div style="text-align:left;">
                     <span style="color:var(--main); font-size:9px; font-weight:900;">+ Προσθήκη στο log</span>
                     <div style="font-weight:900; font-size:14px; color:#fff; margin-top:2px;">${esc(itemName)}</div>
-                    <div style="color:#ff9800; font-size:10px; margin-top:5px; font-weight:bold;">🍗 ${Number(macros.protein) || 0}G PROTEIN</div>
+                    <div style="color:#ff9800; font-size:10px; margin-top:5px; font-weight:bold;">🍗 ${Number(macros.protein) || 0}G Protein</div>
                 </div>
                 <div style="font-weight:900; color:#eee; font-size:16px;">🔥 ${Number(macros.kcal) || 0} KCAL</div>
             </div>`;

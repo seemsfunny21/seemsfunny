@@ -37,11 +37,11 @@ const PegasusReporting = {
         if (state === 'sending') {
             btn.style.background = '#ffb300';
             btn.style.color = '#000';
-            btn.textContent = 'ΣΤΕΛΝΕΤΑΙ';
+            btn.textContent = 'Στέλνεται';
         } else if (state === 'success') {
             btn.style.background = '#4CAF50';
             btn.style.color = '#000';
-            btn.textContent = 'ΕΠΙΤΥΧΙΑ';
+            btn.textContent = 'Επιτυχία';
             setTimeout(() => {
                 btn.style.background = '';
                 btn.style.color = '';
@@ -50,7 +50,7 @@ const PegasusReporting = {
         } else if (state === 'error') {
             btn.style.background = '#ff4444';
             btn.style.color = '#fff';
-            btn.textContent = 'ΣΦΑΛΜΑ';
+            btn.textContent = 'Σφάλμα';
             setTimeout(() => {
                 btn.style.background = '';
                 btn.style.color = '';
@@ -204,7 +204,7 @@ const PegasusReporting = {
             dateSent: dateParts.display,
             reportDateDisplay: dateParts.display,
             templateParams: {
-                name: "Άγγελος",
+                name: "ΑΓΓΕΛΟΣ",
 
                 // Use subject-safe numeric date anywhere a subject template may reuse the date field.
                 workout_date: dateParts.subjectSafe,

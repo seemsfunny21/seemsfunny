@@ -70,7 +70,7 @@ window.PegasusParking = {
 
         // 3. Force Cloud Push, όπως στην αρχική μορφή.
         if (window.PegasusCloud && window.PegasusCloud.push) {
-            if (typeof setSyncStatus === "function") setSyncStatus('ΑΠΟΣΤΟΛΗ...');
+            if (typeof setSyncStatus === "function") setSyncStatus('Αποστολή...');
             try { await window.PegasusCloud.push(); } catch (e) { console.warn('Parking cloud push failed:', e); }
             if (typeof setSyncStatus === "function") setSyncStatus('online');
         }
@@ -99,7 +99,7 @@ window.PegasusParking = {
 
         const statusEl = document.getElementById('parkingStatus');
         if (statusEl) {
-            statusEl.textContent = `ΠΑΡΚΙΝΓΚ: ${locToDisplay}`;
+            statusEl.textContent = `Πάρκινγκ: ${locToDisplay}`;
         }
 
         this.renderHistory();

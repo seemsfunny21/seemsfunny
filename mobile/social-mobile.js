@@ -112,7 +112,7 @@
             }
 
             if (btn) {
-                btn.innerHTML = '+ ΝΕΑ ΕΓΓΡΑΦΗ';
+                btn.innerHTML = '+ Νέα εγγραφή';
                 btn.style.background = 'var(--main)';
                 btn.style.color = '#000';
             }
@@ -176,7 +176,7 @@
 
             <div id="socialLockScreen" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; text-align: center;">
                 <div style="font-size: 50px; margin-bottom: 15px;">🔒</div>
-                <h2 style="color: #ff4444; letter-spacing: 2px; margin-bottom: 5px; font-weight: 900;">SECURE VAULT</h2>
+                <h2 style="color: #ff4444; letter-spacing: 2px; margin-bottom: 5px; font-weight: 900;">Secure vault</h2>
                 <p style="color: #666; font-size: 11px; margin-bottom: 25px; max-width: 250px;">Αυστηρά προσωπικά δεδομένα. Απαιτείται επιβεβαίωση ταυτότητας.</p>
 
                 <input type="password" id="socialPinInput" placeholder="••••"
@@ -184,7 +184,7 @@
                        onkeypress="if(event.key === 'Enter') window.PegasusSocial.verifyPin()"
                        style="text-align: center; font-size: 30px; letter-spacing: 8px; width: 150px; background: #0a0a0a; color: #00ff41; border: 2px solid #333; border-radius: 12px; padding: 15px; margin-bottom: 20px;">
 
-                <button class="primary-btn" onclick="window.PegasusSocial.verifyPin()" style="width: 150px; padding: 15px; font-size: 14px;">ΞΕΚΛΕΙΔΩΜΑ</button>
+                <button class="primary-btn" onclick="window.PegasusSocial.verifyPin()" style="width: 150px; padding: 15px; font-size: 14px;">Ξεκλείδωμα</button>
                 <p id="pinError" style="color: #ff4444; font-size: 12px; margin-top: 15px; display: none; font-weight: bold;">❌ Λάθος PIN. Προσπαθήστε ξανά.</p>
             </div>
 
@@ -198,10 +198,10 @@
 
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                     <button id="btnSortSocial" class="secondary-btn" style="flex: 1; margin: 0; padding: 8px 5px; font-size: 10px; border-radius: 8px; background: transparent; border: 1px solid #00ff41; color: #00ff41; font-weight: 900;" onclick="window.PegasusSocial.toggleSort()">
-                        🔽 ΥΨΗΛΗ ΒΑΘΜΟΛΟΓΙΑ
+                        🔽 Υψηλή βαθμολογία
                     </button>
                     <button id="btnAddSocial" class="primary-btn" style="flex: 1; margin: 0; padding: 8px 5px; font-size: 11px; border-radius: 8px; color: #000;" onclick="window.PegasusSocial.ensureAddFormOpen()">
-                        + ΝΕΑ ΕΓΓΡΑΦΗ
+                        + Νέα εγγραφή
                     </button>
                 </div>
 
@@ -235,19 +235,19 @@
 
         const sortBtn = document.getElementById('btnSortSocial');
         if (sortBtn) {
-            sortBtn.innerHTML = currentSortOrder === "DESC" ? "🔽 ΥΨΗΛΗ ΒΑΘΜΟΛΟΓΙΑ" : "🔼 ΧΑΜΗΛΗ ΒΑΘΜΟΛΟΓΙΑ";
+            sortBtn.innerHTML = currentSortOrder === "DESC" ? "🔽 Υψηλή βαθμολογία" : "🔼 Χαμηλή βαθμολογία";
             sortBtn.style.color = currentSortOrder === "DESC" ? "#00ff41" : "#ff4444";
             sortBtn.style.borderColor = currentSortOrder === "DESC" ? "#00ff41" : "#ff4444";
         }
 
         container.innerHTML = entities.map(item => {
             let activeColor = '#555';
-            let labelText = 'ΑΞΙΟΛΟΓΗΣΤΕ';
+            let labelText = 'Αξιολογήστε';
 
             if (item.rating > 0) {
-                if (item.rating <= 3) { activeColor = '#ff4444'; labelText = 'ΧΑΜΗΛΗ ΕΠΙΚΟΙΝΩΝΙΑ'; }
-                else if (item.rating <= 7) { activeColor = '#ffbb33'; labelText = 'ΚΑΝΟΝΙΚΗ ΡΟΗ'; }
-                else { activeColor = '#00ff41'; labelText = 'ΥΨΗΛΗ ΟΜΙΛΗΤΙΚΟΤΗΤΑ'; }
+                if (item.rating <= 3) { activeColor = '#ff4444'; labelText = 'Χαμηλή επικοινωνία'; }
+                else if (item.rating <= 7) { activeColor = '#ffbb33'; labelText = 'Κανονική ροή'; }
+                else { activeColor = '#00ff41'; labelText = 'Υψηλή ομιλητικότητα'; }
             }
 
             let displayName = item.name;
@@ -337,7 +337,7 @@
 
         if (entities.length === 0) {
             container.innerHTML = `<div style="color:#555; font-size:12px; text-align:center; margin-top:30px; font-weight:800;">
-                ${currentSearchTerm === "" ? "ΚΑΜΙΑ ΕΓΓΡΑΦΗ ΣΤΗ ΒΑΣΗ" : "ΔΕΝ ΒΡΕΘΗΚΑΝ ΑΠΟΤΕΛΕΣΜΑΤΑ"}
+                ${currentSearchTerm === "" ? "Καμία εγγραφή στη βάση" : "Δεν βρέθηκαν αποτελέσματα"}
             </div>`;
         }
     };

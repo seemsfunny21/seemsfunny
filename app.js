@@ -414,7 +414,7 @@ window.updateKcalUI = function() {
     if (isWorkoutActive) {
         kcalDisplay.textContent = parseFloat(liveSessionKcal || 0).toFixed(1);
         kcalDisplay.style.color = "#FFC107";
-        if (kcalLabel) kcalLabel.textContent = "KCAL ΠΡΟΠΟΝΗΣΗΣ";
+        if (kcalLabel) kcalLabel.textContent = "Kcal προπόνησης";
     } else {
         const dailyTarget = (typeof window.getPegasusEffectiveDailyTarget === "function")
             ? window.getPegasusEffectiveDailyTarget()
@@ -422,7 +422,7 @@ window.updateKcalUI = function() {
 
         kcalDisplay.textContent = dailyTarget;
         kcalDisplay.style.color = "#4CAF50";
-        if (kcalLabel) kcalLabel.textContent = "ΣΤΟΧΟΣ ΗΜΕΡΑΣ (KCAL)";
+        if (kcalLabel) kcalLabel.textContent = "Στόχος ημέρας (kcal)";
     }
 };
 
@@ -1594,7 +1594,7 @@ function runPhase() {
     let t = getPhaseStartingSeconds(phase, phaseRemainingSeconds);
     phaseRemainingSeconds = t;
 
-    let pName = (phase === 0) ? "ΠΡΟΕΤΟΙΜΑΣΙΑ" : (phase === 1 ? "ΑΣΚΗΣΗ" : "ΔΙΑΛΕΙΜΜΑ");
+    let pName = (phase === 0) ? "Προετοιμασία" : (phase === 1 ? "Άσκηση" : "Διάλειμμα");
     let cssClass = (phase === 0) ? "timer-prep" : (phase === 1 ? "timer-work" : "timer-rest");
 
     const label = document.getElementById("phaseTimer");
@@ -1963,7 +1963,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
                 './foodRegistry.js', './slotRegistry.js', './dietAdvisor.js', './dietVariation.js', './extensions.js',
                 './ems.js', './cardio.js', './calendar.js', './gallery.js', './partner.js', './achievements.js',
                 './dragDrop.js', './reporting.js', './metabolicEngine.js', './weightTracker.js', './app.js', './debug.js',
-                './auditUI.js', './aiHandler.js', './voice.js', './adaptiveTypography.js', './mobile/mobile.html',
+                './auditUI.js', './aiHandler.js', './voice.js', './mobile/mobile.html',
                 './mobile/style.css', './mobile/diet-mobile.js', './mobile/cardio-mobile.js', './mobile/profile-mobile.js',
                 './mobile/car-mobile.js', './mobile/parking-mobile.js', './mobile/inventory-mobile.js', './mobile/ems-mobile.js',
                 './mobile/supplies-mobile.js', './mobile/finance-mobile.js', './mobile/social-mobile.js', './mobile/movies-mobile.js',
@@ -2196,7 +2196,7 @@ function loadPegasusVideoCandidate(cleanSrc, vid, label, reason = 'retry') {
     attachPegasusVideoReadyHandlers(cleanSrc, vid, label);
 
     if (label) {
-        label.textContent = 'ΦΟΡΤΩΝΕΙ ΤΟ ΣΩΣΤΟ ΒΙΝΤΕΟ...';
+        label.textContent = 'Φορτώνει το σωστό βίντεο...';
         label.style.color = '#ff9800';
     }
 
@@ -2231,7 +2231,7 @@ function waitForPegasusVideo(src, vid, label) {
         window.PegasusVideoWaiter.attempts.set(cleanSrc, attempts);
 
         if (label) {
-            label.textContent = `ΑΝΑΜΟΝΗ ΤΟΠΙΚΟΥ ΒΙΝΤΕΟ... (${attempts})`;
+            label.textContent = `Αναμονή τοπικού βίντεο... (${attempts})`;
             label.style.color = '#ff9800';
         }
 
@@ -2286,7 +2286,7 @@ function showVideo(i) {
             }
 
             if (label) {
-                label.textContent = 'ΑΝΑΜΟΝΗ ΒΙΝΤΕΟ...';
+                label.textContent = 'Αναμονή βίντεο...';
                 label.style.color = '#ff9800';
             }
 
@@ -2312,7 +2312,7 @@ function showVideo(i) {
             if (window.PegasusVideoPreloader) window.PegasusVideoPreloader.preload(recoverySrc);
             vid.play().catch(e => console.log("Waiting for user..."));
             if (label && isRecoveryDay) {
-                label.textContent = "ΑΠΟΘΕΡΑΠΕΙΑ: STRETCHING";
+                label.textContent = "Αποθεραπεία: stretching";
                 label.style.color = "#00bcd4";
             }
         }
@@ -2472,7 +2472,7 @@ function finishWorkout() {
 
     const label = document.getElementById("phaseTimer");
     if (label) {
-        label.textContent = "ΟΛΟΚΛΗΡΩΣΗ & ΤΟΠΙΚΗ Αποθήκευση...";
+        label.textContent = "Ολοκλήρωση & τοπική αποθήκευση...";
         label.style.color = "#4CAF50";
     }
 
@@ -2504,7 +2504,7 @@ function finishWorkout() {
 
         const list = document.getElementById("exList");
         if (list) {
-            list.innerHTML = `<div style="padding:20px; color:#4CAF50; text-align:center; font-weight:bold; font-size:16px;">✅ Η ΠΡΟΠΟΝΗΣΗ ΟΛΟΚΛΗΡΩΘΗΚΕ ΕΠΙΤΥΧΩΣ</div>`;
+            list.innerHTML = `<div style="padding:20px; color:#4CAF50; text-align:center; font-weight:bold; font-size:16px;">✅ Η προπόνηση ολοκληρώθηκε επιτυχώς</div>`;
         }
 
         const vid = document.getElementById("video");
@@ -2517,7 +2517,7 @@ function finishWorkout() {
 
         renderPegasusControlState();
         if (label) {
-            label.textContent = "ΑΠΟΘΕΡΑΠΕΙΑ: STRETCHING";
+            label.textContent = "Αποθεραπεία: stretching";
             label.style.color = "#00bcd4";
         }
 
@@ -2639,10 +2639,10 @@ window.logPegasusSet = function(exName, absoluteDone = null) {
     const upperName = cleanName.toUpperCase();
     let perSetValue = 1;
 
-    if (upperName.includes('ΠΟΔΗΛΑΣΙΑ') || upperName.includes('CYCLING')) {
+    if (upperName.includes('Ποδηλασία') || upperName.includes('CYCLING')) {
         muscle = 'Πόδια';
         perSetValue = 24;
-    } else if (upperName.includes('EMS ΠΟΔΙΩΝ') || upperName.includes('EMS LEGS')) {
+    } else if (upperName.includes('EMS ποδιών') || upperName.includes('EMS LEGS')) {
         muscle = 'Πόδια';
         perSetValue = 6;
     } else if (upperName.includes('STRETCHING') || muscle === 'None') {
@@ -2706,6 +2706,170 @@ window.logPegasusSet = function(exName, absoluteDone = null) {
     if (window.MuscleProgressUI?.render) setTimeout(() => window.MuscleProgressUI.render(true), 50);
     return true;
 };
+
+
+/* ===== PEGASUS WEEKLY PROGRESS COMPAT ===== */
+(function installPegasusWeeklyProgressCompat() {
+    if (window.PegasusWeeklyProgress?.installed) return;
+
+    const groups = ["Στήθος", "Πλάτη", "Πόδια", "Χέρια", "Ώμοι", "Κορμός"];
+    const historyKey = () => window.PegasusManifest?.workout?.weekly_history || "pegasus_weekly_history";
+    const ledgerKey = "pegasus_weekly_history_counted_v2";
+
+    const normalize = value => String(value || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9\u0370-\u03ff]+/g, "");
+
+    const empty = () => ({ "Στήθος": 0, "Πλάτη": 0, "Πόδια": 0, "Χέρια": 0, "Ώμοι": 0, "Κορμός": 0 });
+
+    function safeObject(key, fallback) {
+        try {
+            const parsed = JSON.parse(localStorage.getItem(key) || "null");
+            return parsed && typeof parsed === "object" ? parsed : fallback;
+        } catch (e) {
+            return fallback;
+        }
+    }
+
+    function weekKey() {
+        const d = new Date();
+        const start = new Date(d);
+        const daysSinceSaturday = (d.getDay() + 1) % 7;
+        start.setHours(6, 0, 0, 0);
+        start.setDate(d.getDate() - daysSinceSaturday);
+        if (d.getDay() === 6 && d.getTime() < start.getTime()) start.setDate(start.getDate() - 7);
+        return `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, "0")}-${String(start.getDate()).padStart(2, "0")}`;
+    }
+
+    function todayKey() {
+        if (typeof window.getPegasusLocalDateKey === "function") return window.getPegasusLocalDateKey();
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    }
+
+    function readHistory() {
+        const raw = safeObject(historyKey(), {});
+        const out = empty();
+        groups.forEach(group => {
+            const value = Number(raw?.[group]);
+            out[group] = Number.isFinite(value) ? Math.max(0, value) : 0;
+        });
+        return out;
+    }
+
+    function writeHistory(history) {
+        const out = empty();
+        groups.forEach(group => {
+            const value = Number(history?.[group]);
+            out[group] = Number.isFinite(value) ? Math.max(0, value) : 0;
+        });
+        localStorage.setItem(historyKey(), JSON.stringify(out));
+        localStorage.setItem("pegasus_weekly_history_week_key", weekKey());
+        return out;
+    }
+
+    function readTargets() {
+        const fallback = { "Στήθος": 14, "Πλάτη": 16, "Πόδια": 8, "Χέρια": 12, "Ώμοι": 8, "Κορμός": 16 };
+        try {
+            const dynamic = window.PegasusOptimizer?.getTargets?.();
+            return dynamic && typeof dynamic === "object" ? { ...fallback, ...dynamic } : fallback;
+        } catch (e) {
+            return fallback;
+        }
+    }
+
+    function resolveGroup(name) {
+        if (typeof window.resolvePegasusExerciseGroup === "function") {
+            const resolved = window.resolvePegasusExerciseGroup(name);
+            if (groups.includes(resolved)) return resolved;
+        }
+        const clean = normalize(name);
+        const aliases = [
+            { group: "Στήθος", keys: ["chest", "press", "fly", "pushup", "pushups", "στηθος"] },
+            { group: "Πλάτη", keys: ["lat", "row", "pulldown", "back", "πλατη"] },
+            { group: "Πόδια", keys: ["leg", "legs", "cycling", "bike", "ποδηλα", "ποδια"] },
+            { group: "Χέρια", keys: ["bicep", "tricep", "curl", "χερια"] },
+            { group: "Ώμοι", keys: ["upright", "shoulder", "ωμοι"] },
+            { group: "Κορμός", keys: ["ab", "crunch", "plank", "situp", "knee", "core", "raise", "κορμος", "κοιλιακ"] }
+        ];
+        return aliases.find(item => item.keys.some(key => clean.includes(normalize(key))))?.group || "";
+    }
+
+    function setValue(name, group) {
+        const upper = String(name || "").toUpperCase();
+        if (upper.includes("ΠΟΔΗΛΑΣΙΑ") || upper.includes("CYCLING")) return 24;
+        if (upper.includes("EMS ΠΟΔΙΩΝ") || upper.includes("EMS LEGS")) return 6;
+        if (upper.includes("STRETCHING") || group === "None") return 0;
+        return 1;
+    }
+
+    function readLedger() {
+        const wk = weekKey();
+        const ledger = safeObject(ledgerKey, null);
+        if (!ledger || ledger.weekKey !== wk || typeof ledger.exercises !== "object") {
+            return { weekKey: wk, exercises: {}, initializedAt: Date.now() };
+        }
+        return ledger;
+    }
+
+    function computeFromLedger(ledger = readLedger()) {
+        const totals = empty();
+        if (!ledger || ledger.weekKey !== weekKey() || typeof ledger.exercises !== "object") return totals;
+        Object.entries(ledger.exercises).forEach(([key, rawCount]) => {
+            const count = Math.max(0, Number(rawCount) || 0);
+            if (!count) return;
+            const name = String(key || "").split("|").slice(1).join("|");
+            const group = resolveGroup(name);
+            if (!groups.includes(group)) return;
+            totals[group] += count * setValue(name, group);
+        });
+        const targets = readTargets();
+        groups.forEach(group => {
+            const target = Math.max(0, Number(targets[group]) || 0);
+            if (target > 0) totals[group] = Math.min(totals[group], target);
+        });
+        return totals;
+    }
+
+    function repairFromLedger(options = {}) {
+        const ledgerTotals = computeFromLedger();
+        const current = readHistory();
+        const next = { ...current };
+        let changed = false;
+        groups.forEach(group => {
+            const value = Math.max(0, Number(ledgerTotals[group]) || 0);
+            if (value > Math.max(0, Number(current[group]) || 0)) {
+                next[group] = value;
+                changed = true;
+            }
+        });
+        if (!changed) return false;
+        const clean = writeHistory(next);
+        window.dispatchEvent(new CustomEvent("pegasus_weekly_history_updated", { detail: { source: options.source || "ledger-repair", history: clean } }));
+        if (window.MuscleProgressUI?.render) setTimeout(() => window.MuscleProgressUI.render(true), 50);
+        if (window.PegasusCloud?.push && options.push !== false) setTimeout(() => window.PegasusCloud.push(), 120);
+        return true;
+    }
+
+    function reconcile(options = {}) {
+        return repairFromLedger({ source: options.source || "weekly-reconcile", push: options.push });
+    }
+
+    window.reconcilePegasusWeeklyHistoryFromDailyProgress = reconcile;
+    window.PegasusWeeklyProgress = {
+        installed: true,
+        recordSet: (...args) => typeof window.logPegasusSet === "function" ? window.logPegasusSet(...args) : false,
+        reconcile,
+        repairFromLedger,
+        computeFromLedger,
+        hasCurrentWeekLedgerEntries: () => Object.values(readLedger().exercises || {}).some(value => Number(value) > 0),
+        resolveMuscleGroup: resolveGroup,
+        readHistory
+    };
+})();
 
 
 window.updateTotalWorkoutCount = function() {
@@ -2926,7 +3090,7 @@ window.onload = () => {
 
             const btn = document.getElementById('btnTurboTools');
             if (btn) {
-                btn.textContent = window.TURBO_MODE ? "🚀 TURBO: ΕΝΕΡΓΟ" : "🚀 TURBO: ΑΝΕΝΕΡΓΟ";
+                btn.textContent = window.TURBO_MODE ? "🚀 TURBO: Ενεργό" : "🚀 Turbo: ανενεργό";
                 btn.style.color = window.TURBO_MODE ? "#ff4444" : "#4CAF50";
             }
         },
@@ -2937,7 +3101,7 @@ window.onload = () => {
 
             const btn = document.getElementById('btnMuteTools');
             if (btn) {
-                btn.textContent = window.muted ? "🔇 ΗΧΟΣ: ΣΙΓΑΣΗ" : "🔊 ΗΧΟΣ: ΕΝΕΡΓΟΣ";
+                btn.textContent = window.muted ? "🔇 Ήχος: σίγαση" : "🔊 Ήχος: ενεργός";
                 btn.style.color = window.muted ? "#888" : "#4CAF50";
             }
         },

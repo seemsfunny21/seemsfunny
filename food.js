@@ -522,7 +522,7 @@ window.renderKoukiMenu = function() {
 
         const proteinSpan = document.createElement('span');
         proteinSpan.style.cssText = "color: #81C784; font-weight: bold; font-size: 10px; letter-spacing: 0.5px;";
-        proteinSpan.textContent = `🍗 ${protein}G PROTEIN`;
+        proteinSpan.textContent = `🍗 ${protein}G Protein`;
 
         metaWrap.appendChild(kcalSpan);
         metaWrap.appendChild(proteinSpan);

@@ -14,7 +14,7 @@ window.partnerData = {
     isUser1Turn: true
 };
 
-// 1. ΕΝΕΡΓΟΠΟΙΗΣΗ / ΑΠΕΝΕΡΓΟΠΟΙΗΣΗ
+// 1. Ενεργοποίηση / ΑΠΕνεργοποίηση
 window.togglePartnerMode = function() {
     const nameInput = document.getElementById('partnerNameInput');
     const btn = document.getElementById('btnPartnerMode');
@@ -30,14 +30,14 @@ window.togglePartnerMode = function() {
 
         window.partnerData.isActive = true;
         window.partnerData.currentPartner = upperName;
-        window.partnerData.isUser1Turn = true; // Ο Άγγελος ξεκινάει πάντα πρώτος
+        window.partnerData.isUser1Turn = true; // Ο ΑΓΓΕΛΟΣ ξεκινάει πάντα πρώτος
 
         // Αποθήκευση ΣΤΗ ΛΙΣΤΑ ΟΝΟΜΑΤΩΝ
         window.savePartnerNameToList(upperName);
         window.updatePartnerDatalist();
 
         if (btn) {
-            btn.textContent = `ΣΥΝΕΡΓΑΤΗΣ: ${upperName} (ON)`;
+            btn.textContent = `Συνεργάτης: ${upperName} (ON)`;
             btn.style.background = "#4CAF50";
             btn.style.color = "#000";
         }
@@ -52,7 +52,7 @@ window.togglePartnerMode = function() {
         window.partnerData.isUser1Turn = true; // Κλείδωμα πίσω στον Άγγελο
 
         if (btn) {
-            btn.textContent = "ΣΥΝΕΡΓΑΤΗΣ: ΑΠΕΝΕΡΓΟΣ";
+            btn.textContent = "Συνεργάτης: ανενεργός";
             btn.style.background = "#222";
             btn.style.color = "#4CAF50";
         }
@@ -124,7 +124,7 @@ window.savePartnerWeight = function(exerciseName, weight) {
     const userKey = window.partnerData.isUser1Turn ? "ΑΓΓΕΛΟΣ" : window.partnerData.currentPartner;
     localStorage.setItem(`weight_${userKey}_${exerciseName.trim()}`, weight);
 
-    // Legacy support: Αποθηκεύουμε και στο γενικό κλειδί αν είναι ο Άγγελος
+    // Legacy support: Αποθηκεύουμε και στο γενικό κλειδί αν είναι ο ΑΓΓΕΛΟΣ
     if (window.partnerData.isUser1Turn) {
         localStorage.setItem(`weight_${exerciseName.trim()}`, weight);
     }

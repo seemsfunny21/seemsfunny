@@ -30,7 +30,7 @@
     </script>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=286">
+    <link rel="stylesheet" href="style.css?v=289">
 </head>
 <body>
 
@@ -38,19 +38,19 @@
         <div style="background:#0a0a0a; border:2px solid #00ff41; padding:40px 30px; border-radius:30px; text-align:center; width:85%; max-width: 320px; box-shadow: 0 0 50px rgba(0,255,65,0.15);">
             <div style="font-size:35px; margin-bottom:15px;">🛡️</div>
             <div style="color:#00ff41; font-weight:900; margin-bottom:5px; letter-spacing:1px; font-size: 20px;">PEGASUS OS</div>
-            <div style="color:#555; font-size: 10px; font-weight: 800; margin-bottom: 25px; letter-spacing: 2px;">ΑΣΦΑΛΗΣ ΤΑΥΤΟΠΟΙΗΣΗ</div>
+            <div style="color:#555; font-size: 10px; font-weight: 800; margin-bottom: 25px; letter-spacing: 2px;">Ασφαλής ταυτοποίηση</div>
             <input type="password" id="pinInput" style="font-size:32px; letter-spacing:12px; border-color: #333; margin-bottom: 12px;" inputmode="numeric" maxlength="4" placeholder="••••">
-            <input type="password" id="masterKeyInput" name="pegasus-master-key" data-pegasus-master-key="true" style="font-size:14px; letter-spacing:2px; border-color:#333; margin-bottom: 8px; text-align:center;" autocomplete="current-password" placeholder="MASTER KEY">
+            <input type="password" id="masterKeyInput" name="pegasus-master-key" data-pegasus-master-key="true" style="font-size:14px; letter-spacing:2px; border-color:#333; margin-bottom: 8px; text-align:center;" autocomplete="current-password" placeholder="master key">
             <div id="masterKeySaveHint" style="color:#666; font-size:9px; font-weight:800; min-height:12px; margin-bottom:6px; letter-spacing:.5px; line-height:1.35;"></div>
-            <button id="forgetMasterKeyBtn" type="button" onclick="window.PegasusMobileSavedMasterKey?.forgetSavedMasterKey?.()" style="display:none; margin-bottom:10px; background:transparent; color:#ffb300; border:1px solid rgba(255,179,0,.45); border-radius:10px; padding:7px 9px; font-size:9px; font-weight:900;">ΔΙΑΓΡΑΦΗ ΑΠΟΘΗΚΕΥΜΕΝΟΥ MASTER KEY</button>
-            <div style="color:#555; font-size:10px; font-weight:800; margin-bottom:12px; letter-spacing:1px;">PIN + MASTER KEY ΜΙΑ ΦΟΡΑ ΤΗΝ ΗΜΕΡΑ · ΕΠΑΝΑΦΟΡΑ ΜΕΤΑ ΤΙΣ 07:00</div>
+            <button id="forgetMasterKeyBtn" type="button" onclick="window.PegasusMobileSavedMasterKey?.forgetSavedMasterKey?.()" style="display:none; margin-bottom:10px; background:transparent; color:#ffb300; border:1px solid rgba(255,179,0,.45); border-radius:10px; padding:7px 9px; font-size:9px; font-weight:900;">Διαγραφή ΑΠΟΘΗΚΕΥΜΕΝΟΥ master key</button>
+            <div style="color:#555; font-size:10px; font-weight:800; margin-bottom:12px; letter-spacing:1px;">PIN + master key ΜΙΑ ΦΟΡΑ ΤΗΝ ΗΜΕΡΑ · Επαναφορά ΜΕΤΑ ΤΙΣ 07:00</div>
             <div id="pinError" style="color:#ff4444; font-size:11px; font-weight:800; min-height:14px; margin-bottom:12px;"></div>
-            <button class="primary-btn" onclick="attemptVaultUnlock()" style="font-size: 14px; padding: 20px;">ΑΠΑΣΦΑΛΙΣΗ</button>
-            <button class="secondary-btn" style="margin-top: 15px; border-color: #222; color: #555;" onclick="skipVault()">ΛΕΙΤΟΥΡΓΙΑ OFFLINE</button>
+            <button class="primary-btn" onclick="attemptVaultUnlock()" style="font-size: 14px; padding: 20px;">Απασφάλιση</button>
+            <button class="secondary-btn" style="margin-top: 15px; border-color: #222; color: #555;" onclick="skipVault()">Λειτουργία offline</button>
         </div>
     </div>
 
-    <div id="sync-indicator" data-pegasus-raw-label="true">ΣΥΣΤΗΜΑ ΕΤΟΙΜΟ</div>
+    <div id="sync-indicator" data-pegasus-raw-label="true">Σύστημα έτοιμο</div>
     <div id="dietAdvisorMobile" style="font-size: 11px; font-weight: 800; color: #ffb300; margin-bottom: 15px; text-transform: none; letter-spacing: 1px;"></div>
 
     <div id="home" class="view active">
@@ -59,7 +59,7 @@
 
             <div style="text-align:center; flex: 1;">
                 <h1 style="font-size: 32px; margin: 0; line-height: 1;">PEGASUS</h1>
-                <p id="pageIndicator" style="margin: 5px 0 0 0; font-size: 10px; color: var(--main); font-weight: 800; letter-spacing: 2px; text-transform: none;">TACTICAL DATA INTERFACE</p>
+                <p id="pageIndicator" style="margin: 5px 0 0 0; font-size: 10px; color: var(--main); font-weight: 800; letter-spacing: 2px; text-transform: none;">Tactical data interface</p>
             </div>
 
             <button id="nextPage" onclick="window.PegasusMobileUI.changePage(1)" style="background:none; border:none; color:var(--main); font-size:32px; cursor:pointer; padding: 10px; z-index: 10; transition: opacity 0.2s;">▶</button>
@@ -73,10 +73,10 @@
     <div id="diet" class="view">
         <button class="btn-back" onclick="openView('home')">◀ Επιστροφή</button>
         <div class="compact-grid">
-            <div class="mini-card"><span class="mini-label">ΘΕΡΜΙΔΕΣ</span><div id="txtKcal" class="mini-val">0 / 2800</div></div>
-            <div class="mini-card"><span class="mini-label">ΠΡΩΤΕΪΝΗ</span><div id="txtProt" class="mini-val">0 / 160g</div></div>
+            <div class="mini-card"><span class="mini-label">Θερμίδες</span><div id="txtKcal" class="mini-val">0 / 2800</div></div>
+            <div class="mini-card"><span class="mini-label">Πρωτεΐνη</span><div id="txtProt" class="mini-val">0 / 160g</div></div>
         </div>
-        <button class="secondary-btn" style="border-color: #f39c12; color: #f39c12; margin-bottom: 15px;" onclick="window.PegasusDiet.askAdvisor()">🧠 ΡΩΤΑ ΤΟΝ PEGASUS ADVISOR</button>
+        <button class="secondary-btn" style="border-color: #f39c12; color: #f39c12; margin-bottom: 15px;" onclick="window.PegasusDiet.askAdvisor()">🧠 Ρώτα τον PEGASUS advisor</button>
         <div id="advisorMobileResult" style="width: 100%; margin-bottom: 15px;"></div>
         <input type="text" id="fName" placeholder="🔍 Αναζήτηση Φαγητού..." oninput="window.PegasusDiet.handleSearch(this.value)" autocomplete="off">
         <div id="searchSuggestions" class="search-results"></div>
@@ -85,16 +85,16 @@
 
     <div id="library" class="view">
         <button class="btn-back" onclick="openView('home')">◀ Επιστροφή</button>
-        <div class="section-title">ΗΜΕΡΗΣΙΟ ΜΕΝΟΥ (ΚΟΥΚΙ)</div>
+        <div class="section-title">Ημερήσιο μενού (Κούκι)</div>
         <div id="libraryContainer" style="width:100%;"></div>
     </div>
 
     <div id="cardio" class="view">
         <button class="btn-back" onclick="openView('home')">◀ Επιστροφή</button>
         <div class="section-title">Καταγραφή ποδηλασίας</div>
-        <input type="hidden" id="cdRoute" value="ΠΟΔΗΛΑΣΙΑ">
+        <input type="hidden" id="cdRoute" value="Ποδηλασία">
         <div class="compact-grid">
-            <div><div class="input-label">ΧΙΛΙΟΜΕΤΡΑ</div><input type="number" id="cdKm" placeholder="Km" step="0.1" inputmode="decimal"></div>
+            <div><div class="input-label">Χιλιόμετρα</div><input type="number" id="cdKm" placeholder="Km" step="0.1" inputmode="decimal"></div>
             <div><div class="input-label">KCAL</div><input type="number" id="cdKcalBurned" placeholder="Kcal" inputmode="numeric"></div>
         </div>
         <button class="primary-btn" onclick="window.PegasusCardio?.save()">Αποθήκευση</button>
@@ -113,10 +113,10 @@
 
     <div id="preview" class="view">
         <button class="btn-back" onclick="openView('home')">◀ Επιστροφή</button>
-        <div class="section-title">ΕΒΔΟΜΑΔΙΑΙΑ ΣΤΟΧΕΥΣΗ</div>
+        <div class="section-title">Εβδομαδιαία στόχευση</div>
         <div id="muscle-container" class="compact-grid"></div>
 
-        <div class="section-title" style="margin-top: 22px;">ΑΣΚΗΣΕΙΣ ΗΜΕΡΑΣ</div>
+        <div class="section-title" style="margin-top: 22px;">Ασκήσεις ημέρας</div>
         <div id="mobile-target-day-exercises" style="width:100%;"></div>
 
         <div class="section-title" style="margin-top: 22px;">ΤΕΛΕΥΤΑΙΑ ΑΠΟΘΗΚΕΥΜΕΝΑ ΚΙΛΑ</div>
@@ -167,7 +167,7 @@
 
     <div id="notes" class="view">
         <button class="btn-back" onclick="openView('home')">◀ Επιστροφή</button>
-        <div class="section-title">ΠΡΟΣΩΠΙΚΕΣ ΣΗΜΕΙΩΣΕΙΣ</div>
+        <div class="section-title">Προσωπικές σημειώσεις</div>
         <input type="text" id="nDate" readonly style="color:var(--main); font-weight:bold; border-color:var(--main);">
         <input type="text" id="nText" placeholder="Πληκτρολόγησε σημείωση...">
         <button class="primary-btn" onclick="PegasusProfile.addNote()">Προσθήκη σημείωσης</button>
@@ -176,36 +176,36 @@
 
     <div id="supps" class="view">
         <button class="btn-back" onclick="openView('home')">◀ Επιστροφή</button>
-        <div class="section-title">ΑΠΟΘΕΜΑ ΣΥΜΠΛΗΡΩΜΑΤΩΝ</div>
+        <div class="section-title">Απόθεμα συμπληρωμάτων</div>
         <div class="mini-card" style="border-left: 4px solid #00bcd4;">
-            <span class="mini-label">ΠΡΩΤΕΪΝΗ WHEY</span>
+            <span class="mini-label">Πρωτεΐνη whey</span>
             <div id="protLevelText" class="mini-val">--- / 2500g</div>
             <div class="bar-bg"><div id="protBar" class="bar-fill" style="background:#00bcd4;"></div></div>
             <div class="compact-grid" style="margin-top:15px;">
-                <button class="secondary-btn" disabled title="Η αφαίρεση γίνεται μόνο από τη Διατροφή">ΜΟΝΟ ΔΙΑΤΡΟΦΗ</button>
-                <button class="primary-btn" onclick="PegasusInventory.refill('prot', 2500)">ΑΝΑΠΛΗΡΩΣΗ</button>
+                <button class="secondary-btn" disabled title="Η αφαίρεση γίνεται μόνο από τη Διατροφή">Μόνο διατροφή</button>
+                <button class="primary-btn" onclick="PegasusInventory.refill('prot', 2500)">Αναπλήρωση</button>
             </div>
         </div>
         <div class="mini-card" style="border-left: 4px solid #9c27b0;">
-            <span class="mini-label">ΚΡΕΑΤΙΝΗ</span>
+            <span class="mini-label">Κρεατίνη</span>
             <div id="creaLevelText" class="mini-val">--- / 1000g</div>
             <div class="bar-bg"><div id="creaBar" class="bar-fill" style="background:#9c27b0;"></div></div>
             <div class="compact-grid" style="margin-top:15px;">
-                <button class="secondary-btn" disabled title="Η αφαίρεση γίνεται μόνο από τη Διατροφή">ΜΟΝΟ ΔΙΑΤΡΟΦΗ</button>
-                <button class="primary-btn" onclick="PegasusInventory.refill('crea', 1000)">ΑΝΑΠΛΗΡΩΣΗ</button>
+                <button class="secondary-btn" disabled title="Η αφαίρεση γίνεται μόνο από τη Διατροφή">Μόνο διατροφή</button>
+                <button class="primary-btn" onclick="PegasusInventory.refill('crea', 1000)">Αναπλήρωση</button>
             </div>
         </div>
     </div>
 
     <div id="parking_panel" class="view">
         <button class="btn-back" onclick="openView('home')">◀ Επιστροφή</button>
-        <div class="section-title">ΕΝΤΟΠΙΣΜΟΣ ΟΧΗΜΑΤΟΣ</div>
+        <div class="section-title">Εντοπισμός οχήματος</div>
         <div class="mini-card" style="border-left: 4px solid #ff9800;">
-            <span class="mini-label">ΝΕΑ ΠΕΡΙΟΧΗ / ΘΕΣΗ</span>
+            <span class="mini-label">Νέα περιοχή / θέση</span>
             <input type="text" id="parkingInput" placeholder="π.χ. Γιάννενα, Κέντρο...">
             <button class="primary-btn" onclick="window.PegasusParking.save()">Αποθήκευση στο cloud</button>
         </div>
-        <div class="section-title">ΠΡΟΣΦΑΤΕΣ ΠΕΡΙΟΧΕΣ (TOP 10)</div>
+        <div class="section-title">Πρόσφατες περιοχές (Top 10)</div>
         <div id="parkingHistoryList" style="width:100%; display:flex; flex-direction:column; gap:8px;"></div>
     </div>
 
@@ -214,13 +214,13 @@
 
         <div class="mini-card" style="border: 1px solid var(--main); padding: 25px 20px; position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(0,255,65,0.05);">
             <div style="position: absolute; top: -10px; right: -10px; opacity: 0.05; font-size: 100px; pointer-events: none;">⚖️</div>
-            <span class="mini-label" style="font-size: 11px; margin-bottom: 15px; display: block;">ΚΑΤΑΓΡΑΦΗ ΒΑΡΟΥΣ ΣΩΜΑΤΟΣ</span>
+            <span class="mini-label" style="font-size: 11px; margin-bottom: 15px; display: block;">Καταγραφή βάρους σώματος</span>
             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
                 <input type="number" id="mobileWeightInput" placeholder="74.0" step="0.1" style="margin: 0; font-size: 24px; font-weight: 900; height: 60px; color: var(--main); background: rgba(0,255,65,0.05); border: 2px solid rgba(0,255,65,0.2); border-radius: 14px;">
-                <button class="primary-btn" onclick="window.PegasusWeight?.save(document.getElementById('mobileWeightInput').value);" style="height: 60px; margin: 0; flex-shrink: 0; width: 120px; font-size: 11px; border-radius: 14px;">ΕΝΗΜΕΡΩΣΗ</button>
+                <button class="primary-btn" onclick="window.PegasusWeight?.save(document.getElementById('mobileWeightInput').value);" style="height: 60px; margin: 0; flex-shrink: 0; width: 120px; font-size: 11px; border-radius: 14px;">Ενημέρωση</button>
             </div>
             <div id="mobileWeightAvg" style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 12px; font-size: 12px; color: var(--main); font-weight: 900; border: 1px dashed rgba(0,255,65,0.3); letter-spacing: 1px; text-transform: none;">
-                M.O. Εβδομάδας: -- kg
+                Μέσος όρος εβδομάδας: -- kg
             </div>
         </div>
 
@@ -315,8 +315,8 @@
 
             getPageLabel: function(pageIndex, maxPages) {
                 return pageIndex === 0
-                    ? "TACTICAL DATA INTERFACE"
-                    : `EXTENDED TACTICAL MODULES (ΣΕΛ. ${pageIndex + 1}/${maxPages})`;
+                    ? "Tactical data interface"
+                    : `Extended tactical modules (σελ. ${pageIndex + 1}/${maxPages})`;
             },
 
             changePage: function(direction) {
@@ -449,7 +449,7 @@
                             return;
                         }
                         const parkingStatus = document.getElementById('parkingStatus');
-                        if (parkingStatus) parkingStatus.textContent = `ΠΑΡΚΙΝΓΚ: ${this.getParkingLabel()}`;
+                        if (parkingStatus) parkingStatus.textContent = `Πάρκινγκ: ${this.getParkingLabel()}`;
                     };
                     if (typeof window.requestAnimationFrame === "function") {
                         window.requestAnimationFrame(refreshParkingTile);
@@ -497,7 +497,7 @@
                 const tile = document.createElement('div');
                 tile.className = 'tile';
                 tile.onclick = () => openView('parking_panel');
-                tile.innerHTML = `<span class="tile-icon icon-parking">P</span><span id="parkingStatus" class="tile-label">ΠΑΡΚΙΝΓΚ: ${this.getParkingLabel()}</span>`;
+                tile.innerHTML = `<span class="tile-icon icon-parking">P</span><span id="parkingStatus" class="tile-label">Πάρκινγκ: ${this.getParkingLabel()}</span>`;
                 container.appendChild(tile);
             },
 
@@ -635,31 +635,30 @@
     <script src="../dietAdvisor.js"></script>
     <script src="../cloudSync.js"></script>
     <script src="../weightTracker.js"></script>
-<script src="../adaptiveTypography.js"></script>
-    <script src="../backup.js"></script>
+<script src="../backup.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js" defer></script>
-    <script src="../reporting.js?v=266"></script>
+    <script src="../reporting.js?v=289"></script>
 
-    <script src="diet-mobile.js?v=263"></script>
+    <script src="diet-mobile.js?v=289"></script>
     <script src="cardio-mobile.js"></script>
-    <script src="profile-mobile.js?v=286"></script>
-    <script src="car-mobile.js?v=286"></script>
-    <script src="parking-mobile.js?v=283"></script>
+    <script src="profile-mobile.js?v=289"></script>
+    <script src="car-mobile.js?v=289"></script>
+    <script src="parking-mobile.js?v=289"></script>
     <script src="inventory-mobile.js"></script>
     <script src="ems-mobile.js"></script>
-    <script src="supplies-mobile.js?v=286"></script>
-    <script src="finance-mobile.js?v=250"></script>
+    <script src="supplies-mobile.js?v=289"></script>
+    <script src="finance-mobile.js?v=289"></script>
     <script src="social-mobile.js"></script>
-    <script src="movies-mobile.js?v=286"></script>
-    <script src="missions-mobile.js?v=286"></script>
-    <script src="biometrics-mobile.js?v=286"></script>
-    <script src="maintenance-mobile.js?v=286"></script>
+    <script src="movies-mobile.js?v=289"></script>
+    <script src="missions-mobile.js?v=289"></script>
+    <script src="biometrics-mobile.js?v=289"></script>
+    <script src="maintenance-mobile.js?v=289"></script>
     <script src="oracle-mobile.js"></script>
-    <script src="lifting-mobile.js?v=250"></script>
+    <script src="lifting-mobile.js?v=289"></script>
     <script src="youtube-mobile.js"></script>
     <script src="weather-mobile.js"></script>
     <script src="biometric-unlock-mobile.js"></script>
-    <script src="shell-layout-mobile.js?v=262"></script>
+    <script src="shell-layout-mobile.js?v=289"></script>
 
 <script>
     const PEGASUS = {
@@ -673,9 +672,9 @@
     window._pegasusMobileSyncBusy = false;
     window._pegasusLastUiRefreshTs = 0;
 
-    // Integrated saved MASTER KEY helper (merged from former masterkey-save-mobile.js in v266).
+    // Integrated saved master key helper (merged from former masterkey-save-mobile.js in v266).
     /* ============================================================================
-       PEGASUS MOBILE SAVED MASTER KEY - v1.1.268
+       PEGASUS MOBILE SAVED master key - v1.1.268
        Purpose: local-only optional master key save for mobile PIN modal
        Notes: stores ONLY the master key on this device; never syncs to cloud.
        ============================================================================ */
@@ -771,7 +770,7 @@
             const payload = readPayload();
             if (!payload) return '';
             try { return await decryptMasterKey(payload); } catch (e) {
-                console.warn('PEGASUS MASTER KEY SAVE: saved key could not be decrypted; removing it.', e);
+                console.warn('PEGASUS master key SAVE: saved key could not be decrypted; removing it.', e);
                 forgetSavedMasterKey(false);
                 return '';
             }
@@ -782,13 +781,13 @@
             if (!master) return false;
             const saved = await getSavedMasterKey();
             if (!saved) {
-                setHint('Μπορείς να αποθηκεύσεις μόνο το MASTER KEY σε αυτή τη συσκευή μετά από επιτυχές unlock.', 'muted');
+                setHint('Μπορείς να αποθηκεύσεις μόνο το master key σε αυτή τη συσκευή μετά από επιτυχές unlock.', 'muted');
                 return false;
             }
             if (!String(master.value || '').trim()) master.value = saved;
             master.setAttribute('autocomplete', 'current-password');
             master.setAttribute('name', 'pegasus-master-key');
-            setHint('MASTER KEY αποθηκευμένο μόνο σε αυτή τη συσκευή. Γράφεις μόνο PIN.', 'ok');
+            setHint('master key αποθηκευμένο μόνο σε αυτή τη συσκευή. Γράφεις μόνο PIN.', 'ok');
             return true;
         }
 
@@ -808,8 +807,8 @@
             localStorage.removeItem(DISMISSED_KEY);
             const { master } = getEls();
             if (master) master.value = '';
-            setHint('Το αποθηκευμένο MASTER KEY διαγράφηκε από αυτή τη συσκευή.', 'warn');
-            if (showAlert) alert('✅ Διαγράφηκε το αποθηκευμένο MASTER KEY από αυτή τη συσκευή.');
+            setHint('Το αποθηκευμένο master key διαγράφηκε από αυτή τη συσκευή.', 'warn');
+            if (showAlert) alert('✅ Διαγράφηκε το αποθηκευμένο master key από αυτή τη συσκευή.');
         }
 
         async function afterSuccessfulUnlock(masterKey) {
@@ -826,11 +825,11 @@
             // device, so we save it silently and locally. PIN is never saved.
             try {
                 await saveMasterKey(clean);
-                setHint('MASTER KEY αποθηκευμένο τοπικά. Την επόμενη φορά γράφεις μόνο PIN.', 'ok');
+                setHint('master key αποθηκευμένο τοπικά. Την επόμενη φορά γράφεις μόνο PIN.', 'ok');
                 return true;
             } catch (e) {
-                console.warn('PEGASUS MASTER KEY SAVE: silent save failed.', e);
-                setHint('Δεν αποθηκεύτηκε το MASTER KEY σε αυτή τη συσκευή.', 'warn');
+                console.warn('PEGASUS master key SAVE: silent save failed.', e);
+                setHint('Δεν αποθηκεύτηκε το master key σε αυτή τη συσκευή.', 'warn');
                 return false;
             }
         }
@@ -864,7 +863,7 @@
         if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
         else init();
 
-        console.log('🔑 PEGASUS MOBILE SAVED MASTER KEY: ready v1.1.268 silent local save');
+        console.log('🔑 PEGASUS MOBILE SAVED master key: ready v1.1.268 silent local save');
     })();
     function getMobileDateStr() {
         if (typeof window.getPegasusTodayDateStr === "function") {
@@ -1077,7 +1076,7 @@
         if (!e) return;
 
         // PEGASUS 234: keep the sync label outside the global UI label-polish
-        // MutationObserver. That observer was changing ΣΥΝΔΕΔΕΜΕΝΟ to title case
+        // MutationObserver. That observer was changing Συνδεδεμένο to title case
         // after each countdown tick, which made the text look big/small.
         e.setAttribute("data-pegasus-raw-label", "true");
         e.classList.add("pegasus-sync-indicator-fixed");
@@ -1103,7 +1102,7 @@
             return;
         }
         if (!navigator.onLine) {
-            e.textContent = "OFFLINE";
+            e.textContent = "Offline";
             e.style.color = "#ff4444";
             return;
         }
@@ -1118,7 +1117,7 @@
         const isCadencePulse = !!(mobileLastSyncPulseTs && (now - mobileLastSyncPulseTs) < 1200);
 
         // PEGASUS 233: stable wording + stable dimensions. Only seconds/color change.
-        e.textContent = `ΣΥΝΔΕΔΕΜΕΝΟ · ${remainingTxt}s`;
+        e.textContent = `Συνδεδεμένο · ${remainingTxt}s`;
 
         if (isCadencePulse) {
             e.style.color = "#00bcd4";
@@ -1157,7 +1156,7 @@
             renderMobileSyncCycleStatus();
         } else if (status === 'offline') {
             stopMobileSyncCountdown();
-            e.textContent = "OFFLINE";
+            e.textContent = "Offline";
             e.style.color = "#ff4444";
         } else if (status === 'syncing') {
             const cadencePulse = window.__pegasusMobileCadencePermit === true || !mobileNextSyncAt;
@@ -1175,7 +1174,7 @@
             }
         } else if (status === 'error') {
             stopMobileSyncCountdown();
-            e.textContent = "ΣΦΑΛΜΑ SYNC";
+            e.textContent = "Σφάλμα SYNC";
             e.style.color = "#ff9800";
         } else if (status === 'locked') {
             stopMobileSyncCountdown();
@@ -1183,7 +1182,7 @@
             e.style.color = "#888";
         } else {
             stopMobileSyncCountdown();
-            e.textContent = "ΣΥΣΤΗΜΑ ΕΤΟΙΜΟ";
+            e.textContent = "Σύστημα έτοιμο";
             e.style.color = "#00bcd4";
         }
     }
@@ -1370,7 +1369,7 @@
         if (errorDiv) errorDiv.textContent = "";
 
         if (!pin || !masterKey) {
-            if (errorDiv) errorDiv.textContent = "ΣΥΜΠΛΗΡΩΣΕ PIN ΚΑΙ MASTER KEY";
+            if (errorDiv) errorDiv.textContent = "Συμπλήρωσε PIN και master key";
             return;
         }
 
@@ -1381,10 +1380,10 @@
             try {
                 await window.PegasusMobileSavedMasterKey?.afterSuccessfulUnlock?.(masterKey);
             } catch (e) {
-                console.warn("PEGASUS MASTER KEY SAVE: post-unlock hook failed.", e);
+                console.warn("PEGASUS master key SAVE: post-unlock hook failed.", e);
             }
         } else {
-            if (errorDiv) errorDiv.textContent = "ΛΑΘΟΣ PIN / MASTER KEY";
+            if (errorDiv) errorDiv.textContent = "Λάθος PIN / master key";
             if (pinInput) pinInput.value = "";
             if (masterInput) masterInput.value = "";
         }
@@ -1855,7 +1854,7 @@
     })();
 
     async function hardResetSystem() {
-        if (confirm("🚨 ΠΡΟΣΟΧΗ: Διαγραφή Cache;")) {
+        if (confirm("🚨 Προσοχή: Διαγραφή Cache;")) {
             try {
                 stopMobileSyncHeartbeat();
 
@@ -1977,7 +1976,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('../sw.js?v=3.36.288')
+                navigator.serviceWorker.register('../sw.js?v=289.36.288')
                     .then(reg => {
                         console.log('📡 PEGASUS: Service Worker Registered.');
                         // No forced reg.update() on every open; this keeps refresh fast after the first local download.

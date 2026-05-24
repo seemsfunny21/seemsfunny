@@ -153,7 +153,7 @@ window.GalleryEngine = {
     },
 
     async delete(id) {
-        if (!confirm("🚨 ΕΠΙΒΕΒΑΙΩΣΗ: Οριστική διαγραφή φωτογραφίας;")) return;
+        if (!confirm("🚨 Επιβεβαίωση: Οριστική διαγραφή φωτογραφίας;")) return;
 
         // 🎯 FIXED: Proper Promise wrapper for IndexedDB Delete
         await new Promise((resolve, reject) => {

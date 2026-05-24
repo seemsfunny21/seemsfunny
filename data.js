@@ -79,21 +79,21 @@ function renderPegasusPlanSelectorContent(modal) {
     const activePlan = window.getPegasusActivePlan();
     const plans = [
         { key: 'IRON', title: 'IRON', desc: 'Push / Pull / Upper + Ποδήλατο', color: '#4CAF50' },
-        { key: 'EMS_ONLY', title: 'EMS ONLY', desc: 'Βάρη + IMS / EMS', color: '#00bcd4' },
-        { key: 'BIKE_ONLY', title: 'BIKE ONLY', desc: 'Βάρη + Ποδήλατο Σ/Κ', color: '#ff9800' },
+        { key: 'EMS_ONLY', title: 'EMS only', desc: 'Βάρη + IMS / EMS', color: '#00bcd4' },
+        { key: 'BIKE_ONLY', title: 'Bike only', desc: 'Βάρη + Ποδήλατο Σ/Κ', color: '#ff9800' },
         { key: 'HYBRID', title: 'HYBRID', desc: 'Βάρη + EMS + Ποδήλατο', color: '#e91e63' }
     ];
 
     modal.setAttribute('data-no-i18n', 'true');
     modal.innerHTML = `
         <button type="button" onclick="window.closePegasusPlanModal()" class="pegasus-plan-close">✕</button>
-        <h3 class="pegasus-plan-title">ΕΠΙΛΟΓΗ ΠΡΟΓΡΑΜΜΑΤΟΣ</h3>
+        <h3 class="pegasus-plan-title">Επιλογή προγράμματος</h3>
         <div class="pegasus-plan-grid">
             ${plans.map(plan => `
                 <button type="button" onclick="window.setPegasusPlan('${plan.key}')" class="pegasus-plan-option${activePlan === plan.key ? ' selected' : ''}" style="--plan-color:${plan.color};">
                     <span class="pegasus-plan-name">${plan.title}</span>
                     <small class="pegasus-plan-desc">${plan.desc}</small>
-                    ${activePlan === plan.key ? '<em class="pegasus-plan-selected">✓ ΕΠΙΛΕΓΜΕΝΟ</em>' : ''}
+                    ${activePlan === plan.key ? '<em class="pegasus-plan-selected">✓ Επιλεγμένο</em>' : ''}
                 </button>
             `).join('')}
         </div>
@@ -104,7 +104,7 @@ window.openPegasusPlanModal = function() {
     let modal = document.getElementById('planModal');
 
     // PEGASUS 139 FIX: always normalize the legacy selector into one stable,
-    // no-i18n modal so labels like IRON / EMS ONLY / BIKE ONLY never become
+    // no-i18n modal so labels like IRON / EMS only / Bike only never become
     // IRENERGOS / ENERGOSLY and the panel always appears above the workout UI.
     if (!modal) {
         modal = document.createElement('div');

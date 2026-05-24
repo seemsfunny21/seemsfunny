@@ -784,7 +784,7 @@
                     <b style="color:var(--main); font-size:12px;">${escapeHtml(l.exercise)}</b>
                     <small style="color:var(--muted); font-size:9px;">${escapeHtml(l.weight)}kg × ${escapeHtml(l.reps)} reps</small>
                 </span>
-                <button onclick="window.PegasusLifting.deleteSet('${escapeHtml(l.id)}')" style="background:transparent; color:#ff4b4b; border:1px solid #ff4b4b; border-radius:8px; padding:5px 7px; font-size:10px;">ΔΙΑΓΡ.</button>
+                <button onclick="window.PegasusLifting.deleteSet('${escapeHtml(l.id)}')" style="background:transparent; color:#ff4b4b; border:1px solid #ff4b4b; border-radius:8px; padding:5px 7px; font-size:10px;">Διαγρ.</button>
             </div>
         `).join('') : `<div style="color:var(--muted); font-size:11px; text-align:center; padding:10px;">Δεν έχεις χειροκίνητη καταγραφή σήμερα.</div>`;
 
@@ -969,7 +969,7 @@
             <div class="view-title">🏋️ ΒΑΡΗ</div>
             <div style="padding: 16px; display: flex; flex-direction: column; gap: 14px;">
                 <div style="border:1px solid var(--border); border-radius:16px; padding:12px; background:rgba(0,0,0,0.45);">
-                    <div style="font-size:11px; color:var(--main); font-weight:900; margin-bottom:8px;">+ ΧΕΙΡΟΚΙΝΗΤΗ ΚΑΤΑΓΡΑΦΗ</div>
+                    <div style="font-size:11px; color:var(--main); font-weight:900; margin-bottom:8px;">+ Χειροκίνητη καταγραφή</div>
                     <input id="liftName" placeholder="Άσκηση" style="width:100%; margin-bottom:8px; padding:10px; border-radius:10px; border:1px solid var(--border); background:#050505; color:#fff; box-sizing:border-box;">
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                         <input id="liftWeight" type="number" inputmode="decimal" placeholder="Κιλά" style="padding:10px; border-radius:10px; border:1px solid var(--border); background:#050505; color:#fff;">
@@ -979,17 +979,17 @@
                 </div>
 
                 <div>
-                    <div style="font-size:11px; color:var(--main); font-weight:900; margin-bottom:8px;">ΑΣΚΗΣΕΙΣ ΠΡΟΠΟΝΗΣΗΣ</div>
+                    <div style="font-size:11px; color:var(--main); font-weight:900; margin-bottom:8px;">Ασκήσεις προπόνησης</div>
                     <div id="lift-plan"></div>
                 </div>
 
                 <div>
-                    <div style="font-size:11px; color:var(--main); font-weight:900; margin-bottom:8px;">ΣΗΜΕΡΙΝΗ ΚΑΤΑΓΡΑΦΗ</div>
+                    <div style="font-size:11px; color:var(--main); font-weight:900; margin-bottom:8px;">Σημερινή καταγραφή</div>
                     <div id="lift-today"></div>
                 </div>
 
                 <div>
-                    <div style="font-size:11px; color:var(--main); font-weight:900; margin-bottom:8px;">ΙΣΤΟΡΙΚΟ / PR</div>
+                    <div style="font-size:11px; color:var(--main); font-weight:900; margin-bottom:8px;">Ιστορικό / PR</div>
                     <div id="lift-history"></div>
                 </div>
             </div>

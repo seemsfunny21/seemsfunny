@@ -193,12 +193,12 @@
 
     function humanError(e) {
         const msg = String(e?.name || e?.message || e || "");
-        if (/NotAllowed|Abort/i.test(msg)) return "ΑΚΥΡΩΘΗΚΕ ΤΟ ΔΑΧΤΥΛΙΚΟ";
-        if (/Security|UNSUPPORTED/i.test(msg)) return "ΤΟ ΔΑΧΤΥΛΙΚΟ ΔΟΥΛΕΥΕΙ ΜΟΝΟ ΑΠΟ HTTPS Ή LOCALHOST";
-        if (/NO_PLATFORM/i.test(msg)) return "ΔΕΝ ΒΡΕΘΗΚΕ ΔΑΧΤΥΛΙΚΟ / ΚΛΕΙΔΩΜΑ ΟΘΟΝΗΣ";
-        if (/NOT_ENROLLED/i.test(msg)) return "ΠΡΩΤΑ ΚΑΝΕ ΕΝΕΡΓΟΠΟΙΗΣΗ ΔΑΧΤΥΛΙΚΟΥ";
-        if (/NO_APPROVED_DEVICE_MATERIAL/i.test(msg)) return "ΓΡΑΨΕ ΜΙΑ ΦΟΡΑ PIN + MASTER KEY ΣΕ ΑΥΤΗ ΤΗ ΣΥΣΚΕΥΗ";
-        return "ΔΕΝ ΕΓΙΝΕ ΒΙΟΜΕΤΡΙΚΟ ΞΕΚΛΕΙΔΩΜΑ · ΒΑΛΕ PIN";
+        if (/NotAllowed|Abort/i.test(msg)) return "Ακυρώθηκε το δαχτυλικό";
+        if (/Security|UNSUPPORTED/i.test(msg)) return "Το δαχτυλικό δουλεύει μόνο από HTTPS ή localhost";
+        if (/NO_PLATFORM/i.test(msg)) return "Δεν βρέθηκε δαχτυλικό / κλείδωμα οθόνης";
+        if (/NOT_ENROLLED/i.test(msg)) return "Πρώτα κάνε ενεργοποίηση δαχτυλικού";
+        if (/NO_APPROVED_DEVICE_MATERIAL/i.test(msg)) return "Γράψε μία φορά PIN + master key σε αυτή τη συσκευή";
+        return "Δεν έγινε βιομετρικό ξεκλείδωμα · βάλε PIN";
     }
 
     async function finalizeVaultUnlock(source) {
@@ -216,7 +216,7 @@
         const button = document.getElementById("pegasusBiometricUnlockBtn") || document.getElementById("pegasusBiometricSettingsUnlockBtn");
         try {
             if (button) button.disabled = true;
-            setMainError("ΑΝΑΜΟΝΗ ΓΙΑ ΔΑΧΤΥΛΙΚΟ...", GREEN);
+            setMainError("Αναμονή για δαχτυλικό...", GREEN);
 
             await verifyCredential();
 
@@ -224,7 +224,7 @@
                 throw new Error("NO_APPROVED_DEVICE_MATERIAL");
             }
 
-            setMainError("ΒΙΟΜΕΤΡΙΚΟ OK · ΑΝΟΙΓΜΑ VAULT...", GREEN);
+            setMainError("Βιομετρικό OK · άνοιγμα vault...", GREEN);
             const success = await cloud().tryApprovedDeviceUnlock();
 
             if (!success) throw new Error("RESTORE_FAILED");
@@ -254,7 +254,7 @@
             }
 
             if (!isVaultUnlocked() || !canRestorePegasusVault()) {
-                alert("Πρώτα κάνε μία φορά απασφάλιση με PIN + MASTER KEY σε αυτή τη συσκευή. Μετά ξαναπάτα ενεργοποίηση δαχτυλικού.");
+                alert("Πρώτα κάνε μία φορά απασφάλιση με PIN + master key σε αυτή τη συσκευή. Μετά ξαναπάτα ενεργοποίηση δαχτυλικού.");
                 return false;
             }
 
@@ -305,8 +305,8 @@
         if (hasBio) {
             enableBtn?.remove();
             if (!unlockBtn) {
-                const offlineButton = Array.from(panel.querySelectorAll("button")).find(btn => /OFFLINE|ΛΕΙΤΟΥΡΓΙΑ/i.test(btn.textContent || ""));
-                const btn = buildButton("pegasusBiometricUnlockBtn", "🔐 ΞΕΚΛΕΙΔΩΜΑ ΜΕ ΔΑΧΤΥΛΙΚΟ", "unlockMain", true);
+                const offlineButton = Array.from(panel.querySelectorAll("button")).find(btn => /Offline|ΛΕΙΤΟΥΡΓΙΑ/i.test(btn.textContent || ""));
+                const btn = buildButton("pegasusBiometricUnlockBtn", "🔐 Ξεκλείδωμα με δαχτυλικό", "unlockMain", true);
                 panel.insertBefore(btn, offlineButton || null);
             }
             return;
@@ -317,8 +317,8 @@
         // If the device is already approved/unlocked, allow enrollment from the modal too.
         if (canRestore && isVaultUnlocked()) {
             if (!enableBtn) {
-                const offlineButton = Array.from(panel.querySelectorAll("button")).find(btn => /OFFLINE|ΛΕΙΤΟΥΡΓΙΑ/i.test(btn.textContent || ""));
-                const btn = buildButton("pegasusBiometricEnableBtn", "➕ ΕΝΕΡΓΟΠΟΙΗΣΗ ΔΑΧΤΥΛΙΚΟΥ", "enable", false);
+                const offlineButton = Array.from(panel.querySelectorAll("button")).find(btn => /Offline|ΛΕΙΤΟΥΡΓΙΑ/i.test(btn.textContent || ""));
+                const btn = buildButton("pegasusBiometricEnableBtn", "➕ Ενεργοποίηση δαχτυλικού", "enable", false);
                 panel.insertBefore(btn, offlineButton || null);
             }
             return;
@@ -329,7 +329,7 @@
 
     async function biometricUnlockSocial() {
         try {
-            setSocialError("ΑΝΑΜΟΝΗ ΓΙΑ ΔΑΧΤΥΛΙΚΟ...", GREEN);
+            setSocialError("Αναμονή για δαχτυλικό...", GREEN);
             await verifyCredential();
 
             const savedPin = localStorage.getItem("pegasus_master_pin");
@@ -353,8 +353,8 @@
         if (!screen || !isSecureEnough() || !hasCredential()) return;
         if (document.getElementById("pegasusBiometricSocialBtn")) return;
 
-        const unlockButton = Array.from(screen.querySelectorAll("button")).find(btn => /ΞΕΚΛΕΙΔΩΜΑ/i.test(btn.textContent || ""));
-        const btn = buildButton("pegasusBiometricSocialBtn", "🔐 ΔΑΧΤΥΛΙΚΟ", "unlockSocial", true);
+        const unlockButton = Array.from(screen.querySelectorAll("button")).find(btn => /Ξεκλείδωμα/i.test(btn.textContent || ""));
+        const btn = buildButton("pegasusBiometricSocialBtn", "🔐 Δαχτυλικό", "unlockSocial", true);
         btn.style.width = "150px";
         btn.style.marginTop = "10px";
 
@@ -396,19 +396,19 @@
         if (!supported) status = "Μη διαθέσιμο εδώ: χρειάζεται HTTPS/Chrome και κλείδωμα οθόνης.";
         else if (enrolled) status = "Ενεργό σε αυτή τη συσκευή.";
         else if (unlocked && restorable) status = "Έτοιμο για ενεργοποίηση σε αυτή τη συσκευή.";
-        else status = "Πρώτα κάνε PIN + MASTER KEY μία φορά στο κινητό.";
+        else status = "Πρώτα κάνε PIN + master key μία φορά στο κινητό.";
 
         const actionHtml = enrolled
-            ? `<button id="pegasusBiometricSettingsUnlockBtn" class="primary-btn" style="width:100%; margin-top:12px; padding:14px; font-size:11px;">🔐 ΔΟΚΙΜΗ ΔΑΧΤΥΛΙΚΟΥ</button>
-               <button id="pegasusBiometricSettingsResetBtn" class="secondary-btn" style="width:100%; margin-top:10px; padding:12px; font-size:10px; color:#777; border-color:#333;">ΑΠΕΝΕΡΓΟΠΟΙΗΣΗ ΣΕ ΑΥΤΗ ΤΗ ΣΥΣΚΕΥΗ</button>`
-            : `<button id="pegasusBiometricSettingsEnableBtn" class="primary-btn" style="width:100%; margin-top:12px; padding:14px; font-size:11px;" ${(!supported || !unlocked || !restorable) ? "disabled" : ""}>➕ ΕΝΕΡΓΟΠΟΙΗΣΗ ΔΑΧΤΥΛΙΚΟΥ</button>`;
+            ? `<button id="pegasusBiometricSettingsUnlockBtn" class="primary-btn" style="width:100%; margin-top:12px; padding:14px; font-size:11px;">🔐 Δοκιμή δαχτυλικού</button>
+               <button id="pegasusBiometricSettingsResetBtn" class="secondary-btn" style="width:100%; margin-top:10px; padding:12px; font-size:10px; color:#777; border-color:#333;">Απενεργοποίηση σε αυτή τη συσκευή</button>`
+            : `<button id="pegasusBiometricSettingsEnableBtn" class="primary-btn" style="width:100%; margin-top:12px; padding:14px; font-size:11px;" ${(!supported || !unlocked || !restorable) ? "disabled" : ""}>➕ Ενεργοποίηση δαχτυλικού</button>`;
 
         const signature = JSON.stringify({ supported, enrolled, unlocked, restorable, status });
         if (card.dataset.biometricSignature === signature) return;
         card.dataset.biometricSignature = signature;
 
         card.innerHTML = `
-            <span class="mini-label" style="display:block; margin-bottom:10px;">🔐 ΒΙΟΜΕΤΡΙΚΟ ΞΕΚΛΕΙΔΩΜΑ</span>
+            <span class="mini-label" style="display:block; margin-bottom:10px;">🔐 Βιομετρικό ξεκλείδωμα</span>
             <div style="font-size:11px; line-height:1.45; color:${enrolled ? GREEN : MUTED}; font-weight:800; text-transform:none; letter-spacing:.5px;">${status}</div>
             ${actionHtml}
         `;
@@ -470,11 +470,11 @@
         box.style.color = "#ddd";
         box.style.textAlign = "center";
         box.innerHTML = `
-            <div style="font-size:12px; font-weight:900; color:${GREEN}; letter-spacing:1px; margin-bottom:6px;">🔐 PEGASUS ΔΑΧΤΥΛΙΚΟ</div>
-            <div style="font-size:11px; line-height:1.45; color:#aaa; margin-bottom:10px;">Ενεργοποίησέ το για να ξεκλειδώνει το mobile χωρίς να γράφεις PIN + MASTER KEY κάθε φορά.</div>
+            <div style="font-size:12px; font-weight:900; color:${GREEN}; letter-spacing:1px; margin-bottom:6px;">🔐 PEGASUS δαχτυλικό</div>
+            <div style="font-size:11px; line-height:1.45; color:#aaa; margin-bottom:10px;">Ενεργοποίησέ το για να ξεκλειδώνει το mobile χωρίς να γράφεις PIN + master key κάθε φορά.</div>
             <div style="display:flex; gap:8px;">
-                <button id="pegasusBiometricPromptEnable" class="primary-btn" style="flex:1; margin:0; padding:12px; font-size:11px;">ΕΝΕΡΓΟΠΟΙΗΣΗ</button>
-                <button id="pegasusBiometricPromptLater" class="secondary-btn" style="flex:1; margin:0; padding:12px; font-size:11px; color:#777; border-color:#333;">ΑΡΓΟΤΕΡΑ</button>
+                <button id="pegasusBiometricPromptEnable" class="primary-btn" style="flex:1; margin:0; padding:12px; font-size:11px;">Ενεργοποίηση</button>
+                <button id="pegasusBiometricPromptLater" class="secondary-btn" style="flex:1; margin:0; padding:12px; font-size:11px; color:#777; border-color:#333;">Αργότερα</button>
             </div>
         `;
         document.body.appendChild(box);

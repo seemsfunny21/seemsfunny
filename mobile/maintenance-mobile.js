@@ -12,11 +12,11 @@
             const btn = document.getElementById('btnAddMaint');
             if(form.style.display === 'none') {
                 form.style.display = 'block';
-                btn.innerHTML = 'Χ ΚΛΕΙΣΙΜΟ';
+                btn.innerHTML = 'Χ Κλείσιμο';
                 btn.style.background = '#ff4444';
             } else {
                 form.style.display = 'none';
-                btn.innerHTML = '+ ΝΕΟ ΚΑΘΗΚΟΝ';
+                btn.innerHTML = '+ Νέο καθήκον';
                 btn.style.background = 'var(--main)';
             }
         },
@@ -26,7 +26,7 @@
             const days = parseInt(document.getElementById('maintDays').value);
 
             if(!label || isNaN(days)) {
-                alert('ΣΦΑΛΜΑ: Εισάγετε Περιγραφή και Συχνότητα (Ημέρες).');
+                alert('Σφάλμα: Εισάγετε Περιγραφή και Συχνότητα (Ημέρες).');
                 return;
             }
 
@@ -83,14 +83,14 @@
             <button class="btn-back" onclick="openView('home')">◀ Επιστροφή</button>
             <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 15px;">
                 <button id="btnAddMaint" class="primary-btn" style="width: auto; margin: 0 auto; padding: 7px 14px; font-size: 10px; border-radius: 8px;" onclick="window.PegasusMaintenance.toggleAddForm()">
-                    + ΝΕΟ ΚΑΘΗΚΟΝ
+                    + Νέο καθήκον
                 </button>
             </div>
 
             <div id="addMaintForm" class="mini-card" style="display: none; border-color: var(--main); margin-bottom: 20px; padding: 15px;">
                 <input type="text" id="maintLabel" placeholder="Περιγραφή (π.χ. Καθαρισμός Ποδηλάτου)" style="margin-bottom: 10px; border: 2px solid #444;">
                 <input type="number" id="maintDays" placeholder="Συχνότητα σε Ημέρες (π.χ. 14)" inputmode="numeric" style="margin-bottom: 15px; border: 2px solid #444;">
-                <button class="primary-btn" onclick="window.PegasusMaintenance.addNewTask()">ΕΝΑΡΞΗ ΠΡΩΤΟΚΟΛΛΟΥ</button>
+                <button class="primary-btn" onclick="window.PegasusMaintenance.addNewTask()">Έναρξη πρωτοκόλλου</button>
             </div>
 
             <div id="maint-content" style="width: 100%; display: flex; flex-direction: column; gap: 12px; padding-bottom: 80px;"></div>
@@ -120,14 +120,14 @@
             const diffDays = task.interval - daysElapsed;
 
             let statusColor = '#00ff41';
-            let statusTxt = `${diffDays} ΗΜΕΡΕΣ`;
+            let statusTxt = `${diffDays} ημέρες`;
 
             if (diffDays <= 0) {
                 statusColor = '#ff4444';
-                statusTxt = 'ΛΗΞΗ - ΕΚΤΕΛΕΣΗ ΤΩΡΑ';
+                statusTxt = 'Λήξη - εκτέλεση τώρα';
             } else if (diffDays <= 2) {
                 statusColor = '#ffbb33';
-                statusTxt = 'ΠΡΟΣΕΧΩΣ';
+                statusTxt = 'Προσεχώς';
             }
 
             // Υπολογισμός ποσοστού για την μπάρα
@@ -138,7 +138,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
                         <div>
                             <div style="font-weight: 900; font-size: 14px; color: #fff; text-transform: none;">${task.label}</div>
-                            <div style="font-size: 10px; color: ${statusColor}; font-weight: 800; margin-top: 2px;">ΚΑΤΑΣΤΑΣΗ: ${statusTxt}</div>
+                            <div style="font-size: 10px; color: ${statusColor}; font-weight: 800; margin-top: 2px;">Κατάσταση: ${statusTxt}</div>
                         </div>
                         <button onclick="window.PegasusMaintenance.deleteTask('${task.id}')" style="background:none; border:none; color:#333; font-size:12px; cursor: pointer;">🗑️</button>
                     </div>
@@ -149,7 +149,7 @@
 
                     <button class="primary-btn" style="padding: 10px; font-size: 11px; background: rgba(0,255,65,0.05); border-color: ${statusColor}; color: ${statusColor};"
                             onclick="window.PegasusMaintenance.resetTask('${task.id}')">
-                        ✅ ΟΛΟΚΛΗΡΩΘΗΚΕ (RESET)
+                        ✅ Ολοκληρώθηκε (reset)
                     </button>
                 </div>
             `;

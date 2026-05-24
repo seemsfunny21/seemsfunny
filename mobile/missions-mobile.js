@@ -48,11 +48,11 @@
 
             if(form.style.display === 'none') {
                 form.style.display = 'block';
-                btn.innerHTML = 'Χ ΚΛΕΙΣΙΜΟ';
+                btn.innerHTML = 'Χ Κλείσιμο';
                 btn.style.background = '#ff4444';
             } else {
                 form.style.display = 'none';
-                btn.innerHTML = '+ ΝΕΟΣ ΣΤΟΧΟΣ';
+                btn.innerHTML = '+ Νέος στόχος';
                 btn.style.background = 'var(--main)';
             }
         },
@@ -112,18 +112,18 @@
             <button class="btn-back" onclick="openView('home')">◀ Επιστροφή</button>
             <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 15px;">
                 <button id="btnAddMission" class="primary-btn" style="width: auto; margin: 0 auto; padding: 7px 14px; font-size: 10px; border-radius: 8px;" onclick="window.PegasusMissions.toggleAddForm()">
-                    + ΝΕΟΣ ΣΤΟΧΟΣ
+                    + Νέος στόχος
                 </button>
             </div>
 
             <div id="addMissionForm" class="mini-card" style="display: none; border-color: var(--main); margin-bottom: 20px; padding: 15px;">
-                <div style="font-size: 11px; font-weight: 900; color: var(--main); margin-bottom: 10px; text-align: center;">ΝΕΑ ΣΥΝΗΘΕΙΑ</div>
+                <div style="font-size: 11px; font-weight: 900; color: var(--main); margin-bottom: 10px; text-align: center;">Νέα συνήθεια</div>
                 <input type="text" id="newMissionTitle" placeholder="π.χ. Διάβασμα 30 Λεπτά..." style="margin-bottom: 15px; border: 2px solid #444;">
                 <button class="primary-btn" onclick="window.PegasusMissions.addNewMission()">Προσθήκη</button>
             </div>
 
             <div class="mini-card" style="padding: 20px; text-align: center; border-color: #222; background: rgba(20,20,20,0.8); margin-bottom: 20px;">
-                <div id="missionDate" style="font-size: 10px; color: #777; font-weight: 800; letter-spacing: 2px; margin-bottom: 5px;">ΣΗΜΕΡΑ</div>
+                <div id="missionDate" style="font-size: 10px; color: #777; font-weight: 800; letter-spacing: 2px; margin-bottom: 5px;">Σήμερα</div>
                 <div id="missionPctTxt" style="font-size: 32px; font-weight: 900; color: var(--main); margin-bottom: 10px; text-shadow: 0 0 10px rgba(0,255,65,0.2);">0%</div>
                 <div class="bar-bg" style="height: 8px;"><div id="missionProgressBar" class="bar-fill" style="width: 0%;"></div></div>
             </div>
@@ -191,7 +191,7 @@
             }
         }
 
-        container.innerHTML = html || '<div style="color:#555; font-size:11px; text-align:center; margin-top:20px;">ΔΕΝ ΕΧΕΙΣ ΟΡΙΣΕΙ ΔΡΑΣΤΗΡΙΟΤΗΤΕΣ</div>';
+        container.innerHTML = html || '<div style="color:#555; font-size:11px; text-align:center; margin-top:20px;">Δεν έχεις ορίσει δραστηριότητες</div>';
     };
 
     document.addEventListener("DOMContentLoaded", () => {

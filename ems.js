@@ -51,7 +51,7 @@ window.logEMSData = function() {
 };
 
 /**
- * 3. Αποθήκευση ΚΑΙ ΣΥΓΧΡΟΝΙΣΜΟΣ (FIXED)
+ * 3. Αποθήκευση ΚΑΙ Συγχρονισμός (FIXED)
  */
 window.saveEMSFinal = async function() {
     // 🛡️ Global Safe Declaration (Inside function for extra safety)
@@ -69,7 +69,7 @@ window.saveEMSFinal = async function() {
     const kcal = parseFloat(kcalStr);
 
     if (!dateStr || isNaN(avg) || isNaN(kcal)) {
-        alert("ΑΠΟΤΥΧΙΑ: Εισάγετε έγκυρα αριθμητικά δεδομένα.");
+        alert("Αποτυχία: Εισάγετε έγκυρα αριθμητικά δεδομένα.");
         return;
     }
 
@@ -136,7 +136,7 @@ function createEMSModal() {
     div.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#0a0a0a; border:2px solid #4CAF50; padding:25px; border-radius:15px; z-index:99999; width:320px; text-align:center; box-shadow: 0 0 30px rgba(0,0,0,1); color:white; display:none;";
 
     div.innerHTML = `
-        <h3 style="color:#4CAF50; margin-top:0;">⚡ ΚΑΤΑΓΡΑΦΗ EMS</h3>
+        <h3 style="color:#4CAF50; margin-top:0;">⚡ Καταγραφή EMS</h3>
         <div style="margin-top:15px;">
             <label style="color:#888; font-size:11px; display:block; margin-bottom:5px;">ΗΜΕΡΟΜΗΝΙΑ (YYYY-MM-DD):</label>
             <input type="date" id="emsDate" style="width:100%; background:#000; color:#4CAF50; border:1px solid #4CAF50; padding:10px; border-radius:5px; box-sizing:border-box; text-align:center;">
@@ -150,7 +150,7 @@ function createEMSModal() {
             <input type="number" id="emsKcal" style="width:100%; background:#000; color:#4CAF50; border:1px solid #4CAF50; padding:10px; border-radius:5px; box-sizing:border-box; text-align:center; margin-bottom:20px;">
         </div>
         <div style="display:flex; gap:10px;">
-            <button onclick="saveEMSFinal()" style="flex:1; background:#4CAF50; color:black; border:none; padding:12px; border-radius:5px; cursor:pointer; font-weight:bold;">ΣΩΣΕ</button>
+            <button onclick="saveEMSFinal()" style="flex:1; background:#4CAF50; color:black; border:none; padding:12px; border-radius:5px; cursor:pointer; font-weight:bold;">Αποθήκευση</button>
             <button onclick="closeEMSModal()" style="flex:1; background:#333; color:white; border:none; padding:12px; border-radius:5px; cursor:pointer;">Άκυρο</button>
         </div>
     `;

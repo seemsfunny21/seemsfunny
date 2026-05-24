@@ -1,3 +1,11 @@
+
+PEGASUS 289
+- Full static label case cleanup across project files: Greek UI labels now use first-letter uppercase/sentence case instead of all-caps static text.
+- Removed adaptiveTypography.js from HTML loading and service worker cache.
+- Deleted adaptiveTypography.js from the package.
+- Kept weekly-progress compatibility inside app.js so counted-ledger progress/repair continues without the typography runtime.
+- Bumped service worker cache to 289.
+
 PEGASUS 285 - Greek Documents/Vehicle UI Polish + Taxisnet
 - Mobile Documents and Vehicle local transfer buttons are now Greek: “Αντίγραφο” and “Επαναφορά”, fixing the bad Back/Πλάτη translation issue.
 - Documents and Vehicle labels now use Greek title-style casing instead of all-caps/English labels.
@@ -47,7 +55,7 @@ PEGASUS 280 - Parking Street Name Retry + v269 Map Open
 
 PEGASUS 275 - Parking direct map open fix
 - Mobile Parking keeps manual-save coordinates behavior from 274.
-- Fixed ΧΑΡΤΗΣ opening: Android now tries a Google Maps intent first so it can open the Maps app directly.
+- Fixed Χάρτης opening: Android now tries a Google Maps intent first so it can open the Maps app directly.
 - Added safe web fallback only if the app is not opened.
 - No auto location overwrite, no address lookup, no map image, no desktop change.
 
@@ -56,7 +64,7 @@ PEGASUS 273 - Mobile Parking GPS Coordinates + Fixed Width
 - Removed the manual area input/save UI from Parking.
 - Removed the orange left bar/theme that could create horizontal movement on mobile.
 - Parking panel now locks horizontal overflow and uses compact fixed text sizes.
-- MAP/ΧΑΡΤΗΣ buttons use stable small font sizes so text does not start large then shrink.
+- MAP/Χάρτης buttons use stable small font sizes so text does not start large then shrink.
 - Map opens with Google Maps web URL directly to avoid geo:// fallbacks that can send APK WebView to Play Store.
 - Mobile only; desktop unchanged.
 - Cache bump to 273.
@@ -215,9 +223,9 @@ PEGASUS 248 - MOBILE FINANCE SIMPLE AMOUNT MODE
 
 Mobile-only finance patch:
 - Removed the transaction description input from Οικονομικά.
-- Finance now asks only for amount and uses the existing + ΕΣΟΔΟ / - ΕΞΟΔΟ buttons.
+- Finance now asks only for amount and uses the existing + Έσοδο / - Έξοδο buttons.
 - Validation now requires only a valid positive amount.
-- History displays transaction type (ΕΣΟΔΟ/ΕΞΟΔΟ), date, amount and delete button; old saved descriptions are ignored visually.
+- History displays transaction type (Έσοδο/Έξοδο), date, amount and delete button; old saved descriptions are ignored visually.
 - Desktop UI unchanged.
 - Cache/storage version bumped to 248.
 
@@ -313,7 +321,7 @@ Package:
 PEGASUS 241 - Mobile Biometric Enrollment Fix
 - Improved mobile/biometric-unlock-mobile.js v1.1.241.
 - Biometric enrollment prompt now appears after manual unlock and approved-device auto unlock.
-- Added persistent Settings card: ΒΙΟΜΕΤΡΙΚΟ ΞΕΚΛΕΙΔΩΜΑ, with enable/test/reset controls.
+- Added persistent Settings card: ΒΙΟΜΕΤΡΙΚΟ Ξεκλείδωμα, with enable/test/reset controls.
 - PIN modal now always shows biometric unlock when enrolled.
 - Added PegasusBiometricUnlock.status(), showPrompt(), reset() helpers for console debugging.
 - Service worker cache bumped to 241.
@@ -409,7 +417,7 @@ PEGASUS 274 - Mobile Parking Manual Save Only
 - Parking remains coordinate-based, with no street lookup, no map preview, and no manual area field.
 - The user saves a new position only by pressing ΑΠΟΘΗΚΕΥΣΗ ΘΕΣΗΣ.
 - The last 5 local-only parking positions remain available in history.
-- The ΧΑΡΤΗΣ button still opens Google Maps web directly.
+- The Χάρτης button still opens Google Maps web directly.
 - Mobile only. Desktop unchanged. No new files.
 - Cache bump to 274.
 
@@ -419,8 +427,8 @@ PEGASUS 276 - Mobile Parking Street/Number Labels
 - Saved GPS coordinates are converted to a readable street/address label when possible.
 - The Parking current card and 5-place history prefer street + number / street name instead of raw coordinates.
 - If reverse geocoding is unavailable, Parking safely falls back to coordinates.
-- Coordinates are still kept internally for the ΧΑΡΤΗΣ button and map navigation.
-- ΧΑΡΤΗΣ keeps the direct Google Maps app intent behavior from 275.
+- Coordinates are still kept internally for the Χάρτης button and map navigation.
+- Χάρτης keeps the direct Google Maps app intent behavior from 275.
 - Mobile only. Desktop unchanged. No new files.
 - Cache bump to 276.
 
@@ -429,7 +437,7 @@ PEGASUS 277 - Mobile Parking Geo Map Restore + Stable Map Labels
 - Removed the automatic timed web fallback that could steal focus back from Google Maps or show the Play Store page.
 - Parking remains manual-save only: opening Parking does not overwrite the saved car position.
 - Street/address labels from v276 remain, with coordinate fallback if reverse geocoding is unavailable.
-- The last 5 parking history buttons now show the fixed text “Χάρτης” instead of all-caps “ΧΑΡΤΗΣ”.
+- The last 5 parking history buttons now show the fixed text “Χάρτης” instead of all-caps “Χάρτης”.
 - Added stronger mobile CSS so Parking map button text stays small/stable and is not changed by adaptive typography refreshes.
 - Mobile only. Desktop unchanged. No new files.
 - Cache bump to 277.

@@ -87,11 +87,11 @@
             const btn = document.getElementById('btnAddSupply');
             if(form.style.display === 'none') {
                 form.style.display = 'block';
-                btn.innerHTML = 'Χ ΚΛΕΙΣΙΜΟ';
+                btn.innerHTML = 'Χ Κλείσιμο';
                 btn.style.background = '#ff4444';
             } else {
                 form.style.display = 'none';
-                btn.innerHTML = '+ ΝΕΟ ΠΡΟΪΟΝ';
+                btn.innerHTML = '+ Νέο προϊόν';
                 btn.style.background = 'var(--main)';
             }
         },
@@ -150,7 +150,7 @@
             <button class="btn-back" onclick="openView('home')">◀ Επιστροφή</button>
             <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 15px;">
                 <button id="btnAddSupply" class="primary-btn" style="width: auto; margin: 0 auto; padding: 7px 14px; font-size: 10px; border-radius: 8px;" onclick="window.PegasusSupplies.toggleAddForm()">
-                    + ΝΕΟ ΠΡΟΪΟΝ
+                    + Νέο προϊόν
                 </button>
             </div>
 

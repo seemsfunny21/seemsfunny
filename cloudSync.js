@@ -1,6 +1,6 @@
 /* ==========================================================================
    PEGASUS CLOUD VAULT - SINGLE USER SECURE SYNC (v22.3 DATA GUARD + REPAIR PUSH)
-   STATUS: SINGLE-USER | LOCAL-ONLY PRIVATES | DAILY 07:00 LOCK | OFFLINE QUEUE
+   STATUS: SINGLE-USER | LOCAL-ONLY PRIVATES | DAILY 07:00 LOCK | Offline QUEUE
    ========================================================================== */
 
 const PegasusCloud = {
@@ -708,8 +708,8 @@ const PegasusCloud = {
 
     getWeeklyLedgerSetValue(exerciseName, muscle) {
         const upper = String(exerciseName || "").toUpperCase();
-        if (upper.includes("ΠΟΔΗΛΑΣΙΑ") || upper.includes("CYCLING")) return 24;
-        if (upper.includes("EMS ΠΟΔΙΩΝ") || upper.includes("EMS LEGS")) return 6;
+        if (upper.includes("Ποδηλασία") || upper.includes("CYCLING")) return 24;
+        if (upper.includes("EMS ποδιών") || upper.includes("EMS LEGS")) return 6;
         if (upper.includes("STRETCHING") || muscle === "None") return 0;
         return 1;
     },

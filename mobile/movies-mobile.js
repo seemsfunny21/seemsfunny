@@ -13,11 +13,11 @@
             const btn = document.getElementById('btnAddMovie');
             if(form.style.display === 'none') {
                 form.style.display = 'block';
-                btn.innerHTML = 'Χ ΚΛΕΙΣΙΜΟ';
+                btn.innerHTML = 'Χ Κλείσιμο';
                 btn.style.background = '#ff4444';
             } else {
                 form.style.display = 'none';
-                btn.innerHTML = '+ ΝΕΑ ΤΑΙΝΙΑ';
+                btn.innerHTML = '+ Νέα ταινία';
                 btn.style.background = 'var(--main)';
             }
         },
@@ -26,7 +26,7 @@
             const title = document.getElementById('newMovieTitle').value;
 
             if(!title || title.trim() === '') {
-                alert('ΣΦΑΛΜΑ: Εισάγετε τον τίτλο της ταινίας.');
+                alert('Σφάλμα: Εισάγετε τον τίτλο της ταινίας.');
                 return;
             }
 
@@ -94,20 +94,20 @@ saveAndRender: function(data) {
             <button class="btn-back" onclick="openView('home')">◀ Επιστροφή</button>
             <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 15px;">
                 <button id="btnAddMovie" class="primary-btn" style="width: auto; margin: 0 auto; padding: 7px 14px; font-size: 10px; border-radius: 8px;" onclick="window.PegasusMovies.toggleAddForm()">
-                    + ΝΕΑ ΤΑΙΝΙΑ
+                    + Νέα ταινία
                 </button>
             </div>
 
             <div id="addMovieForm" class="mini-card" style="display: none; border-color: var(--main); margin-bottom: 20px; padding: 15px;">
-                <div style="font-size: 11px; font-weight: 900; color: var(--main); margin-bottom: 10px; text-align: center;">ΚΑΤΑΧΩΡΗΣΗ ΣΤΗ WATCHLIST</div>
+                <div style="font-size: 11px; font-weight: 900; color: var(--main); margin-bottom: 10px; text-align: center;">Καταχώρηση στη watchlist</div>
                 <input type="text" id="newMovieTitle" placeholder="Τίτλος Ταινίας ή Σειράς..." style="margin-bottom: 15px; border: 2px solid #444;">
                 <button class="primary-btn" onclick="window.PegasusMovies.addNewMovie()">Προσθήκη</button>
             </div>
 
-            <div class="section-title" style="margin-top: 10px; color: var(--main);">👀 ΠΡΟΣΕΧΩΣ (WATCHLIST)</div>
+            <div class="section-title" style="margin-top: 10px; color: var(--main);">👀 Προσεχώς (watchlist)</div>
             <div id="movies-watchlist" style="width: 100%; display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px;"></div>
 
-            <div class="section-title" style="color: #555;">✅ ΙΣΤΟΡΙΚΟ ΠΡΟΒΟΛΩΝ</div>
+            <div class="section-title" style="color: #555;">✅ Ιστορικό προβολών</div>
             <div id="movies-history" style="width: 100%; display: flex; flex-direction: column; gap: 10px; padding-bottom: 80px;"></div>
         `;
         document.body.appendChild(viewDiv);
@@ -140,11 +140,11 @@ saveAndRender: function(data) {
                         <div style="display: flex; gap: 10px;">
                             <button class="primary-btn" style="flex: 1; padding: 10px; font-size: 11px; background: #008f25; border: 1px solid #00ff41; color: #fff;"
                                     onclick="window.PegasusMovies.evaluateMovie('${movie.id}', 'liked')">
-                                👍 ΜΟΥ ΑΡΕΣΕ
+                                👍 Μου άρεσε
                             </button>
                             <button class="primary-btn" style="flex: 1; padding: 10px; font-size: 11px; background: #8f0000; border: 1px solid #ff4444; color: #fff;"
                                     onclick="window.PegasusMovies.evaluateMovie('${movie.id}', 'disliked')">
-                                👎 ΧΑΛΙΑ
+                                👎 Χάλια
                             </button>
                         </div>
                     </div>
@@ -170,8 +170,8 @@ saveAndRender: function(data) {
             }
         });
 
-        watchlistContainer.innerHTML = watchlistHtml || '<div style="color:#555; font-size:11px; text-align:center;">Η ΛΙΣΤΑ ΕΙΝΑΙ ΑΔΕΙΑ</div>';
-        historyContainer.innerHTML = historyHtml || '<div style="color:#333; font-size:11px; text-align:center;">ΚΑΝΕΝΑ ΙΣΤΟΡΙΚΟ ΠΡΟΒΟΛΩΝ</div>';
+        watchlistContainer.innerHTML = watchlistHtml || '<div style="color:#555; font-size:11px; text-align:center;">Η λίστα είναι άδεια</div>';
+        historyContainer.innerHTML = historyHtml || '<div style="color:#333; font-size:11px; text-align:center;">Κανένα ιστορικό προβολών</div>';
     };
 
     // 4. Boot Sequence

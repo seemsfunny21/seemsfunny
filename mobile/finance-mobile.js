@@ -15,32 +15,32 @@
         viewDiv.className = 'view';
         viewDiv.innerHTML = `
             <button class="btn-back" onclick="openView('home')">◀ Επιστροφή</button>
-            <div class="section-title">ΟΙΚΟΝΟΜΙΚΗ ΔΙΑΧΕΙΡΙΣΗ</div>
+            <div class="section-title">Οικονομική διαχείριση</div>
 
             <div class="mini-card" style="border-left: 4px solid var(--main); margin-bottom: 20px; background: rgba(0,255,65,0.05);">
-                <span class="mini-label" style="color: var(--main); opacity: 1;">ΤΡΕΧΟΝ ΥΠΟΛΟΙΠΟ</span>
+                <span class="mini-label" style="color: var(--main); opacity: 1;">Τρέχον υπόλοιπο</span>
                 <div id="totalBalance" class="mini-val" style="font-size: 36px; text-shadow: 0 0 15px rgba(0,255,65,0.3);">0.00€</div>
             </div>
 
             <div class="mini-card" style="background: rgba(15,15,15,0.95); padding: 20px; border: 1px solid #333;">
                 <div style="margin-bottom: 15px;">
-                    <div style="font-size: 10px; color: #777; font-weight: 800; margin-bottom: 5px; letter-spacing: 1px;">ΠΟΣΟ ΣΕ ΕΥΡΩ (€)</div>
+                    <div style="font-size: 10px; color: #777; font-weight: 800; margin-bottom: 5px; letter-spacing: 1px;">Ποσό σε ευρώ (€)</div>
                     <input type="number" id="finAmount" placeholder="0.00" inputmode="decimal" style="opacity: 1; border: 2px solid #444; color: #fff; background: #000; font-size: 20px; font-weight: 900;">
                 </div>
 
                 <div class="compact-grid" style="gap: 15px;">
                     <button class="primary-btn" onclick="window.PegasusFinance.addTransaction('income')"
                         style="background: #008f25; border: 2px solid #00ff41; color: #fff; font-weight: 900; height: 55px; opacity: 1; box-shadow: 0 4px 15px rgba(0,255,65,0.2);">
-                        + ΕΣΟΔΟ
+                        + Έσοδο
                     </button>
                     <button class="primary-btn" onclick="window.PegasusFinance.addTransaction('expense')"
                         style="background: #8f0000; border: 2px solid #ff4444; color: #fff; font-weight: 900; height: 55px; opacity: 1; box-shadow: 0 4px 15px rgba(255,68,68,0.2);">
-                        - ΕΞΟΔΟ
+                        - Έξοδο
                     </button>
                 </div>
             </div>
 
-            <div class="section-title" style="margin-top: 30px; font-size: 12px; color: #555;">ΙΣΤΟΡΙΚΟ ΣΥΝΑΛΛΑΓΩΝ</div>
+            <div class="section-title" style="margin-top: 30px; font-size: 12px; color: #555;">Ιστορικό συναλλαγών</div>
             <div id="transaction-history" style="width: 100%; display: flex; flex-direction: column; gap: 10px; padding-bottom: 100px;"></div>
         `;
         document.body.appendChild(viewDiv);
@@ -56,7 +56,7 @@
     }
 
     function transactionLabel(transaction) {
-        return Number(transaction && transaction.amount) >= 0 ? 'ΕΣΟΔΟ' : 'ΕΞΟΔΟ';
+        return Number(transaction && transaction.amount) >= 0 ? 'Έσοδο' : 'Έξοδο';
     }
 
     window.PegasusFinance = {
@@ -97,7 +97,7 @@
             const amount = parseFloat(safeAmountStr);
 
             if (isNaN(amount) || amount <= 0) {
-                alert('ΣΦΑΛΜΑ: Συμπληρώστε έγκυρο ποσό.');
+                alert('Σφάλμα: Συμπληρώστε έγκυρο ποσό.');
                 this.isLocked = false; // Απελευθέρωση κλειδώματος σε περίπτωση σφάλματος
                 return;
             }
@@ -164,7 +164,7 @@
                 balanceDisplay.textContent = total.toFixed(2) + '€';
                 balanceDisplay.style.color = total >= 0 ? '#00ff41' : '#ff4444';
             }
-            historyContainer.innerHTML = html || '<div style="color:#333; font-size:11px; text-align:center; margin-top:20px;">ΚΑΜΙΑ ΚΑΤΑΓΡΑΦΗ</div>';
+            historyContainer.innerHTML = html || '<div style="color:#333; font-size:11px; text-align:center; margin-top:20px;">Καμία καταγραφή</div>';
         }
     };
 

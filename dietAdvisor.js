@@ -397,14 +397,14 @@
         const score = macroScore + priority.boost + practicalBonus - repeat.penalty;
 
         let tone = 'orange';
-        let toneLabel = item.source === 'today' ? t('ΣΗΜΕΡΑ ΚΟΥΚΙ', 'TODAY AT KOUKI') : t('ΟΚ ΕΠΙΛΟΓΗ', 'OK OPTION');
+        let toneLabel = item.source === 'today' ? t('Σήμερα Κούκι', 'TODAY AT KOUKI') : t('ΟΚ επιλογή', 'OK OPTION');
         if (priority.boost >= 160) {
             tone = 'green';
-            toneLabel = item.source === 'today' ? t('ΣΗΜΕΡΙΝΗ ΠΡΟΤΕΡΑΙΟΤΗΤΑ', 'TODAY PRIORITY') : t('ΠΡΟΤΕΙΝΕΤΑΙ ΠΡΩΤΑ', 'FIRST CHOICE');
+            toneLabel = item.source === 'today' ? t('Σημερινή προτεραιότητα', 'TODAY PRIORITY') : t('Προτείνεται πρώτα', 'FIRST CHOICE');
         }
         if (repeat.penalty >= 180 && priority.boost < 120) {
             tone = 'red';
-            toneLabel = item.source === 'today' ? t('ΤΕΛΕΥΤΑΙΑ ΑΠΟ ΣΗΜΕΡΑ', 'LAST FROM TODAY') : t('ΤΕΛΕΥΤΑΙΑ ΕΠΙΛΟΓΗ', 'LAST OPTION');
+            toneLabel = item.source === 'today' ? t('Τελευταία από σήμερα', 'LAST FROM TODAY') : t('Τελευταία επιλογή', 'LAST OPTION');
         }
 
         const reason = [...priority.reasons, ...repeat.notes].slice(0, 2).join(' ')

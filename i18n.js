@@ -6,45 +6,45 @@
     const LANG_KEY = 'pegasus_language';
     const LEGACY_LANG_KEY = 'pegasus_lang';
     const exactPairs = [
-        ['ΕΡΓΑΛΕΙΑ PEGASUS', 'PEGASUS TOOLS'], ['ΣΥΣΤΗΜΑ ΣΥΝΕΡΓΑΤΗ', 'PARTNER SYSTEM'], ['Όνομα συνεργάτη...', 'Partner name...'],
-        ['ΣΥΝΕΡΓΑΤΗΣ: ΑΠΕΝΕΡΓΟΣ', 'PARTNER: OFF'], ['📅 ΤΥΠΟΣ ΠΡΟΓΡΑΜΜΑΤΟΣ', '📅 PROGRAM TYPE'], ['🔊 ΗΧΟΣ: ΕΝΕΡΓΟΣ', '🔊 SOUND: ON'],
-        ['🔇 ΗΧΟΣ: ΣΙΓΑΣΗ', '🔇 SOUND: MUTED'], ['🚀 TURBO: ΑΝΕΝΕΡΓΟ', '🚀 TURBO: OFF'], ['🚀 TURBO: ΕΝΕΡΓΟ', '🚀 TURBO: ON'],
-        ['💾 Αποθήκευση αρχείου', '💾 SAVE FILE'], ['📂 Φόρτωση αρχείου', '📂 LOAD FILE'], ['🔐 ΣΥΓΧΡΟΝΙΣΜΟΣ', '🔐 SYNC'],
-        ['⚡ ΚΑΤΑΓΡΑΦΗ EMS', '⚡ EMS LOG'], ['🔍 ΕΛΕΓΧΟΣ PEGASUS', '🔍 PEGASUS CHECK'], ['➕ ΑΝΕΒΑΣΕ ΦΩΤΟΓΡΑΦΙΑ (JPG/PNG)', '➕ UPLOAD PHOTO (JPG/PNG)'],
-        ['ΕΒΔΟΜΑΔΙΑΙΟΙ ΣΤΟΧΟΙ ΣΕΤ', 'Weekly set targets'], ['PEGASUS STRICT: Συμπλήρωσε έγκυρα Χιλιόμετρα και Θερμίδες.', 'PEGASUS STRICT: Enter valid Distance and Calories.'],
-        ['✅ ΚΑΤΑΧΩΡΗΘΗΚΕ!', '✅ SAVED!'], ['PEGASUS STRICT: Συμπλήρωσε Φαγητό και Θερμίδες!', 'PEGASUS STRICT: Fill Food and Calories!'],
+        ['Εργαλεία PEGASUS', 'PEGASUS TOOLS'], ['Σύστημα συνεργάτη', 'PARTNER SYSTEM'], ['Όνομα συνεργάτη...', 'Partner name...'],
+        ['Συνεργάτης: ανενεργός', 'PARTNER: OFF'], ['📅 Τύπος προγράμματος', '📅 PROGRAM TYPE'], ['🔊 Ήχος: ενεργός', '🔊 SOUND: ON'],
+        ['🔇 Ήχος: σίγαση', '🔇 SOUND: MUTED'], ['🚀 Turbo: ανενεργό', '🚀 TURBO: OFF'], ['🚀 TURBO: Ενεργό', '🚀 TURBO: ON'],
+        ['💾 Αποθήκευση αρχείου', '💾 SAVE FILE'], ['📂 Φόρτωση αρχείου', '📂 LOAD FILE'], ['🔐 Συγχρονισμός', '🔐 SYNC'],
+        ['⚡ Καταγραφή EMS', '⚡ EMS log'], ['🔍 Έλεγχος PEGASUS', '🔍 PEGASUS CHECK'], ['➕ Ανέβασε φωτογραφία (JPG/PNG)', '➕ Upload photo (JPG/PNG)'],
+        ['Εβδομαδιαίοι στόχοι σετ', 'Weekly set targets'], ['PEGASUS STRICT: Συμπλήρωσε έγκυρα Χιλιόμετρα και Θερμίδες.', 'PEGASUS STRICT: Enter valid Distance and Calories.'],
+        ['✅ Καταχωρήθηκε!', '✅ SAVED!'], ['PEGASUS STRICT: Συμπλήρωσε Φαγητό και Θερμίδες!', 'PEGASUS STRICT: Fill Food and Calories!'],
         ['PEGASUS STRICT: Μπορείς να συγκρίνεις μόνο 2 φωτογραφίες τη φορά.', 'PEGASUS STRICT: You can compare only 2 photos at a time.'],
         ['PEGASUS STRICT: Γράψε ένα έγκυρο όνομα συνεργάτη!', 'PEGASUS STRICT: Enter a valid partner name!'], ['Σφάλμα: Το dietAdvisor.js δεν έχει φορτωθεί σωστά.', 'Error: dietAdvisor.js did not load correctly.'],
-        ['PEGASUS STRICT: Παρακαλώ εισάγετε ένα έγκυρο βάρος (30-250 kg).', 'PEGASUS STRICT: Please enter a valid weight (30-250 kg).'], ['ΣΦΑΛΜΑ: Συμπλήρωσε Άσκηση, Κιλά και Επαναλήψεις.', 'ERROR: Fill Exercise, Weight and Reps.'],
+        ['PEGASUS STRICT: Παρακαλώ εισάγετε ένα έγκυρο βάρος (30-250 kg).', 'PEGASUS STRICT: Please enter a valid weight (30-250 kg).'], ['Σφάλμα: Συμπλήρωσε Άσκηση, Κιλά και Επαναλήψεις.', 'ERROR: Fill Exercise, Weight and Reps.'],
         ['Προθέρμανση', 'Warmup'], ['Έναρξη', 'Start'], ['Παύση', 'Pause'], ['Συνέχεια', 'Continue'], ['Επόμενο', 'Next'],
-        ['Ημερολόγιο', 'Calendar'], ['Επιτεύγματα', 'Achievements'], ['Διατροφή', 'Nutrition'], ['ΠΡΟΕΠΙΣΚΟΠΗΣΗ', 'PREVIEW'],
-        ['Ρυθμίσεις', 'Settings'], ['EMAIL', 'EMAIL'], ['⚙️ ΕΡΓΑΛΕΙΑ', '⚙️ TOOLS'], ['GR / EN', 'EN / GR'],
-        ['Προπονήσεις:', 'Workouts:'], ['ΓΚΑΛΕΡΙ ΠΡΟΟΔΟΥ', 'PROGRESS GALLERY'], ['ΗΜΕΡΟΛΟΓΙΟ PEGASUS', 'PEGASUS CALENDAR'],
+        ['Ημερολόγιο', 'Calendar'], ['Επιτεύγματα', 'Achievements'], ['Διατροφή', 'Nutrition'], ['Προεπισκόπηση', 'PREVIEW'],
+        ['Ρυθμίσεις', 'Settings'], ['EMAIL', 'EMAIL'], ['⚙️ Εργαλεία', '⚙️ TOOLS'], ['GR / EN', 'EN / GR'],
+        ['Προπονήσεις:', 'Workouts:'], ['Γκαλερί προόδου', 'PROGRESS GALLERY'], ['Ημερολόγιο PEGASUS', 'PEGASUS CALENDAR'],
         ['Ρυθμίσεις PEGASUS', 'PEGASUS SETTINGS'], ['Βάρος (kg)', 'Weight (kg)'], ['Ύψος (cm)', 'Height (cm)'],
         ['Ηλικία', 'Age'], ['Φύλο', 'Gender'], ['Άνδρας', 'Male'], ['Γυναίκα', 'Female'], ['Γράμμωση', 'Cutting'], ['Όγκος', 'Bulk'], ['Στόχος Kcal', 'Kcal Goal'],
         ['Πρωτεΐνη (g)', 'Protein (g)'], ['Στήθος', 'Chest'], ['Πλάτη', 'Back'], ['Πόδια', 'Legs'], ['Χέρια', 'Arms'],
         ['Ώμοι', 'Shoulders'], ['Κορμός', 'Core'], ['Αποθήκευση', 'SAVE'], ['Ημερολόγιο Διατροφής', 'Nutrition Log'],
-        ['ΘΕΡΜΙΔΕΣ', 'CALORIES'], ['ΠΡΩΤΕΪΝΗ', 'PROTEIN'], ['ΥΠΟΛΟΙΠΟ', 'REMAINING'], ['ΓΕΥΜΑΤΑ', 'MEALS'],
+        ['Θερμίδες', 'Calories'], ['Πρωτεΐνη', 'Protein'], ['Υπόλοιπο', 'Remaining'], ['Γεύματα', 'Meals'],
         ['Φαγητό', 'Food'], ['Σήμερα', 'Today'], ['Συχνές Επιλογές', 'Frequent Choices'], ['🔍 Αναζήτηση...', '🔍 Search...'],
-        ['ΜΕΝΟΥ ΚΟΥΚΙ', 'KOUKI MENU'], ['ΕΠΙΣΚΟΠΗΣΗ & ΠΡΟΟΔΟΣ', 'PREVIEW & PROGRESS'], ['ΑΣΚΗΣΕΙΣ ΗΜΕΡΑΣ', "TODAY'S EXERCISES"],
-        ['Καταγραφή ποδηλασίας', 'CYCLING LOG'], ['Χιλιόμετρα (km):', 'DISTANCE (KM):'], ['Θερμίδες (kcal):', 'CALORIES (KCAL):'],
-        ['Άκυρο', 'CANCEL'], ['ΗΜΕΡΟΜΗΝΙΑ ΤΕΤΑΡΤΗΣ:', 'WEDNESDAY DATE:'], ['ΜΕΣΗ ΕΝΤΑΣΗ (AVG %):', 'AVERAGE INTENSITY (AVG %):'],
-        ['ΘΕΡΜΙΔΕΣ (e-Kcal):', 'CALORIES (e-Kcal):'], ['Επιλογη Προγραμματοσ', 'Choose Program'], ['5 Ημέρες Βάρη', '5 Days Weights'],
+        ['Μενού Κούκι', 'KOUKI MENU'], ['Επισκόπηση & πρόοδος', 'PREVIEW & PROGRESS'], ['Ασκήσεις ημέρας', "TODAY'S EXERCISES"],
+        ['Καταγραφή ποδηλασίας', 'Cycling log'], ['Χιλιόμετρα (km):', 'Distance (KM):'], ['Θερμίδες (kcal):', 'Calories (KCAL):'],
+        ['Άκυρο', 'CANCEL'], ['Ημερομηνία Τετάρτης:', 'WEDNESDAY DATE:'], ['Μέση ένταση (avg %):', 'AVERAGE INTENSITY (AVG %):'],
+        ['Θερμίδες (e-kcal):', 'Calories (e-Kcal):'], ['Επιλογή προγράμματος', 'Choose Program'], ['5 Ημέρες Βάρη', '5 Days Weights'],
         ['Βάρη + IMS Τετάρτη', 'Weights + IMS Wednesday'], ['Βάρη + Ποδήλατο ΣΚ', 'Weights + Weekend Bike'], ['Βάρη + ems + ποδήλατο', 'Weights + EMS + Bike'],
-        ['ΑΣΦΑΛΗΣ ΤΑΥΤΟΠΟΙΗΣΗ', 'SECURE AUTHENTICATION'], ['ΑΠΑΣΦΑΛΙΣΗ ΣΥΣΤΗΜΑΤΟΣ', 'UNLOCK SYSTEM'], ['Επιστροφή / άκυρο', 'BACK / CANCEL'],
-        ['OFFLINE MODE', 'OFFLINE MODE'], ['ΛΕΙΤΟΥΡΓΙΑ OFFLINE', 'OFFLINE MODE'], ['ΑΠΑΣΦΑΛΙΣΗ', 'UNLOCK'], ['ΣΥΣΤΗΜΑ ΕΤΟΙΜΟ', 'SYSTEM READY'],
-        ['ΣΥΓΧΡΟΝΙΣΜΟΣ...', 'SYNCING...'], ['ΣΦΑΛΜΑ SYNC', 'SYNC ERROR'], ['ΛΑΘΟΣ PIN', 'WRONG PIN'], ['Αερόβια', 'Cardio'],
+        ['Ασφαλής ταυτοποίηση', 'SECURE AUTHENTICATION'], ['Απασφάλιση συστήματος', 'UNLOCK SYSTEM'], ['Επιστροφή / άκυρο', 'BACK / CANCEL'],
+        ['Offline MODE', 'Offline MODE'], ['Λειτουργία offline', 'Offline MODE'], ['Απασφάλιση', 'UNLOCK'], ['Σύστημα έτοιμο', 'SYSTEM READY'],
+        ['Συγχρονισμός...', 'SYNCING...'], ['Σφάλμα SYNC', 'SYNC ERROR'], ['Λάθος PIN', 'WRONG PIN'], ['Αερόβια', 'Cardio'],
         ['Γεύματα', 'Meals'], ['Στόχοι', 'Targets'], ['Έγγραφα', 'Documents'], ['Όχημα', 'Vehicle'], ['Σημειώσεις', 'Notes'],
-        ['ΑΠΟΘΕΜΑ ΣΥΜΠΛΗΡΩΜΑΤΩΝ', 'SUPPLEMENT STOCK'], ['ΠΡΩΤΕΪΝΗ WHEY', 'WHEY PROTEIN'], ['ΚΡΕΑΤΙΝΗ', 'CREATINE'], ['ΑΝΑΠΛΗΡΩΣΗ', 'REFILL'],
-        ['Ρυθμίσεις & βάρος', 'SETTINGS & WEIGHT'], ['ΛΗΨΗ BACKUP', 'DOWNLOAD BACKUP'], ['ΕΠΑΝΑΦΟΡΑ DATA', 'RESTORE DATA'], ['ΓΕΝΙΚΟ RESET ΣΥΣΤΗΜΑΤΟΣ', 'FULL SYSTEM RESET'],
-        ['Συντήρηση (TDEE): -- kcal', 'Συντήρηση (TDEE): -- kcal'], ['M.O. Εβδομάδας: -- kg', 'Weekly Avg: -- kg'], ['Αναμονή δεδομένων...', 'Waiting for data...'],
-        ['ONLINE', 'ONLINE'], ['OFFLINE', 'OFFLINE'], ['LOCKED', 'LOCKED'], ['Advisor Offline', 'Advisor Offline'], ['αρχικοποιηση συστηματος', 'system initialization'],
+        ['Απόθεμα συμπληρωμάτων', 'Supplement stock'], ['Πρωτεΐνη whey', 'Whey protein'], ['Κρεατίνη', 'Creatine'], ['Αναπλήρωση', 'REFILL'],
+        ['Ρυθμίσεις & βάρος', 'SETTINGS & WEIGHT'], ['Λήψη backup', 'DOWNLOAD BACKUP'], ['Επαναφορά data', 'RESTORE DATA'], ['Γενικό reset συστήματος', 'FULL SYSTEM RESET'],
+        ['Συντήρηση (TDEE): -- kcal', 'Συντήρηση (TDEE): -- kcal'], ['Μέσος όρος εβδομάδας: -- kg', 'Weekly Avg: -- kg'], ['Αναμονή δεδομένων...', 'Waiting for data...'],
+        ['Online', 'Online'], ['Offline', 'Offline'], ['LOCKED', 'LOCKED'], ['Advisor Offline', 'Advisor Offline'], ['αρχικοποιηση συστηματος', 'system initialization'],
         ['Καιρός', 'Weather'], ['Ανανέωση', 'Refresh'], ['Άνεμος', 'Wind'], ['Ενημέρωση', 'Updated'], ['Φόρτωση καιρού...', 'Loading weather...'],
         ['Δεν υπάρχουν ακόμη δεδομένα καιρού.', 'No weather data yet.'], ['Καιρός ΟΚ για πρόγραμμα/ποδήλατο.', 'Weather OK for training/bike.'],
         ['Προσοχή: πιθανή βροχή. Κράτα indoor επιλογή.', 'Caution: possible rain. Keep indoor option.'], ['Πολύς αέρας. Το ποδήλατο θέλει προσοχή.', 'Strong wind. Bike needs caution.'],
         ['Μέτριος αέρας. Ρύθμισε ένταση ποδηλάτου.', 'Moderate wind. Adjust bike intensity.'],
         ['Δευτέρα','Monday'], ['Τρίτη','Tuesday'], ['Τετάρτη','Wednesday'], ['Πέμπτη','Thursday'], ['Παρασκευή','Friday'], ['Σάββατο','Saturday'], ['Κυριακή','Sunday'],
-        ['ΔΕΥΤΕΡΑ','MONDAY'], ['ΤΡΙΤΗ','TUESDAY'], ['ΤΕΤΑΡΤΗ','WEDNESDAY'], ['ΠΕΜΠΤΗ','THURSDAY'], ['ΠΑΡΑΣΚΕΥΗ','FRIDAY'], ['ΣΑΒΒΑΤΟ','SATURDAY'], ['ΚΥΡΙΑΚΗ','SUNDAY']
+        ['Δευτέρα','MONDAY'], ['Τρίτη','TUESDAY'], ['Τετάρτη','WEDNESDAY'], ['Πέμπτη','THURSDAY'], ['Παρασκευή','FRIDAY'], ['Σάββατο','SATURDAY'], ['Κυριακή','SUNDAY']
     ];
 
     // PEGASUS 195: Unified UI translation registry for dynamically rendered desktop labels.
@@ -80,7 +80,7 @@
 
 
     const phrasePairs = [
-        ['ΣΥΝΕΡΓΑΤΗΣ:', 'PARTNER:'], ['ΑΠΕΝΕΡΓΟΣ', 'OFF'], ['ΕΝΕΡΓΟΣ', 'ON'],
+        ['Συνεργάτης:', 'PARTNER:'], ['Ανενεργός', 'OFF'], ['Ενεργός', 'ON'],
         ['Συνεργάτης:', 'Partner:'], ['ανενεργός', 'inactive'], ['ενεργός', 'active'],
         ['Προθέρμανση', 'Warmup'], ['Έναρξη', 'Start'], ['Επόμενο', 'Next'], ['Ημερολόγιο', 'Calendar'],
         ['Επιτεύγματα', 'Achievements'], ['Διατροφή', 'Nutrition'], ['Ρυθμίσεις', 'Settings'], ['Εργαλεία', 'Tools'],
@@ -94,12 +94,12 @@
         ['Χέρια', 'Arms'], ['Ώμοι', 'Shoulders'], ['Κορμός', 'Core'], ['Μόνο ποδήλατο', 'Bike only'],
         ['Ποδ. + βάρη', 'Bike + weights'], ['Μόνο βάρη', 'Weights only'], ['Βάρη', 'Weights'], ['Ποδήλατο', 'Bike'],
         ['Συντήρηση (TDEE):', 'Maintenance (TDEE):'], ['M.O. Εβδομάδας:', 'Weekly Avg:'],
-        ['ΗΧΟΣ:', 'SOUND:'], ['ΤΥΠΟΣ ΠΡΟΓΡΑΜΜΑΤΟΣ', 'PROGRAM TYPE'], ['ΣΥΓΧΡΟΝΙΣΜΟΣ', 'SYNC'],
-        ['ΚΑΤΑΓΡΑΦΗ EMS', 'EMS LOG'], ['Καταγραφή ποδηλασίας', 'CYCLING LOG'],
-        ['ΧΙΛΙΟΜΕΤΡΑ', 'DISTANCE'], ['ΘΕΡΜΙΔΕΣ', 'CALORIES'], ['ΠΡΩΤΕΪΝΗ', 'PROTEIN'],
-        ['Αποθήκευση', 'SAVE'], ['Άκυρο', 'CANCEL'], ['ΕΒΔΟΜΑΔΙΑΙΑ ΣΤΟΧΕΥΣΗ', 'WEEKLY TARGETING'],
-        ['ΠΡΟΣΩΠΙΚΑ ΕΓΓΡΑΦΑ', 'PERSONAL DOCUMENTS'], ['ΣΤΟΙΧΕΙΑ ΟΧΗΜΑΤΟΣ', 'VEHICLE DETAILS'],
-        ['ΗΜΕΡΟΜΗΝΙΕΣ & ΣΕΡΒΙΣ', 'DATES & SERVICE'], ['ΠΡΟΣΩΠΙΚΕΣ ΣΗΜΕΙΩΣΕΙΣ', 'PERSONAL NOTES']
+        ['Ήχος:', 'SOUND:'], ['Τύπος προγράμματος', 'PROGRAM TYPE'], ['Συγχρονισμός', 'SYNC'],
+        ['Καταγραφή EMS', 'EMS log'], ['Καταγραφή ποδηλασίας', 'Cycling log'],
+        ['Χιλιόμετρα', 'Distance'], ['Θερμίδες', 'Calories'], ['Πρωτεΐνη', 'Protein'],
+        ['Αποθήκευση', 'SAVE'], ['Άκυρο', 'CANCEL'], ['Εβδομαδιαία στόχευση', 'WEEKLY TARGETING'],
+        ['Προσωπικά έγγραφα', 'PERSONAL DOCUMENTS'], ['Στοιχεία οχήματος', 'VEHICLE DETAILS'],
+        ['Ημερομηνίες & σέρβις', 'DATES & SERVICE'], ['Προσωπικές σημειώσεις', 'PERSONAL NOTES']
     ];
 
     const exercisePairs = [
@@ -148,7 +148,7 @@
         if (!from || !String(text).includes(from)) return text;
 
         // PEGASUS 139 FIX: do not translate short English status tokens inside
-        // program names such as IRON or EMS ONLY. Previously ON -> ΕΝΕΡΓΟΣ
+        // program names such as IRON or EMS only. Previously ON -> Ενεργός
         // corrupted labels into IRENERGOS / ENERGOSLY.
         if (/^[A-Za-z]{1,3}$/.test(from)) {
             const re = new RegExp('(^|[^A-Za-z])(' + escapeRegex(from) + ')(?=$|[^A-Za-z])', 'g');

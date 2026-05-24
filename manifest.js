@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PEGASUS OS - MASTER MANIFEST & REGISTRY (v18.88)
+   PEGASUS OS - MASTER MANIFEST & REGISTRY (v18.89)
    Protocol: Global Variable Re-declaration (Unlock M)
    Status: THE SINGLE SOURCE OF TRUTH | HARDENED: KEY CONSISTENCY + AUDIT SAFETY
    ========================================================================== */
@@ -13,7 +13,7 @@ window.PegasusManifest = {
         author: "Angelos & Gemini",
         last_update: "2026-05-09",
         logic_protocol: "Zero-Bug Simulation & Global Scope Shielding",
-        engine_version: "v18.88 mobile data restore no save-as"
+        engine_version: "v18.89 mobile data restore no save-as"
     },
 
     // ---------------------------------------------------------
@@ -199,10 +199,10 @@ window.PegasusManifest = {
         console.log(`✅ Καταγεγραμμένα & Έγκυρα Κλειδιά: ${validKeys.length}`);
 
         if (orphanKeys.length > 0) {
-            console.warn(`⚠️ ΠΡΟΣΟΧΗ: Βρέθηκαν ${orphanKeys.length} Ορφανά Κλειδιά!`);
+            console.warn(`⚠️ Προσοχή: Βρέθηκαν ${orphanKeys.length} Ορφανά Κλειδιά!`);
             console.table(orphanKeys.map(k => ({ "Ορφανό Κλειδί": k })));
         } else {
-            console.log("%c🛡️ ΣΥΣΤΗΜΑ ΚΑΘΑΡΟ.", "color: #4CAF50; font-weight: bold;");
+            console.log("%c🛡️ Σύστημα καθαρό.", "color: #4CAF50; font-weight: bold;");
         }
     }
 };
@@ -210,4 +210,4 @@ window.PegasusManifest = {
 // 🛡️ ΤΟ ΚΛΕΙΔΙ ΤΟΥ UNLOCK
 var M = window.PegasusManifest;
 
-console.log("🏛️ PEGASUS MANIFEST v18.88 LOADED. MOBILE DATA RESTORE NO SAVE-AS READY.");
+console.log("🏛️ PEGASUS MANIFEST v18.89 LOADED. STATIC LABEL CASE CLEANUP READY.");

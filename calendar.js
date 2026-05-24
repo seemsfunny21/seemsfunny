@@ -61,7 +61,7 @@ window.renderCalendar = function() {
 
         // --- STRICT PRIORITY RENDERING ---
         if (data[workoutKey] === true) {
-            // 1. ΕΠΙΤΥΧΙΑ (Προπόνηση): ΠΡΑΣΙΝΟ
+            // 1. Επιτυχία (Προπόνηση): ΠΡΑΣΙΝΟ
             bg = "#4CAF50";
             border = "1px solid #4CAF50";
             color = "#000";

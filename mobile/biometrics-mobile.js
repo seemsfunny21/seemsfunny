@@ -156,7 +156,7 @@
             <button class="btn-back" onclick="openView('home')">◀ Επιστροφή</button>
             <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 15px;">
                 <button class="primary-btn" style="width: auto; margin: 0 auto; padding: 7px 14px; font-size: 10px; border-radius: 8px;" onclick="window.PegasusBio.addNewEntry()">
-                    + ΣΗΜΕΡΙΝΗ ΜΕΤΡΗΣΗ
+                    + Σημερινή μέτρηση
                 </button>
             </div>
             <div id="bio-content" style="width: 100%; display: flex; flex-direction: column; gap: 15px; padding-bottom: 80px;"></div>
@@ -190,22 +190,22 @@
 
             if (days > 0) {
                 let color = "var(--main)";
-                let msg = "ΒΕΛΤΙΣΤΗ ΑΝΑΛΟΓΙΑ ΠΡΟΠΟΝΗΣΗΣ / ΑΠΟΘΕΡΑΠΕΙΑΣ.";
+                let msg = "Βέλτιστη αναλογία προπόνησης / αποθεραπείας.";
 
                 if (strainPct > 65 && avgSleep < 6) {
                     color = "#ff4444";
-                    msg = "🚨 ΚΡΙΣΙΜΟ: Υψηλό μυϊκό φορτίο με κακή ποιότητα ύπνου. Αυξημένος κίνδυνος τραυματισμού.";
+                    msg = "🚨 Κρίσιμο: Υψηλό μυϊκό φορτίο με κακή ποιότητα ύπνου. Αυξημένος κίνδυνος τραυματισμού.";
                 } else if (strainPct < 30 && avgSleep >= 7) {
                     color = "#00bcd4";
-                    msg = "⚡ ΠΛΗΡΗΣ ΑΝΑΡΡΩΣΗ: Το ΚΝΣ είναι έτοιμο για μέγιστη υπερφόρτωση.";
+                    msg = "⚡ Πλήρης ανάρρωση: Το ΚΝΣ είναι έτοιμο για μέγιστη υπερφόρτωση.";
                 }
 
                 html += `
                     <div class="mini-card" style="border: 1px solid ${color}; background: rgba(15,15,15,0.95); margin-bottom: 25px;">
-                        <div style="font-size: 10px; color: ${color}; font-weight: 900; letter-spacing: 2px; margin-bottom: 10px;">🧠 PEGASUS NEXUS INSIGHT</div>
+                        <div style="font-size: 10px; color: ${color}; font-weight: 900; letter-spacing: 2px; margin-bottom: 10px;">🧠 PEGASUS Nexus insight</div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 11px; color: #fff; font-weight: 900;">
-                            <div>ΜΥΪΚΗ ΚΟΠΩΣΗ: <span style="color:#ffbb33;">${strainPct}%</span></div>
-                            <div>M.O. ΥΠΝΟΥ: <span style="color:#00bcd4;">${avgSleep}/10</span></div>
+                            <div>Μυϊκή κόπωση: <span style="color:#ffbb33;">${strainPct}%</span></div>
+                            <div>Μ.ο. ύπνου: <span style="color:#00bcd4;">${avgSleep}/10</span></div>
                         </div>
                         <div style="font-size: 11px; color: #aaa; line-height: 1.5; font-weight: 600;">${msg}</div>
                     </div>
@@ -246,22 +246,22 @@
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
                         <div>
                             <div style="font-weight: 900; font-size: 18px; color: #fff;">${item.date}</div>
-                            <div style="font-size: 10px; color: ${avgColor}; font-weight: 900; margin-top: 4px;">MO ΑΠΟΔΟΣΗΣ: ${avg}/10</div>
+                            <div style="font-size: 10px; color: ${avgColor}; font-weight: 900; margin-top: 4px;">Μ.ο. απόδοσης: ${avg}/10</div>
                         </div>
                         <button onclick="window.PegasusBio.deleteEntry('${item.id}')"
                                 style="background: rgba(255,68,68,0.1); border: 1px solid #ff4444; color: #ff4444; border-radius: 8px; padding: 6px 10px; font-size: 12px; cursor: pointer;">🗑️</button>
                     </div>
-                    <div style="font-size: 10px; color: #00bcd4; font-weight: 900;">💤 ΠΟΙΟΤΗΤΑ ΥΠΝΟΥ</div>
+                    <div style="font-size: 10px; color: #00bcd4; font-weight: 900;">💤 Ποιότητα ύπνου</div>
                     ${buildScale('sleep', item.sleep, '#00bcd4')}
-                    <div style="font-size: 10px; color: #ffbb33; font-weight: 900;">⚡ ΕΠΙΠΕΔΑ ΕΝΕΡΓΕΙΑΣ</div>
+                    <div style="font-size: 10px; color: #ffbb33; font-weight: 900;">⚡ Επίπεδα ενέργειας</div>
                     ${buildScale('energy', item.energy, '#ffbb33')}
-                    <div style="font-size: 10px; color: #00ff41; font-weight: 900;">🛡️ ΑΠΟΘΕΡΑΠΕΙΑ (DOMS)</div>
+                    <div style="font-size: 10px; color: #00ff41; font-weight: 900;">🛡️ Αποθεραπεία (DOMS)</div>
                     ${buildScale('recovery', item.recovery, '#00ff41')}
                 </div>
             `;
         }).join('');
 
-        container.innerHTML = html || '<div style="color:#555; text-align:center; margin-top:30px;">ΚΑΜΙΑ ΚΑΤΑΓΡΑΦΗ</div>';
+        container.innerHTML = html || '<div style="color:#555; text-align:center; margin-top:30px;">Καμία καταγραφή</div>';
     };
 
     // 4. Boot Sequence

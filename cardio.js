@@ -162,7 +162,7 @@ window.saveCardioData = async function() {
         console.log(`✅ CALENDAR: Workout marked as done (${workoutKey}).`);
     }
 
-    /* --- 4. ΙΣΤΟΡΙΚΟ ΚΑΤΑΓΡΑΦΗΣ (50 entries max) --- */
+    /* --- 4. ΙΣΤΟΡΙΚΟ ΚαταγραφήΣ (50 entries max) --- */
     let historyLog = JSON.parse(localStorage.getItem("pegasus_cardio_history") || "[]");
     if (!Array.isArray(historyLog)) historyLog = [];
 
@@ -185,7 +185,7 @@ window.saveCardioData = async function() {
     localStorage.setItem("pegasus_cardio_history", JSON.stringify(historyLog.slice(0, 50)));
 
     /* --- 5. UI REFRESH --- */
-    alert(`✅ ΚΑΤΑΧΩΡΗΘΗΚΕ!
+    alert(`✅ Καταχωρήθηκε!
 Θερμίδες: ${kcal} kcal
 Πόδια: +${credit} σετ από ποδηλασία.`);
 

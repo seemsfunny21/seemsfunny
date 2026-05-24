@@ -303,11 +303,11 @@
                 next.timers.totalSeconds = action.payload?.totalSeconds ?? next.timers.totalSeconds;
                 break;
 
-            case "SET_REMAINING_SECONDS":
+            case "SET_Remaining_SECONDS":
                 next.timers.remainingSeconds = action.payload?.remainingSeconds ?? next.timers.remainingSeconds;
                 break;
 
-            case "SET_PHASE_REMAINING":
+            case "SET_PHASE_Remaining":
                 next.timers.phaseRemainingSeconds = action.payload?.phaseRemainingSeconds ?? next.timers.phaseRemainingSeconds;
                 break;
 
@@ -317,7 +317,7 @@
                 next.timers.phaseRemainingSeconds = action.payload?.phaseRemainingSeconds ?? next.timers.phaseRemainingSeconds;
                 break;
 
-            case "SET_REMAINING_SETS":
+            case "SET_Remaining_SETS":
                 next.workout.remainingSets = clone(action.payload?.remainingSets || next.workout.remainingSets);
                 break;
 
