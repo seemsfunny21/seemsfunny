@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PEGASUS OS - PROFILE & NOTES MODULE (MOBILE EDITION v14.2 GR POLISH + TAXISNET)
+   PEGASUS OS - PROFILE & NOTES MODULE (MOBILE EDITION v14.3 QUIET SAVE + TAXISNET)
    Protocol: Document Recovery & Tactical Notes Integration
    Features: Specs Loading, Auto-Sync, Note Management
    Status: FINAL STABLE | FIXED: NOISY LOGS + SAFE STORAGE + CLEAN UI LOAD
@@ -68,7 +68,7 @@ window.PegasusProfile = {
 
         console.log("🔒 PROFILE: Local-only documents saved. No cloud sync.");
 
-        alert("Τα στοιχεία αποθηκεύτηκαν τοπικά.");
+        this.setBackupStatus("✅ Τα προσωπικά στοιχεία αποθηκεύτηκαν.", "ok");
     },
 
 

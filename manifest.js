@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PEGASUS OS - MASTER MANIFEST & REGISTRY (v18.89)
+   PEGASUS OS - MASTER MANIFEST & REGISTRY (v18.91)
    Protocol: Global Variable Re-declaration (Unlock M)
    Status: THE SINGLE SOURCE OF TRUTH | HARDENED: KEY CONSISTENCY + AUDIT SAFETY
    ========================================================================== */
@@ -13,7 +13,7 @@ window.PegasusManifest = {
         author: "Angelos & Gemini",
         last_update: "2026-05-09",
         logic_protocol: "Zero-Bug Simulation & Global Scope Shielding",
-        engine_version: "v18.89 mobile data restore no save-as"
+        engine_version: "v18.91 mobile weekly compat and quiet polish"
     },
 
     // ---------------------------------------------------------
@@ -128,7 +128,7 @@ window.PegasusManifest = {
         "auditUI.js": "Real-time System Integrity Monitor & Diagnostic Tool.",
         "debug.js": "Tracer, health checks, calorie audit and runtime diagnostics.",
         "car.js": "Vehicle Management Module.",
-        "parking.js": "Geolocation Tracking Module.",
+        "parking.js": "Manual Parking Notes & Recent Locations Module.",
         "mobile/mobile.html": "Mobile shell, unlock flow, silent local master-key and data management hub.",
         "dragDrop.js": "UI Window Positioning Memory.",
         "ems.js": "Electro-Muscle Stimulation Tracker & Sync.",
@@ -210,4 +210,4 @@ window.PegasusManifest = {
 // 🛡️ ΤΟ ΚΛΕΙΔΙ ΤΟΥ UNLOCK
 var M = window.PegasusManifest;
 
-console.log("🏛️ PEGASUS MANIFEST v18.90 LOADED. UNUSED VOICE MODULE REMOVED.");
+console.log("🏛️ PEGASUS MANIFEST v18.91 LOADED. MOBILE WEEKLY COMPAT + QUIET POLISH READY.");

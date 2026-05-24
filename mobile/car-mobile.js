@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PEGASUS OS - VEHICLE MODULE (v15.3 - GR POLISH LOCAL BACKUP RESTORE)
+   PEGASUS OS - VEHICLE MODULE (v15.4 - QUIET SAVE + CLEAN SERVICE TEXT)
    Protocol: Strict Manifest Governance, Legacy Bridging & Date Safe Format
    ========================================================================== */
 
@@ -32,7 +32,7 @@ window.PegasusCar = {
         console.log("🔒 CAR: Vehicle data saved locally only. No cloud sync.");
 
         this.load();
-        alert("Τα στοιχεία του οχήματος αποθηκεύτηκαν τοπικά.");
+        this.setBackupStatus("✅ Τα στοιχεία οχήματος αποθηκεύτηκαν.", "ok");
     },
 
 
@@ -196,7 +196,7 @@ window.PegasusCar = {
         const rawDate = new Date();
         const dateStrSafe = `${rawDate.getDate()}/${rawDate.getMonth() + 1}/${rawDate.getFullYear()}`;
 
-        logs.unshift({ t: t.toUpperCase(), k: k.toLocaleString('el-GR'), d: dateStrSafe });
+        logs.unshift({ t: String(t).trim(), k: k.toLocaleString('el-GR'), d: dateStrSafe });
 
         localStorage.setItem(CAR_M.car.service, JSON.stringify(logs));
 

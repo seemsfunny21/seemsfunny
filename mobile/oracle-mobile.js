@@ -103,7 +103,7 @@
                 <div style="display: flex; align-items: flex-start; gap: 10px; width: 100%;">
                     <div style="font-size: 16px; margin-top: -2px; flex-shrink: 0;">${row.icon}</div>
                     <div style="font-size: 11px; color: ${row.color}; font-weight: 700; line-height: 1.4; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;">
-                        ${row.txt.toUpperCase()}
+                        ${row.txt}
                     </div>
                 </div>
             `).join('');

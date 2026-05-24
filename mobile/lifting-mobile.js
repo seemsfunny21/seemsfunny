@@ -966,7 +966,7 @@
         layer.id = 'lifting';
         layer.innerHTML = `
             <button class="btn-back" onclick="openView('home')">◀ Επιστροφή</button>
-            <div class="view-title">🏋️ ΒΑΡΗ</div>
+            <div class="view-title">🏋️ Βάρη</div>
             <div style="padding: 16px; display: flex; flex-direction: column; gap: 14px;">
                 <div style="border:1px solid var(--border); border-radius:16px; padding:12px; background:rgba(0,0,0,0.45);">
                     <div style="font-size:11px; color:var(--main); font-weight:900; margin-bottom:8px;">+ Χειροκίνητη καταγραφή</div>

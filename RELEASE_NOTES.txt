@@ -1,3 +1,12 @@
+PEGASUS 291
+- Restored mobile weekly-progress compatibility without bringing back adaptiveTypography.js.
+- Mobile now defines PegasusWeeklyProgress/reconcile/repairFromLedger directly in mobile.html, so weekly set repair still works on mobile.
+- Cleaned remaining static all-caps mobile labels: Βάρη, Τελευταία αποθηκευμένα κιλά, saved master-key delete text, EMS labels, day reset note, Oracle dashboard text, and Kouki day header.
+- Vehicle save and Personal documents save no longer show popup alerts; they update silently with inline status.
+- Vehicle service entries no longer force toUpperCase; saved text keeps the user's normal casing.
+- Updated manifest documentation: Parking is now manual notes/recent locations, not geolocation tracking.
+- Cache bump to 291.
+
 
 PEGASUS 289
 - Full static label case cleanup across project files: Greek UI labels now use first-letter uppercase/sentence case instead of all-caps static text.
