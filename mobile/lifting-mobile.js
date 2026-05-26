@@ -1,5 +1,5 @@
 /* ======================================================================
-   PEGASUS MOBILE LIFTING - Workout Weight Mirror Library (v1.6.245)
+   PEGASUS MOBILE LIFTING - Workout Weight Mirror Library (v1.6.293)
    Purpose: show current workout exercises + saved weights, keep manual log
    ====================================================================== */
 (function() {
@@ -671,13 +671,43 @@
         return true;
     }
 
-    function getTodayDoneSets(name) {
+    function normalizeProgressName(value) {
+        return String(value || '')
+            .trim()
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9\u0370-\u03ff]+/g, '');
+    }
+
+    function getExerciseProgressKey(day, index, name) {
+        const safeDay = String(day || '').trim() || 'day';
+        const safeIndex = Number.isFinite(Number(index)) ? Number(index) : 0;
+        return `${safeDay}|${safeIndex}|${normalizeProgressName(name)}`;
+    }
+
+    function dailyProgressHasInstanceKeys(daily) {
+        const map = daily?.exercises && typeof daily.exercises === 'object' ? daily.exercises : {};
+        return Object.keys(map).some(key => String(key).includes('|'));
+    }
+
+    function getTodayDoneSets(name, index, day) {
         const daily = safeReadJSON(DAILY_PROGRESS_KEY, {});
         const todayKey = getDateKey();
         const todayDisplay = getDateDisplay();
         const isToday = daily?.date === todayKey || daily?.date === todayDisplay;
         if (!isToday || !daily?.exercises) return 0;
-        return Number(daily.exercises[name] || 0) || 0;
+
+        const instanceKey = getExerciseProgressKey(day || getSelectedDayName(), index, name);
+        if (Object.prototype.hasOwnProperty.call(daily.exercises, instanceKey)) {
+            return Number(daily.exercises[instanceKey] || 0) || 0;
+        }
+
+        if (!dailyProgressHasInstanceKeys(daily)) {
+            return Number(daily.exercises[name] || 0) || 0;
+        }
+
+        return 0;
     }
 
     function getWorkoutExercises() {
@@ -696,7 +726,7 @@
 
         return raw
             .filter(shouldShowWorkoutExercise)
-            .map(exercise => {
+            .map((exercise, index) => {
                 const name = normalizeExerciseName(exercise.name || exercise.exercise);
                 const sets = Number(exercise.sets || exercise.targetSets || 0) || 0;
                 const weight = readSavedWeight(name, exercise.weight || "");
@@ -704,7 +734,7 @@
                     name,
                     group: getExerciseGroup(name, exercise.muscleGroup),
                     sets,
-                    done: getTodayDoneSets(name),
+                    done: getTodayDoneSets(name, index, selectedDay),
                     weight
                 };
             });
@@ -1024,5 +1054,5 @@
         }
     });
 
-    console.log('🏋️ PEGASUS MOBILE LIFTING: Targets-integrated weight library active (v1.6.245).');
+    console.log('🏋️ PEGASUS MOBILE LIFTING: Targets-integrated weight library active (v1.6.293).');
 })();

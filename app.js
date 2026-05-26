@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PEGASUS WORKOUT ENGINE - v10.47 (PHASE-2 RUNTIME PATCH BRIDGE)
+   PEGASUS WORKOUT ENGINE - v10.48 (PER-EXERCISE SET GUARD)
    Protocol: Partial Session Memory + Auto-Sort + Smart Sync Logic
    Status: FINAL STABLE | PHASE-2 ENGINE RUNTIME PATCH READY
    ========================================================================== */
@@ -60,6 +60,81 @@ window.getPegasusLocalDateKey = function() {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
+
+
+/* PEGASUS 293: per-exercise-instance daily set progress guard.
+   Prevents one completed 3/3 exercise from making another exercise look complete. */
+function normalizePegasusProgressName(value) {
+    return String(value || '')
+        .trim()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9\u0370-\u03ff]+/g, '');
+}
+
+function getPegasusExerciseProgressKey(day, index, name) {
+    const safeDay = String(day || getPegasusActiveSelectedDay?.() || '').trim() || 'day';
+    const safeIndex = Number.isFinite(Number(index)) ? Number(index) : 0;
+    return `${safeDay}|${safeIndex}|${normalizePegasusProgressName(name)}`;
+}
+
+function pegasusDailyProgressHasInstanceKeys(dailyProg) {
+    const exercisesMap = dailyProg && dailyProg.exercises && typeof dailyProg.exercises === 'object'
+        ? dailyProg.exercises
+        : {};
+    return Object.keys(exercisesMap).some(key => String(key).includes('|'));
+}
+
+function readPegasusExerciseDone(dailyProg, day, index, name) {
+    const exercisesMap = dailyProg && dailyProg.exercises && typeof dailyProg.exercises === 'object'
+        ? dailyProg.exercises
+        : {};
+    const instanceKey = getPegasusExerciseProgressKey(day, index, name);
+    if (Object.prototype.hasOwnProperty.call(exercisesMap, instanceKey)) {
+        return Math.max(0, Number(exercisesMap[instanceKey]) || 0);
+    }
+
+    // Legacy fallback only before this day has any per-instance entries.
+    // Once instance keys exist, plain exercise-name counters are compatibility only.
+    if (!pegasusDailyProgressHasInstanceKeys(dailyProg) && Object.prototype.hasOwnProperty.call(exercisesMap, name)) {
+        return Math.max(0, Number(exercisesMap[name]) || 0);
+    }
+
+    return 0;
+}
+
+function writePegasusExerciseDone(exNode, name, index, done) {
+    const todayStr = window.getPegasusLocalDateKey();
+    let dailyProg = {};
+    try { dailyProg = JSON.parse(localStorage.getItem('pegasus_daily_progress') || '{}') || {}; }
+    catch (e) { dailyProg = {}; }
+    if (dailyProg.date !== todayStr || !dailyProg.exercises || typeof dailyProg.exercises !== 'object') {
+        dailyProg = { date: todayStr, exercises: {} };
+    }
+
+    const selectedDay = exNode?.dataset?.day || getPegasusActiveSelectedDay?.() || '';
+    const rawIndex = exNode?.dataset?.index ?? index ?? currentIdx;
+    const progressKey = exNode?.dataset?.progressKey || getPegasusExerciseProgressKey(selectedDay, rawIndex, name);
+    const safeDone = Math.max(0, Number(done) || 0);
+
+    dailyProg.exercises[progressKey] = safeDone;
+    dailyProg.exercises[String(name || '').trim()] = safeDone; // compatibility for older read-only views
+    dailyProg.updatedAt = Date.now();
+    dailyProg.progressMode = 'per-exercise-instance-v293';
+    localStorage.setItem('pegasus_daily_progress', JSON.stringify(dailyProg));
+    return dailyProg;
+}
+
+function syncPegasusRemainingSetFromNode(index) {
+    const exNode = exercises[index];
+    if (!exNode) return 0;
+    const total = Math.max(0, Number(exNode.dataset.total) || 0);
+    const done = Math.max(0, Number(exNode.dataset.done) || 0);
+    const remaining = Math.max(0, total - done);
+    remainingSets[index] = remaining;
+    return remaining;
+}
 
 window.getPegasusDateAliases = function(dateStr) {
     const aliases = new Set();
@@ -1344,16 +1419,19 @@ function selectDay(btn, day) {
 
         const cleanName = e.name.trim();
         let finalSets = parseFloat(e.adjustedSets);
-        let doneSoFar = dailyProg.exercises[cleanName] || 0;
-        let remSets = Math.max(0, finalSets - doneSoFar);
         const renderIdx = exercises.length;
+        let doneSoFar = readPegasusExerciseDone(dailyProg, day, renderIdx, cleanName);
+        doneSoFar = Math.min(Math.max(0, Number(doneSoFar) || 0), Math.max(0, Number(finalSets) || 0));
+        let remSets = Math.max(0, finalSets - doneSoFar);
 
         const d = document.createElement("div");
         d.className = "exercise";
         d.dataset.name = cleanName;
+        d.dataset.day = day;
         d.dataset.total = finalSets;
         d.dataset.done = doneSoFar;
         d.dataset.index = renderIdx;
+        d.dataset.progressKey = getPegasusExerciseProgressKey(day, renderIdx, cleanName);
 
         const savedWeight = window.getSavedWeight(cleanName);
         const displayWeight = (savedWeight && savedWeight !== "") ? savedWeight : (e.weight || "");
@@ -1654,11 +1732,7 @@ function runPhase() {
                 remainingSets[currentIdx] = Math.max(0, parseFloat(e.dataset.total) - done);
                 e.querySelector(".set-counter").textContent = `${done}/${e.dataset.total}`;
 
-                const todayStr = window.getPegasusLocalDateKey();
-                let dailyProg = JSON.parse(localStorage.getItem('pegasus_daily_progress') || "{}");
-                if (dailyProg.date !== todayStr) dailyProg = { date: todayStr, exercises: {} };
-                dailyProg.exercises[exName] = done;
-                localStorage.setItem('pegasus_daily_progress', JSON.stringify(dailyProg));
+                writePegasusExerciseDone(e, exName, currentIdx, done);
 
                 if (window.updateAchievements) window.updateAchievements(exName);
                 if (window.logPegasusSet) window.logPegasusSet(exName, done);
@@ -1710,11 +1784,7 @@ function skipToNextExercise() {
         remainingSets[currentIdx] = Math.max(0, parseFloat(currentExNode.dataset.total) - done);
         currentExNode.querySelector(".set-counter").textContent = `${done}/${currentExNode.dataset.total}`;
 
-        const todayStr = window.getPegasusLocalDateKey();
-        let dailyProg = JSON.parse(localStorage.getItem('pegasus_daily_progress') || "{}");
-        if (dailyProg.date !== todayStr) dailyProg = { date: todayStr, exercises: {} };
-        dailyProg.exercises[exName] = done;
-        localStorage.setItem('pegasus_daily_progress', JSON.stringify(dailyProg));
+        writePegasusExerciseDone(currentExNode, exName, currentIdx, done);
 
         if (window.logPegasusSet) window.logPegasusSet(exName, done);
     }
@@ -1742,7 +1812,8 @@ function skipToNextExercise() {
 function getNextIndexCircuit() {
     for (let i = 1; i <= remainingSets.length; i++) {
         let idx = (currentIdx + i) % remainingSets.length;
-        if (remainingSets[idx] > 0 && isPegasusExerciseAvailable(idx)) return idx;
+        const remaining = syncPegasusRemainingSetFromNode(idx);
+        if (remaining > 0 && isPegasusExerciseAvailable(idx)) return idx;
     }
     return -1;
 }

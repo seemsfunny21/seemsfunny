@@ -1,3 +1,10 @@
+PEGASUS 293
+- Fixed workout set progress guard so each exercise card keeps its own daily set counter.
+- Prevents a completed 3/3 exercise from making Plank or another exercise look complete/skip its remaining set.
+- Daily progress now stores per-day/per-index/per-exercise keys while preserving legacy read compatibility.
+- Mobile Targets display reads the per-exercise progress keys too.
+- Cache/storage version bumped to 293.
+
 PEGASUS 292
 - Mobile PIN auto-unlock: when the saved master key is already filled, entering the 4-digit PIN automatically runs unlock.
 - The unlock button remains as fallback.
