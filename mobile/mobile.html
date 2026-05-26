@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Pegasus Mobile v18.91</title>
+    <title>Pegasus Mobile v18.92</title>
     <link rel="icon" type="image/png" href="../images/favicon.png">
     <link rel="apple-touch-icon" href="../images/favicon.png">
 
@@ -30,7 +30,7 @@
     </script>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=291">
+    <link rel="stylesheet" href="style.css?v=292">
 </head>
 <body>
 
@@ -637,28 +637,28 @@
     <script src="../weightTracker.js"></script>
 <script src="../backup.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js" defer></script>
-    <script src="../reporting.js?v=291"></script>
+    <script src="../reporting.js?v=292"></script>
 
-    <script src="diet-mobile.js?v=291"></script>
+    <script src="diet-mobile.js?v=292"></script>
     <script src="cardio-mobile.js"></script>
-    <script src="profile-mobile.js?v=291"></script>
-    <script src="car-mobile.js?v=291"></script>
-    <script src="parking-mobile.js?v=291"></script>
+    <script src="profile-mobile.js?v=292"></script>
+    <script src="car-mobile.js?v=292"></script>
+    <script src="parking-mobile.js?v=292"></script>
     <script src="inventory-mobile.js"></script>
     <script src="ems-mobile.js"></script>
-    <script src="supplies-mobile.js?v=291"></script>
-    <script src="finance-mobile.js?v=291"></script>
+    <script src="supplies-mobile.js?v=292"></script>
+    <script src="finance-mobile.js?v=292"></script>
     <script src="social-mobile.js"></script>
-    <script src="movies-mobile.js?v=291"></script>
-    <script src="missions-mobile.js?v=291"></script>
-    <script src="biometrics-mobile.js?v=291"></script>
-    <script src="maintenance-mobile.js?v=291"></script>
+    <script src="movies-mobile.js?v=292"></script>
+    <script src="missions-mobile.js?v=292"></script>
+    <script src="biometrics-mobile.js?v=292"></script>
+    <script src="maintenance-mobile.js?v=292"></script>
     <script src="oracle-mobile.js"></script>
-    <script src="lifting-mobile.js?v=291"></script>
+    <script src="lifting-mobile.js?v=292"></script>
     <script src="youtube-mobile.js"></script>
     <script src="weather-mobile.js"></script>
     <script src="biometric-unlock-mobile.js"></script>
-    <script src="shell-layout-mobile.js?v=291"></script>
+    <script src="shell-layout-mobile.js?v=292"></script>
 
 
 <script>
@@ -1552,6 +1552,87 @@
         }
     }
 
+
+
+    // PEGASUS v292: Mobile PIN auto-unlock.
+    // When the saved master key is already filled, typing the 4-digit PIN is enough.
+    (function installMobilePinAutoUnlock() {
+        if (window.__pegasusMobilePinAutoUnlockV292) return;
+        window.__pegasusMobilePinAutoUnlockV292 = true;
+
+        let busy = false;
+        let timer = null;
+
+        function modalIsOpen() {
+            const modal = document.getElementById("pinModal");
+            return !!(modal && getComputedStyle(modal).display !== "none" && modal.style.display !== "none");
+        }
+
+        async function tryAutoUnlock(reason = "pin-input") {
+            if (busy || !modalIsOpen()) return;
+
+            const pinInput = document.getElementById("pinInput");
+            const masterInput = document.getElementById("masterKeyInput");
+            const pin = String(pinInput?.value || "").trim();
+
+            if (pin.length < 4) return;
+
+            try {
+                await window.PegasusMobileSavedMasterKey?.prefillIfAvailable?.();
+            } catch (_) {}
+
+            let masterKey = String(masterInput?.value || "").trim();
+
+            // If the saved master key is being decrypted/prefilled, wait a beat and check once more.
+            if (!masterKey) {
+                await new Promise(resolve => setTimeout(resolve, 220));
+                try { await window.PegasusMobileSavedMasterKey?.prefillIfAvailable?.(); } catch (_) {}
+                masterKey = String(masterInput?.value || "").trim();
+            }
+
+            if (!masterKey) return;
+
+            busy = true;
+            try {
+                await attemptVaultUnlock();
+            } finally {
+                setTimeout(() => { busy = false; }, 450);
+            }
+        }
+
+        function schedule(reason) {
+            clearTimeout(timer);
+            timer = setTimeout(() => tryAutoUnlock(reason), 180);
+        }
+
+        function bind() {
+            const pinInput = document.getElementById("pinInput");
+            const masterInput = document.getElementById("masterKeyInput");
+            if (!pinInput || pinInput.dataset.pegasusAutoUnlockBound === "true") return;
+
+            pinInput.dataset.pegasusAutoUnlockBound = "true";
+            pinInput.addEventListener("input", () => schedule("pin-input"));
+            pinInput.addEventListener("keyup", event => {
+                if (event.key === "Enter") schedule("pin-enter");
+            });
+
+            if (masterInput && masterInput.dataset.pegasusAutoUnlockBound !== "true") {
+                masterInput.dataset.pegasusAutoUnlockBound = "true";
+                masterInput.addEventListener("input", () => schedule("master-input"));
+                masterInput.addEventListener("keyup", event => {
+                    if (event.key === "Enter") schedule("master-enter");
+                });
+            }
+        }
+
+        if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bind, { once: true });
+        else bind();
+
+        // Modal can be shown after fast boot, so keep the binding resilient without UI side effects.
+        setInterval(bind, 1500);
+        console.log("🔓 PEGASUS MOBILE PIN AUTO-UNLOCK: Active v292");
+    })();
+
     function skipVault() {
         document.getElementById("pinModal").style.display = "none";
         stopMobileSyncHeartbeat();
@@ -2139,7 +2220,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('../sw.js?v=291.36.291')
+                navigator.serviceWorker.register('../sw.js?v=292.36.292')
                     .then(reg => {
                         console.log('📡 PEGASUS: Service Worker Registered.');
                         // No forced reg.update() on every open; this keeps refresh fast after the first local download.

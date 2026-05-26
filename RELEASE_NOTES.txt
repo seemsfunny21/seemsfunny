@@ -1,3 +1,9 @@
+PEGASUS 292
+- Mobile PIN auto-unlock: when the saved master key is already filled, entering the 4-digit PIN automatically runs unlock.
+- The unlock button remains as fallback.
+- Desktop unchanged.
+- Cache bump to 292.
+
 PEGASUS 291
 - Restored mobile weekly-progress compatibility without bringing back adaptiveTypography.js.
 - Mobile now defines PegasusWeeklyProgress/reconcile/repairFromLedger directly in mobile.html, so weekly set repair still works on mobile.
