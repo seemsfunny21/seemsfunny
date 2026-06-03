@@ -205,6 +205,9 @@
             <input type="text" id="parkingInput" placeholder="π.χ. Γιάννενα, Κέντρο...">
             <button class="primary-btn" onclick="window.PegasusParking.save()">Αποθήκευση στο cloud</button>
         </div>
+        <div class="mini-card" id="parkingCurrentInfo" style="border-color:rgba(255,152,0,0.3); margin-top:12px; width:100%; box-sizing:border-box;">
+            <div style="font-size:13px; font-weight:900; color:#fff;">📍 --</div>
+        </div>
         <div class="section-title">Πρόσφατες περιοχές (Top 10)</div>
         <div id="parkingHistoryList" style="width:100%; display:flex; flex-direction:column; gap:8px;"></div>
     </div>
@@ -224,7 +227,23 @@
             </div>
         </div>
 
-        <div class="mini-card" style="margin-top: 30px; padding: 20px; border-color: var(--main); background: rgba(0,255,65,0.04);">
+        <div class="mini-card pegasus-timer-settings-card pegasus-timer-settings-card-priority">
+            <span class="mini-label pegasus-data-title">Χρόνοι προπόνησης</span>
+            <div class="pegasus-timer-settings-grid">
+                <label class="pegasus-timer-setting-row" for="mobileExerciseTimeInput">
+                    <span>Χρόνος άσκησης</span>
+                    <input type="number" id="mobileExerciseTimeInput" min="10" max="120" step="5" inputmode="numeric" placeholder="45">
+                </label>
+                <label class="pegasus-timer-setting-row" for="mobileRestTimeInput">
+                    <span>Χρόνος διαλείμματος</span>
+                    <input type="number" id="mobileRestTimeInput" min="10" max="180" step="5" inputmode="numeric" placeholder="60">
+                </label>
+            </div>
+            <button class="primary-btn pegasus-timer-save-btn" type="button" onclick="window.PegasusMobileWorkoutSettings?.save?.()">Αποθήκευση χρόνων</button>
+            <div id="mobileWorkoutTimerStatus" class="pegasus-data-hint">Οι χρόνοι εφαρμόζονται στην επόμενη προπόνηση και συγχρονίζονται στο cloud.</div>
+        </div>
+
+        <div class="mini-card" style="margin-top: 18px; padding: 20px; border-color: var(--main); background: rgba(0,255,65,0.04);">
             <span class="mini-label" style="margin-bottom: 12px; display: block;">Γλώσσα διεπαφής</span>
             <button id="btnLangToggle" class="secondary-btn pegasus-lang-toggle" style="width:100%; margin:0;">En/Gr</button>
         </div>
@@ -1103,6 +1122,78 @@
         }
     }
 
+
+    window.PegasusMobileWorkoutSettings = window.PegasusMobileWorkoutSettings || {
+        defaults: { exercise: 45, rest: 60 },
+        clamp(value, min, max, fallback) {
+            const n = parseInt(value, 10);
+            if (!Number.isFinite(n)) return fallback;
+            return Math.max(min, Math.min(max, n));
+        },
+        keys() {
+            const w = window.PegasusManifest?.workout || {};
+            return {
+                exercise: w.ex_time || "pegasus_ex_time",
+                rest: w.rest_time || "pegasus_rest_time"
+            };
+        },
+        read() {
+            const keys = this.keys();
+            return {
+                exercise: this.clamp(localStorage.getItem(keys.exercise), 10, 120, this.defaults.exercise),
+                rest: this.clamp(localStorage.getItem(keys.rest), 10, 180, this.defaults.rest)
+            };
+        },
+        load() {
+            const values = this.read();
+            const ex = document.getElementById("mobileExerciseTimeInput");
+            const rest = document.getElementById("mobileRestTimeInput");
+            const status = document.getElementById("mobileWorkoutTimerStatus");
+            if (ex) ex.value = values.exercise;
+            if (rest) rest.value = values.rest;
+            if (status) status.textContent = `Τρέχον: άσκηση ${values.exercise}s · διάλειμμα ${values.rest}s`;
+            return values;
+        },
+        apply(values) {
+            const v = values || this.read();
+            window.pegasusTimerConfig = {
+                prep: 10,
+                work: v.exercise,
+                rest: v.rest
+            };
+            try {
+                window.PegasusEngine?.dispatch?.({
+                    type: "SET_TIMER_CONFIG",
+                    payload: { prep: 10, work: v.exercise, rest: v.rest }
+                });
+            } catch (_) {}
+            return v;
+        },
+        save() {
+            const keys = this.keys();
+            const exercise = this.clamp(document.getElementById("mobileExerciseTimeInput")?.value, 10, 120, this.defaults.exercise);
+            const rest = this.clamp(document.getElementById("mobileRestTimeInput")?.value, 10, 180, this.defaults.rest);
+            localStorage.setItem(keys.exercise, String(exercise));
+            localStorage.setItem(keys.rest, String(rest));
+            const values = this.apply({ exercise, rest });
+            const status = document.getElementById("mobileWorkoutTimerStatus");
+            if (status) status.textContent = `Αποθηκεύτηκε: άσκηση ${values.exercise}s · διάλειμμα ${values.rest}s`;
+            try {
+                window.PegasusCloud?.queuePendingChange?.(keys.exercise, String(exercise), "set");
+                window.PegasusCloud?.queuePendingChange?.(keys.rest, String(rest), "set");
+            } catch (_) {}
+            if (window.PegasusCloud?.push) {
+                setTimeout(() => window.PegasusCloud.push(true), 250);
+            }
+            return values;
+        }
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+        try { window.PegasusMobileWorkoutSettings.load(); } catch (_) {}
+        try { window.PegasusMobileWorkoutSettings.apply(); } catch (_) {}
+    });
+
     function openView(id) {
         document.querySelectorAll('.view, .view-layer').forEach(v => v.classList.remove('active'));
         const targetView = document.getElementById(id);
@@ -1140,7 +1231,8 @@
             }
             if (id === 'settings_panel') {
                 window.PegasusWeight?.updateUI();
-                }
+                window.PegasusMobileWorkoutSettings?.load?.();
+            }
             if (id === 'parking_panel') window.PegasusParking?.updateUI();
 
             const dynamicRenderName = `render${id.charAt(0).toUpperCase() + id.slice(1)}Content`;

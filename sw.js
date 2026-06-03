@@ -1,10 +1,10 @@
 /* ==========================================================================
-   PEGASUS PWA SERVICE WORKER - v3.15 (PERMANENT LOCAL STORAGE BOOT)
+   PEGASUS PWA SERVICE WORKER - v3.17 (MOBILE TIMER SETTINGS)
    Protocol: Cache-first after full local download, persistent same-origin assets
    Status: FINAL STABLE | ZERO WARMUP FALLBACK | FULL PROGRESS BRIDGE
    ========================================================================== */
 
-const PEGASUS_STORAGE_VERSION = '293';
+const PEGASUS_STORAGE_VERSION = '296';
 const CACHE_NAME = `pegasus-permanent-local-v${PEGASUS_STORAGE_VERSION}`;
 const CACHE_META_URL = './__pegasus_permanent_cache_meta__.json';
 
@@ -114,6 +114,45 @@ function makeCacheRequest(urlString) {
     return new Request(url.href, { credentials: 'same-origin' });
 }
 
+function isPegasusPermanentCacheName(name) {
+    return (
+        name === CACHE_NAME ||
+        name.startsWith('pegasus-permanent-local-')
+    );
+}
+
+async function findCachedAssetInPegasusCaches(request, url, { excludeCurrent = false } = {}) {
+    if (!isSameOrigin(url)) return null;
+
+    const cacheNames = await caches.keys();
+    const candidates = cacheNames.filter(name => {
+        if (!isPegasusPermanentCacheName(name)) return false;
+        if (excludeCurrent && name === CACHE_NAME) return false;
+        return true;
+    });
+
+    const cleanRequest = makeCacheRequest(url.href);
+
+    for (const cacheName of candidates) {
+        try {
+            const cache = await caches.open(cacheName);
+            const cached = await cache.match(cleanRequest, { ignoreSearch: true }) || await cache.match(request, { ignoreSearch: true });
+            if (cached) return { cacheName, response: cached.clone() };
+        } catch (_) {}
+    }
+
+    return null;
+}
+
+async function copyCachedAssetToCurrentCache(request, response, url) {
+    try {
+        if (!response) return;
+        const cache = await caches.open(CACHE_NAME);
+        const cleanRequest = makeCacheRequest(url.href);
+        await cache.put(cleanRequest, response.clone());
+    } catch (_) {}
+}
+
 function isCacheableResponse(response) {
     return !!response && response.status === 200 && response.type === 'basic';
 }
@@ -199,6 +238,23 @@ async function cacheOnePermanentAsset(cache, urlString) {
     const existing = await cache.match(request, { ignoreSearch: true });
     if (existing) {
         return { ok: true, cached: true, size: Number(existing.headers.get('content-length') || 0) };
+    }
+
+    // PEGASUS 294: do not redownload heavy videos after every app update.
+    // If an older permanent cache already has the video/media file, migrate it
+    // into the current cache and keep offline playback available immediately.
+    if (isMediaAsset(url.pathname.toLowerCase())) {
+        const migrated = await findCachedAssetInPegasusCaches(request, url, { excludeCurrent: true });
+        if (migrated && migrated.response) {
+            await cache.put(request, migrated.response.clone());
+            return {
+                ok: true,
+                cached: true,
+                migrated: true,
+                from: migrated.cacheName,
+                size: Number(migrated.response.headers.get('content-length') || 0)
+            };
+        }
     }
 
     const response = await fetch(request, { cache: 'reload' });
@@ -338,7 +394,19 @@ async function runPermanentLocalDownload(extraUrls = []) {
 
 async function getCachedResponseForRequest(request, url) {
     const cache = await caches.open(CACHE_NAME);
-    const cached = await cache.match(request, { ignoreSearch: true });
+    let cached = await cache.match(request, { ignoreSearch: true });
+
+    // PEGASUS 294: video/media cache must survive version bumps.
+    // Older permanent caches are searched before network, so an internet cut
+    // during workout still shows the already downloaded exercise video.
+    if (!cached && isMediaAsset(url.pathname.toLowerCase())) {
+        const migrated = await findCachedAssetInPegasusCaches(request, url, { excludeCurrent: true });
+        if (migrated && migrated.response) {
+            cached = migrated.response.clone();
+            await copyCachedAssetToCurrentCache(request, migrated.response.clone(), url);
+        }
+    }
+
     if (!cached) return null;
 
     if (isVideoAsset(url.pathname.toLowerCase()) && isRangeRequest(request)) {
@@ -408,13 +476,16 @@ self.addEventListener('activate', (event) => {
     event.waitUntil((async () => {
         const keys = await caches.keys();
         await Promise.all(keys.map(key => {
-            const isPegasusCache =
+            const isOldNonPermanentPegasusCache =
                 key.startsWith('pegasus-shield') ||
-                key.startsWith('pegasus-videos-') ||
-                key.startsWith('pegasus-permanent-local-');
+                key.startsWith('pegasus-videos-');
 
-            if (isPegasusCache && key !== CACHE_NAME) {
-                console.log(`🧹 PEGASUS SW: deleting old cache: ${key}`);
+            // PEGASUS 294: keep pegasus-permanent-local-* caches. They contain
+            // heavy exercise videos and are used as offline fallback/migration
+            // across app updates. Deleting them on every version bump caused
+            // offline workouts to lose video playback.
+            if (isOldNonPermanentPegasusCache && key !== CACHE_NAME) {
+                console.log(`🧹 PEGASUS SW: deleting old non-permanent cache: ${key}`);
                 return caches.delete(key);
             }
             return Promise.resolve();

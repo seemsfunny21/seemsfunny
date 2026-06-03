@@ -177,7 +177,11 @@ window.PegasusOptimizer = {
         const target = currentTargets[group] || 24;
         const remaining = target - (tracker[group] || 0);
 
-        let finalSets = (remaining <= 0) ? 0 : (ex.sets > remaining ? remaining : ex.sets);
+        // PEGASUS 296: Brain minimum-duration top-up is intentional maintenance volume.
+        // It must not be cut back to 0 just because the weekly target is almost complete.
+        let finalSets = ex.brainMinimumTopUp
+            ? Math.max(1, Math.round(Number(ex.sets) || 1))
+            : ((remaining <= 0) ? 0 : (ex.sets > remaining ? remaining : ex.sets));
 
         // 🚴 PEGASUS 137: Cycling credits are capped by the remaining leg target.
         // Η άσκηση εμφανίζεται αν λείπει ΕΣΤΩ ΚΑΙ 1 σετ (remaining > 0)
@@ -195,7 +199,7 @@ window.PegasusOptimizer = {
         return {
             ...ex,
             adjustedSets: finalSets,
-            isCompleted: remaining <= 0,
+            isCompleted: !ex.brainMinimumTopUp && remaining <= 0,
             muscleGroup: group
         };
     },

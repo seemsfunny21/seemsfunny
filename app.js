@@ -1932,14 +1932,17 @@ function getPegasusKnownMediaUrls() {
         urls.add(`videos/${clean}.mp4`);
         urls.add(`images/${clean}.png`);
         urls.add(`images/${clean}.jpg`);
+        urls.add(`images/${clean}.webp`);
     });
 
     ['warmup', 'stretching', 'cycling'].forEach(name => {
         urls.add(`videos/${name}.mp4`);
         urls.add(`images/${name}.png`);
         urls.add(`images/${name}.jpg`);
+        urls.add(`images/${name}.webp`);
     });
 
+    urls.add('videos/beep.mp3');
     urls.add('images/favicon.png');
     urls.add('images/placeholder.jpg');
 
@@ -1957,7 +1960,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
     });
 
     const state = {
-        version: '237',
+        version: '294',
         started: false,
         completed: false,
         percent: 0,
@@ -1967,7 +1970,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
         skipped: 0,
         bytes: 0,
         readyPromise,
-        readyKey: 'pegasus_permanent_assets_ready_v237',
+        readyKey: 'pegasus_permanent_assets_ready_v294',
 
         getReadyMarker() {
             try {
@@ -2043,7 +2046,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
             ];
 
             const all = Array.from(new Set([...staticUrls, ...urls]));
-            const cache = await caches.open('pegasus-permanent-local-v237-page-fallback');
+            const cache = await caches.open('pegasus-permanent-local-v294-page-fallback');
             let done = 0;
             let ok = 0;
             let skipped = 0;
@@ -2102,7 +2105,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
                     }
 
                     const swPath = window.location.pathname.includes('/mobile/') ? '../sw.js' : './sw.js';
-                    await navigator.serviceWorker.register(`${swPath}?v=3.36.237`);
+                    await navigator.serviceWorker.register(`${swPath}?v=3.36.294`);
                     const registration = await navigator.serviceWorker.ready;
                     const target = navigator.serviceWorker.controller || registration.active || registration.waiting || registration.installing;
 

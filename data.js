@@ -353,13 +353,37 @@ window.getPegasusExerciseGroup = function(exerciseName) {
 };
 
 window.getPegasusProgramSnapshot = function(dayName) {
-    if (dayName && Array.isArray(window.program?.[dayName])) {
-        return window.program[dayName].map(ex => ({ ...ex }));
-    }
+    const buildDynamicDay = (day) => {
+        try {
+            if (day && window.PegasusBrain?.getDailyWorkout) {
+                const raw = window.PegasusBrain.getDailyWorkout(day, {
+                    isRainy: typeof window.isRaining === "function" ? window.isRaining() : false,
+                    fallback: Array.isArray(window.program?.[day]) ? [...window.program[day]] : []
+                }) || [];
+                const mapped = window.PegasusOptimizer?.apply
+                    ? window.PegasusOptimizer.apply(day, raw)
+                    : raw.map(ex => ({ ...ex, adjustedSets: ex.sets }));
+                return mapped
+                    .filter(ex => String(ex?.name || "").trim() && Number(ex?.adjustedSets ?? ex?.sets ?? 0) > 0)
+                    .sort((a, b) => (a.brainOrder ?? 999) - (b.brainOrder ?? 999))
+                    .map(ex => ({
+                        ...ex,
+                        sets: Number(ex.adjustedSets ?? ex.sets ?? 0) || 0,
+                        targetSets: Number(ex.adjustedSets ?? ex.sets ?? 0) || 0,
+                        muscleGroup: ex.muscleGroup || window.getPegasusExerciseGroup?.(ex.name)
+                    }));
+            }
+        } catch (e) {
+            console.warn("PEGASUS PROGRAM SNAPSHOT: Dynamic plan fallback used.", e);
+        }
+        return Array.isArray(window.program?.[day]) ? window.program[day].map(ex => ({ ...ex })) : [];
+    };
+
+    if (dayName) return buildDynamicDay(dayName);
 
     const snapshot = {};
     Object.keys(window.program || {}).forEach(day => {
-        snapshot[day] = (window.program[day] || []).map(ex => ({ ...ex }));
+        snapshot[day] = buildDynamicDay(day);
     });
     return snapshot;
 };

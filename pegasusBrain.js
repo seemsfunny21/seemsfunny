@@ -1,5 +1,5 @@
 /* ========================================================================== 
-   PEGASUS BRAIN - v1.0.223 (MS-600 FOCUSED SPLIT / REST + EQUIPMENT AWARE)
+   PEGASUS BRAIN - v1.0.296 (MS-600 FOCUSED SPLIT / 40-MIN MINIMUM GUARD)
    Purpose: Pegasus MS-600 + floor-only weekly training plan, weekend carry-over,
    recovery guard, cycling-aware leg policy, focused split days, and 45-minute circuit spacing.
    ========================================================================== */
@@ -14,6 +14,7 @@
     // Pegasus MS-600 plus floor/core work. Cut/Bulk share the same smart order;
     // the difference is the user's selected controllable weight/intensity.
     const DEFAULT_TARGETS_215 = { "Στήθος": 16, "Πλάτη": 16, "Πόδια": 8, "Χέρια": 14, "Ώμοι": 8, "Κορμός": 12 };
+    const MIN_WORKOUT_MINUTES = 40;
 
     const exerciseMeta = {
         "Chest Press": { kind: "weighted", station: "seat", family: "chest_press" },
@@ -412,6 +413,110 @@
         return 0;
     }
 
+    function getTimerSeconds() {
+        const workoutKeys = window.PegasusManifest?.workout || {};
+        const work = Math.max(10, Math.min(120, parseInt(localStorage.getItem(workoutKeys.ex_time || "pegasus_ex_time"), 10) || 45));
+        const rest = Math.max(10, Math.min(180, parseInt(localStorage.getItem(workoutKeys.rest_time || "pegasus_rest_time"), 10) || 60));
+        return { prep: 10, work, rest, block: 10 + work + rest };
+    }
+
+    function getMinimumSetBlocks(day, mode) {
+        if (RECOVERY_DAYS.has(day)) return 0;
+        if (WEEKEND_DAYS.has(day) && mode === "bike") return 0;
+        const limit = getSessionLimit(day, mode);
+        if (limit <= 0) return 0;
+        const timer = getTimerSeconds();
+        return Math.min(limit, Math.max(1, Math.ceil((MIN_WORKOUT_MINUTES * 60) / Math.max(30, timer.block))));
+    }
+
+    function getSetTotal(list) {
+        return (Array.isArray(list) ? list : []).reduce((sum, ex) => sum + Math.max(0, Math.round(Number(ex?.sets) || 0)), 0);
+    }
+
+    function addOrTopUpExercise(list, name, group, addSets, reason) {
+        const cleanName = String(name || "").trim();
+        const amount = Math.max(0, Math.round(Number(addSets) || 0));
+        if (!cleanName || amount <= 0) return 0;
+        const existing = list.find(ex => String(ex?.name || "").trim() === cleanName);
+        if (existing) {
+            existing.sets = Math.max(0, Math.round(Number(existing.sets) || 0)) + amount;
+            existing.brainReason = `${existing.brainReason || ""} · ${reason || "40λεπτο συμπλήρωμα"}`.trim();
+        } else {
+            list.push({
+                name: cleanName,
+                sets: amount,
+                muscleGroup: group,
+                weight: weightFor(cleanName),
+                brainManaged: true,
+                brainMinimumTopUp: true,
+                brainReason: reason || "40λεπτο συμπλήρωμα",
+                brainOrder: list.length
+            });
+        }
+        return amount;
+    }
+
+    function enforceMinimumWorkoutDuration(day, list, blueprint, blocked, limit, allowLegs, mode) {
+        if (!Array.isArray(list) || !blueprint?.length) return list;
+        const minimumBlocks = getMinimumSetBlocks(day, mode);
+        if (minimumBlocks <= 0) return list;
+        let currentBlocks = getSetTotal(list);
+        if (currentBlocks >= minimumBlocks) return list;
+
+        const allowedBlueprint = blueprint.filter(([group]) => {
+            if (group === "Πόδια" && !allowLegs) return false;
+            if (blocked?.has?.(group)) return false;
+            return STRICT_GROUPS.includes(group);
+        });
+
+        // First pass: add missing exercises from the planned day groups, up to 4 sets each.
+        for (const [group] of allowedBlueprint) {
+            if (currentBlocks >= minimumBlocks || currentBlocks >= limit) break;
+            const names = (templatesByDay[day]?.[group] || defaultTemplates[group]?.map(ex => ex.name) || []);
+            for (const name of names) {
+                if (currentBlocks >= minimumBlocks || currentBlocks >= limit) break;
+                const exists = list.some(ex => String(ex?.name || "").trim() === name);
+                if (exists) continue;
+                const add = Math.min(4, minimumBlocks - currentBlocks, limit - currentBlocks);
+                currentBlocks += addOrTopUpExercise(list, name, group, add, `Ελάχιστη διάρκεια ${MIN_WORKOUT_MINUTES} λεπτών`);
+            }
+        }
+
+        // Second pass: top up existing rows to 4 sets before making anything very long.
+        for (const ex of list) {
+            if (currentBlocks >= minimumBlocks || currentBlocks >= limit) break;
+            const group = ex?.muscleGroup || resolveGroup(ex?.name, "Άλλο");
+            if (group === "Πόδια" && !allowLegs) continue;
+            if (!STRICT_GROUPS.includes(group)) continue;
+            const current = Math.max(0, Math.round(Number(ex.sets) || 0));
+            const room = Math.max(0, 4 - current);
+            if (room <= 0) continue;
+            const add = Math.min(room, minimumBlocks - currentBlocks, limit - currentBlocks);
+            ex.sets = current + add;
+            ex.brainMinimumTopUp = true;
+            ex.brainReason = `${ex.brainReason || ""} · Ελάχιστη διάρκεια ${MIN_WORKOUT_MINUTES} λεπτών`.trim();
+            currentBlocks += add;
+        }
+
+        // Final pass: if the week is almost complete and only a few exercises exist, allow 5-set rows.
+        for (const ex of list) {
+            if (currentBlocks >= minimumBlocks || currentBlocks >= limit) break;
+            const group = ex?.muscleGroup || resolveGroup(ex?.name, "Άλλο");
+            if (group === "Πόδια" && !allowLegs) continue;
+            if (!STRICT_GROUPS.includes(group)) continue;
+            const current = Math.max(0, Math.round(Number(ex.sets) || 0));
+            const room = Math.max(0, 5 - current);
+            if (room <= 0) continue;
+            const add = Math.min(room, minimumBlocks - currentBlocks, limit - currentBlocks);
+            ex.sets = current + add;
+            ex.brainMinimumTopUp = true;
+            ex.brainReason = `${ex.brainReason || ""} · Ελάχιστη διάρκεια ${MIN_WORKOUT_MINUTES} λεπτών`.trim();
+            currentBlocks += add;
+        }
+
+        return list;
+    }
+
     function resolveSessionBlueprint(day, allowLegs, mode) {
         if (day === "Τετάρτη") return sessionBlueprints[allowLegs ? "Τετάρτη_LEGS" : "Τετάρτη_CYCLING"];
         if (day === "Σάββατο") return sessionBlueprints[mode === "bike_weights" ? "Σάββατο_BIKE_WEIGHTS" : "Σάββατο_WEIGHTS"];
@@ -592,6 +697,7 @@
         const limit = getSessionLimit(day, mode);
         const blueprint = resolveSessionBlueprint(day, allowLegs, mode);
         let exercises = buildFromBlueprint(day, blueprint, remaining, blocked, limit, allowLegs, mode);
+        exercises = enforceMinimumWorkoutDuration(day, exercises, blueprint, blocked, limit, allowLegs, mode);
 
         if (options.isRainy && WEEKEND_DAYS.has(day) && !exercises.length) {
             exercises = [
@@ -673,7 +779,7 @@
     }
 
     window.PegasusBrain = {
-        version: "1.0.223",
+        version: "1.0.296",
         groups: STRICT_GROUPS.slice(),
         getWeekKey,
         getNextWeekKey,
@@ -692,5 +798,5 @@
         isManagedDay
     };
 
-    console.log("🧠 PEGASUS BRAIN: MS-600 rest/equipment-aware planner active (v1.0.223 focused split).");
+    console.log("🧠 PEGASUS BRAIN: MS-600 planner active (v1.0.296, 40-minute minimum guard).");
 })();

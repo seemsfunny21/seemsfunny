@@ -1153,3 +1153,65 @@ body .ghost-nav-overlay,
     align-self: center !important;
     text-align: center !important;
 }
+
+
+/* PEGASUS v295: mobile workout timer settings */
+.pegasus-timer-settings-card {
+    margin-top: 18px !important;
+    padding: 18px !important;
+    border-color: rgba(0,255,65,0.24) !important;
+    background: rgba(0,255,65,0.032) !important;
+    box-sizing: border-box !important;
+}
+
+.pegasus-timer-settings-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+    width: 100% !important;
+}
+
+.pegasus-timer-setting-row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    color: #cfcfcf !important;
+    font-size: 10px !important;
+    font-weight: 900 !important;
+    text-transform: none !important;
+    letter-spacing: .35px !important;
+}
+
+.pegasus-timer-setting-row input {
+    width: 100% !important;
+    height: 42px !important;
+    margin: 0 !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(0,255,65,.35) !important;
+    background: rgba(0,0,0,.68) !important;
+    color: var(--main) !important;
+    text-align: center !important;
+    font-size: 16px !important;
+    font-weight: 900 !important;
+    box-sizing: border-box !important;
+}
+
+.pegasus-timer-save-btn {
+    margin-top: 12px !important;
+    width: 100% !important;
+    text-align: center !important;
+}
+
+/* PEGASUS v296: make workout timer settings easy to find in mobile settings */
+.pegasus-timer-settings-card-priority {
+    margin-top: 18px !important;
+    border: 1px solid rgba(0,255,65,0.42) !important;
+    box-shadow: 0 0 18px rgba(0,255,65,0.08) !important;
+}
+.pegasus-timer-settings-card-priority .pegasus-data-title {
+    font-size: 12px !important;
+    color: var(--main) !important;
+}

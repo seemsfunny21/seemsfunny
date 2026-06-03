@@ -1,4 +1,4 @@
-/* ===== PEGASUS PARKING TRACKER MODULE v2.1.283 (Original Manual Text Version Restored) ===== */
+/* ===== PEGASUS PARKING TRACKER MODULE v2.2.296 (Manual Parking + Recent Date) ===== */
 window.PegasusParking = {
     _escape: function(value) {
         return String(value ?? '')
@@ -9,23 +9,50 @@ window.PegasusParking = {
             .replace(/'/g, '&#039;');
     },
 
-    _asText: function(value) {
-        if (value == null) return "";
-        if (typeof value === "string") return value.trim();
-        if (typeof value === "number") return String(value);
-        if (typeof value === "object") {
-            const lat = Number(value.lat);
-            const lon = Number(value.lon);
-            return String(
-                value.loc ||
-                value.addressLabel ||
-                value.streetLabel ||
-                value.label ||
-                value.name ||
-                ((Number.isFinite(lat) && Number.isFinite(lon)) ? `${lat.toFixed(6)}, ${lon.toFixed(6)}` : "")
-            ).trim();
+    _formatStamp: function(date = new Date()) {
+        const d = date instanceof Date ? date : new Date(date);
+        if (Number.isNaN(d.getTime())) return '';
+        const day = d.toLocaleDateString('el-GR', { weekday: 'long' });
+        const full = d.toLocaleDateString('el-GR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const time = d.toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit' });
+        return `${day} ${full}, ${time}`;
+    },
+
+    _asEntry: function(value) {
+        if (value == null) return null;
+        if (typeof value === 'string' || typeof value === 'number') {
+            const loc = String(value).trim();
+            return loc ? { loc, ts: '' } : null;
         }
-        return String(value).trim();
+        if (typeof value === 'object') {
+            const loc = String(value.loc || value.label || value.name || '').trim();
+            if (!loc) return null;
+            return {
+                loc,
+                ts: String(value.ts || value.addedAtText || value.dateText || '').trim(),
+                addedAt: value.addedAt || value.updatedAt || null
+            };
+        }
+        const loc = String(value).trim();
+        return loc ? { loc, ts: '' } : null;
+    },
+
+    _readCurrent: function() {
+        const rawData = localStorage.getItem('pegasus_parking_loc');
+        if (!rawData) return null;
+        if (rawData === '[object Object]') {
+            localStorage.removeItem('pegasus_parking_loc');
+            return null;
+        }
+        try {
+            return this._asEntry(JSON.parse(rawData));
+        } catch (_) {
+            return this._asEntry(rawData);
+        }
+    },
+
+    _writeCurrent: function(entry) {
+        localStorage.setItem('pegasus_parking_loc', JSON.stringify(entry));
     },
 
     _readHistory: function() {
@@ -36,10 +63,10 @@ window.PegasusParking = {
 
         const seen = new Set();
         return history
-            .map(item => this._asText(item))
+            .map(item => this._asEntry(item))
             .filter(Boolean)
-            .filter(item => {
-                const key = item.toLowerCase();
+            .filter(entry => {
+                const key = entry.loc.toLowerCase();
                 if (seen.has(key)) return false;
                 seen.add(key);
                 return true;
@@ -47,59 +74,58 @@ window.PegasusParking = {
             .slice(0, 10);
     },
 
-    save: async function() {
+    save: async function(locationOverride = null) {
         const inputEl = document.getElementById('parkingInput');
-        const location = inputEl ? inputEl.value.trim() : "";
+        const location = String(locationOverride || (inputEl ? inputEl.value : '') || '').trim();
         if (!location) return;
 
-        // 1. Αποθήκευση ως JSON Object, όπως στην αρχική μορφή του Parking.
-        const parkingData = {
+        const entry = {
             loc: location,
-            ts: new Date().toLocaleString('el-GR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })
+            ts: this._formatStamp(new Date()),
+            addedAt: new Date().toISOString()
         };
-        localStorage.setItem('pegasus_parking_loc', JSON.stringify(parkingData));
+        this._writeCurrent(entry);
 
-        // 2. Ενημέρωση Ιστορικού (10 Θέσεις)
         let history = this._readHistory();
-        history = history.filter(item => item.toLowerCase() !== location.toLowerCase());
-        history.unshift(location);
+        history = history.filter(item => item.loc.toLowerCase() !== location.toLowerCase());
+        history.unshift(entry);
         if (history.length > 10) history = history.slice(0, 10);
         localStorage.setItem('pegasus_parking_history', JSON.stringify(history));
 
         this.updateUI();
 
-        // 3. Force Cloud Push, όπως στην αρχική μορφή.
         if (window.PegasusCloud && window.PegasusCloud.push) {
-            if (typeof setSyncStatus === "function") setSyncStatus('Αποστολή...');
+            if (typeof setSyncStatus === 'function') setSyncStatus('Αποστολή...');
             try { await window.PegasusCloud.push(); } catch (e) { console.warn('Parking cloud push failed:', e); }
-            if (typeof setSyncStatus === "function") setSyncStatus('online');
+            if (typeof setSyncStatus === 'function') setSyncStatus('online');
         }
 
-        if (inputEl) inputEl.value = "";
-        if (typeof openView === "function") openView('home');
+        if (inputEl) inputEl.value = '';
+        if (typeof openView === 'function') openView('home');
+    },
+
+    selectRecent: function(location) {
+        const loc = String(location || '').trim();
+        if (!loc) return;
+        this.save(loc);
     },
 
     updateUI: function() {
-        let locToDisplay = "--";
-        const rawData = localStorage.getItem('pegasus_parking_loc');
-
-        if (rawData) {
-            if (rawData === "[object Object]") {
-                console.warn("Parking UI: Detected corrupted [object Object]. Resetting.");
-                localStorage.removeItem('pegasus_parking_loc');
-            } else {
-                try {
-                    const parsed = JSON.parse(rawData);
-                    locToDisplay = this._asText(parsed) || "--";
-                } catch(e) {
-                    locToDisplay = this._asText(rawData) || "--";
-                }
-            }
-        }
+        const current = this._readCurrent();
+        const locToDisplay = current?.loc || '--';
+        const dateText = current?.ts || '';
 
         const statusEl = document.getElementById('parkingStatus');
         if (statusEl) {
             statusEl.textContent = `Πάρκινγκ: ${locToDisplay}`;
+        }
+
+        const currentEl = document.getElementById('parkingCurrentInfo');
+        if (currentEl) {
+            currentEl.innerHTML = `
+                <div style="font-size:13px; font-weight:900; color:#fff;">📍 ${this._escape(locToDisplay)}</div>
+                ${dateText ? `<div style="font-size:10px; color:#aaa; margin-top:4px;">Τελευταία προσθήκη: ${this._escape(dateText)}</div>` : ''}
+            `;
         }
 
         this.renderHistory();
@@ -112,11 +138,13 @@ window.PegasusParking = {
 
         localStorage.setItem('pegasus_parking_history', JSON.stringify(history));
 
-        container.innerHTML = history.map(loc => {
-            const escaped = this._escape(loc);
+        container.innerHTML = history.map(entry => {
+            const loc = this._escape(entry.loc);
+            const ts = this._escape(entry.ts || '');
             return `
-                <div class="log-item" data-parking-loc="${escaped}" onclick="document.getElementById('parkingInput').value=this.dataset.parkingLoc || ''; window.PegasusParking.save();" style="cursor:pointer; border-color:rgba(255, 152, 0, 0.4); margin-bottom:8px;">
-                    <div style="font-size:13px; font-weight:800; color:#fff;">📍 ${escaped}</div>
+                <div class="log-item" data-parking-loc="${loc}" onclick="window.PegasusParking.selectRecent(this.dataset.parkingLoc || '');" style="cursor:pointer; border-color:rgba(255, 152, 0, 0.4); margin-bottom:8px; width:100%; box-sizing:border-box;">
+                    <div style="font-size:13px; font-weight:800; color:#fff;">📍 ${loc}</div>
+                    ${ts ? `<div style="font-size:10px; color:#aaa; margin-top:4px;">${ts}</div>` : ''}
                 </div>
             `;
         }).join('');
@@ -125,7 +153,7 @@ window.PegasusParking = {
 
 /* === PEGASUS SYNC ALIGNMENT === */
 window.addEventListener('pegasus_sync_complete', () => {
-    console.log("📍 Parking: Cloud Sync Complete. Refreshing UI...");
+    console.log('📍 Parking: Cloud Sync Complete. Refreshing UI...');
     window.PegasusParking.updateUI();
 });
 
