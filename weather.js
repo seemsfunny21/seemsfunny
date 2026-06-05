@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PEGASUS WEATHER WIDGET - v4.1 (DYNAMIC ROUTING EDITION)
+   PEGASUS WEATHER WIDGET - v4.2 QUIET NETWORK FALLBACK
    Protocol: Strict Analyst - Ioannina GR - UI & Logic Bridge
    Status: FINAL STABLE | FIXED: THE "isRaining" WORKOUT BRIDGE
    ========================================================================== */
@@ -54,9 +54,13 @@ window.updateWeatherUI = async function() {
             }
         }
     } catch (err) {
-        console.error("❌ PEGASUS WEATHER ERROR:", err);
+        const now = Date.now();
+        if (!window.__pegasusWeatherLastWarnAt || now - window.__pegasusWeatherLastWarnAt > 30 * 60 * 1000) {
+            window.__pegasusWeatherLastWarnAt = now;
+            console.warn("⚠️ PEGASUS WEATHER: προσωρινά μη διαθέσιμο, κρατάω το τελευταίο διαθέσιμο εικονίδιο/θερμοκρασία.", String(err?.message || err || ""));
+        }
         const weatherEl = document.querySelector('.weather-text');
-        if (weatherEl) weatherEl.innerText = "--°C";
+        if (weatherEl && !weatherEl.textContent.trim()) weatherEl.innerText = "--°C";
     }
 };
 

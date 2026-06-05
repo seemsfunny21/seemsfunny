@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PEGASUS OS - MASTER MANIFEST & REGISTRY (v18.96)
+   PEGASUS OS - MASTER MANIFEST & REGISTRY (v18.97)
    Protocol: Global Variable Re-declaration (Unlock M)
    Status: THE SINGLE SOURCE OF TRUTH | HARDENED: KEY CONSISTENCY + AUDIT SAFETY
    ========================================================================== */
@@ -13,7 +13,7 @@ window.PegasusManifest = {
         author: "Angelos & Gemini",
         last_update: "2026-05-09",
         logic_protocol: "Zero-Bug Simulation & Global Scope Shielding",
-        engine_version: "v18.96 40-minute workout guard + mobile timer visibility + parking dates"
+        engine_version: "v18.97 quiet cloud backoff + 40-minute workout guard"
     },
 
     // ---------------------------------------------------------
@@ -210,4 +210,4 @@ window.PegasusManifest = {
 // 🛡️ ΤΟ ΚΛΕΙΔΙ ΤΟΥ UNLOCK
 var M = window.PegasusManifest;
 
-console.log("🏛️ PEGASUS MANIFEST v18.96 LOADED. 40-MIN WORKOUT GUARD READY.");
+console.log("🏛️ PEGASUS MANIFEST v18.97 LOADED. 40-MIN WORKOUT GUARD READY.");

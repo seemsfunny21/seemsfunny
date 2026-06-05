@@ -1,9 +1,9 @@
-PEGASUS 296
+PEGASUS 297
 
-- Fixed workout planning guard: managed workout days no longer collapse to very short sessions when weekly targets are nearly complete.
-- PegasusBrain now enforces a minimum 40-minute workout target on active training days, using exercise/rest timer settings to calculate the required set blocks.
-- Optimizer now preserves Brain minimum-duration top-up sets instead of cutting them to zero when weekly targets are almost complete.
-- Mobile workout snapshot now uses the dynamic Brain/Optimizer plan so “Ασκήσεις ημέρας” mirrors the real workout.
-- Mobile Settings: moved “Χρόνοι προπόνησης” higher and made it more visible.
-- Parking: latest saved position now shows day/date/time of last addition and recent Top 10 entries keep their timestamps.
-- Desktop UI unchanged except shared workout-planning logic.
+- Cloud sync: added quiet backoff mode for temporary JSONBin/fetch failures.
+- Pull/push no longer spam the Console with repeated red errors when the cloud or network is temporarily unavailable.
+- Pending local changes remain queued and are retried after the backoff window.
+- Approved-device restore, focus/visibility sync, deferred sync and push now respect the same backoff guard.
+- Weather fetch failures now degrade quietly with a throttled warning instead of repeated red errors.
+- Workout 40-minute guard, mobile timer settings, parking timestamps and permanent video cache fixes from previous versions are preserved.
+- Desktop/mobile data is not reset; this is a sync-noise and retry-safety patch.

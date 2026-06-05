@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PEGASUS CLOUD VAULT - SINGLE USER SECURE SYNC (v22.3 DATA GUARD + REPAIR PUSH)
+   PEGASUS CLOUD VAULT - SINGLE USER SECURE SYNC (v22.4 QUIET BACKOFF)
    STATUS: SINGLE-USER | LOCAL-ONLY PRIVATES | DAILY 07:00 LOCK | Offline QUEUE
    ========================================================================== */
 
@@ -48,6 +48,11 @@ const PegasusCloud = {
     lastStatus: null,
     restorePromise: null,
     hasApprovedRestoreCompleted: false,
+
+    syncBackoffUntil: 0,
+    syncBackoffFailures: 0,
+    syncBackoffLastLogAt: 0,
+    syncBackoffLastReason: "",
 
     engine: null,
 
@@ -1174,22 +1179,104 @@ const PegasusCloud = {
         return storedHash === incomingHash;
     },
 
-    async fetchLatestRecord() {
-        const effectiveKey = this.userKey || this.config.encryptedPart;
-        const res = await fetch(
-            `https://api.jsonbin.io/v3/b/${this.config.binId}/latest?nocache=${Date.now()}`,
-            {
-                headers: {
-                    "X-Master-Key": effectiveKey,
-                    "X-Bin-Meta": "false"
-                }
-            }
+    isTransientSyncError(error) {
+        const msg = String(error?.message || error || "").toLowerCase();
+        return !!(
+            error instanceof TypeError ||
+            msg.includes("failed to fetch") ||
+            msg.includes("fetch latest failed") ||
+            msg.includes("fetch failed") ||
+            msg.includes("network") ||
+            msg.includes("load failed") ||
+            msg.includes("timeout") ||
+            msg.includes("abort") ||
+            msg.includes("http 429") ||
+            msg.includes("http 500") ||
+            msg.includes("http 502") ||
+            msg.includes("http 503") ||
+            msg.includes("http 504")
         );
+    },
 
-        if (!res.ok) throw new Error("Fetch latest failed");
+    getSyncBackoffRemaining() {
+        return Math.max(0, Number(this.syncBackoffUntil || 0) - Date.now());
+    },
 
-        const data = await res.json();
-        return data.record || data;
+    isSyncBackoffActive(reason = "sync") {
+        const remaining = this.getSyncBackoffRemaining();
+        if (remaining <= 0) return false;
+
+        const now = Date.now();
+        if (now - Number(this.syncBackoffLastLogAt || 0) > 30000) {
+            this.syncBackoffLastLogAt = now;
+            console.warn(`⚠️ CLOUD: προσωρινά μη διαθέσιμο (${Math.ceil(remaining / 1000)}s). Κρατάω τις αλλαγές τοπικά.`, reason);
+        }
+
+        this.emitSyncStatus(navigator.onLine ? "online" : "offline", true);
+        return true;
+    },
+
+    enterSyncBackoff(error, origin = "sync") {
+        if (!this.isTransientSyncError(error)) return false;
+
+        this.syncBackoffFailures = Math.min(6, Number(this.syncBackoffFailures || 0) + 1);
+        const delay = Math.min(120000, 30000 * Math.pow(2, Math.max(0, this.syncBackoffFailures - 1)));
+        this.syncBackoffUntil = Date.now() + delay;
+        this.syncBackoffLastReason = origin;
+
+        const now = Date.now();
+        if (now - Number(this.syncBackoffLastLogAt || 0) > 30000) {
+            this.syncBackoffLastLogAt = now;
+            console.warn(`⚠️ CLOUD: ${origin} απέτυχε προσωρινά. Θα ξαναδοκιμάσει σε ${Math.ceil(delay / 1000)}s. Οι αλλαγές μένουν pending.`, String(error?.message || error || ""));
+        }
+
+        this.emitSyncStatus(navigator.onLine ? "online" : "offline", true);
+        return true;
+    },
+
+    clearSyncBackoff(origin = "sync") {
+        if (this.syncBackoffFailures || this.syncBackoffUntil) {
+            console.log(`☁️ CLOUD: σύνδεση αποκαταστάθηκε (${origin}).`);
+        }
+        this.syncBackoffUntil = 0;
+        this.syncBackoffFailures = 0;
+        this.syncBackoffLastReason = "";
+    },
+
+    async fetchLatestRecord() {
+        if (this.isSyncBackoffActive("fetchLatestRecord")) {
+            throw new Error("CLOUD_BACKOFF_ACTIVE");
+        }
+
+        const effectiveKey = this.userKey || this.config.encryptedPart;
+        const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+        const timeout = controller ? setTimeout(() => controller.abort(), 12000) : null;
+
+        try {
+            const res = await fetch(
+                `https://api.jsonbin.io/v3/b/${this.config.binId}/latest?nocache=${Date.now()}`,
+                {
+                    signal: controller?.signal,
+                    headers: {
+                        "X-Master-Key": effectiveKey,
+                        "X-Bin-Meta": "false"
+                    }
+                }
+            );
+
+            if (!res.ok) throw new Error(`Fetch latest failed HTTP ${res.status}`);
+
+            const data = await res.json();
+            this.clearSyncBackoff("fetchLatestRecord");
+            return data.record || data;
+        } catch (error) {
+            if (String(error?.message || "") !== "CLOUD_BACKOFF_ACTIVE") {
+                this.enterSyncBackoff(error, "fetchLatestRecord");
+            }
+            throw error;
+        } finally {
+            if (timeout) clearTimeout(timeout);
+        }
     },
 
     normalizeEngineEvent(event) {
@@ -1964,6 +2051,7 @@ const PegasusCloud = {
             this.emitSyncStatus("offline", true);
             return false;
         }
+        if (this.isSyncBackoffActive?.("pull")) return false;
 
         this.isPulling = true;
         this.emitSyncStatus("syncing", true);
@@ -2138,9 +2226,9 @@ const PegasusCloud = {
                 throw e;
             }
 
-            const isTransientFetchError = (e instanceof TypeError) || /failed to fetch|network|load failed/i.test(String(e?.message || e || ""));
+            const isTransientFetchError = this.isTransientSyncError?.(e) || String(e?.message || "") === "CLOUD_BACKOFF_ACTIVE";
             if (isTransientFetchError) {
-                console.warn("⚠️ CLOUD: Pull προσωρινά απέτυχε — θα ξαναδοκιμάσει στο επόμενο sync.", e);
+                this.enterSyncBackoff?.(e, "pull");
             } else {
                 this.traceError("cloudSync", "pull", e);
                 console.error("❌ PULL ERROR:", e);
@@ -2182,6 +2270,7 @@ const PegasusCloud = {
             this.emitSyncStatus("offline", true);
             return false;
         }
+        if (this.isSyncBackoffActive?.("syncNow")) return false;
 
         const changed = await this.pull(silent);
 
@@ -2215,6 +2304,7 @@ const PegasusCloud = {
             this.emitSyncStatus("offline", true);
             return false;
         }
+        if (this.isSyncBackoffActive?.(force ? "push-force" : "push")) return false;
 
         if (force) {
             return this._doPush();
@@ -2242,11 +2332,13 @@ const PegasusCloud = {
             this.emitSyncStatus("offline", true);
             return false;
         }
+        if (this.isSyncBackoffActive?.("_doPush")) return false;
 
         // PEGASUS 182: an approved device must pull once before its first push.
         // This prevents stale desktop boot/reset zeros from overwriting the real current-week cloud state.
         if (!this.hasSuccessfullyPulled && this.canRestoreApprovedDevice?.() && !this.isPulling) {
-            await this.pull(true);
+            const pulled = await this.pull(true);
+            if (!pulled && this.isSyncBackoffActive?.("_doPush:initial-pull")) return false;
         }
 
         this.isPushing = true;
@@ -2348,9 +2440,14 @@ const PegasusCloud = {
             this.traceStep("cloudSync", "push", "SUCCESS");
             return true;
         } catch (e) {
-            this.traceError("cloudSync", "push", e);
-            console.error("❌ PUSH ERROR:", e);
-            finalStatus = navigator.onLine ? "error" : "offline";
+            const isTransientFetchError = this.isTransientSyncError?.(e) || String(e?.message || "") === "CLOUD_BACKOFF_ACTIVE";
+            if (isTransientFetchError) {
+                this.enterSyncBackoff?.(e, "push");
+            } else {
+                this.traceError("cloudSync", "push", e);
+                console.error("❌ PUSH ERROR:", e);
+            }
+            finalStatus = navigator.onLine ? (isTransientFetchError ? "online" : "error") : "offline";
             return false;
         } finally {
             this.isPushing = false;
@@ -2445,6 +2542,7 @@ const PegasusCloud = {
                 this.emitSyncStatus("offline", true);
                 return;
             }
+            if (this.isSyncBackoffActive?.("autoSync")) return;
 
             this.syncNow(true);
         }, this.config.pullInterval);
@@ -2537,14 +2635,14 @@ window.addEventListener("storage", (e) => {
 ========================= */
 window.addEventListener("focus", () => {
     if (window.PegasusCloud?.isMobileRuntime?.()) return;
-    if (window.PegasusCloud?.isUnlocked && navigator.onLine) {
+    if (window.PegasusCloud?.isUnlocked && navigator.onLine && !window.PegasusCloud.isSyncBackoffActive?.("focus")) {
         window.PegasusCloud.syncNow(true);
     }
 });
 
 document.addEventListener("visibilitychange", () => {
     if (window.PegasusCloud?.isMobileRuntime?.()) return;
-    if (!document.hidden && window.PegasusCloud?.isUnlocked && navigator.onLine) {
+    if (!document.hidden && window.PegasusCloud?.isUnlocked && navigator.onLine && !window.PegasusCloud.isSyncBackoffActive?.("visibility")) {
         window.PegasusCloud.syncNow(true);
     }
 });
@@ -2552,6 +2650,7 @@ document.addEventListener("visibilitychange", () => {
 window.addEventListener("online", () => {
     if (window.PegasusCloud?.isMobileRuntime?.()) return;
     if (window.PegasusCloud?.isUnlocked) {
+        window.PegasusCloud.clearSyncBackoff?.("browser_online");
         window.PegasusCloud.syncNow(true);
     }
 });
@@ -3181,7 +3280,7 @@ window.PegasusCloud = PegasusCloud;
             addNote("deferred_sync_scheduled", { reason, delay });
             state.deferredSyncTimer = setTimeout(() => {
                 state.deferredSyncTimer = null;
-                if (!cloud.isUnlocked || !isOnline()) return;
+                if (!cloud.isUnlocked || !isOnline() || cloud.isSyncBackoffActive?.("deferredSync")) return;
                 cloud.syncNow(true).catch?.(() => {});
             }, delay);
         }
@@ -3192,7 +3291,7 @@ window.PegasusCloud = PegasusCloud;
             addNote("deferred_push_scheduled", { reason, delay, force: !!force });
             state.deferredPushTimer = setTimeout(() => {
                 state.deferredPushTimer = null;
-                if (!cloud.isUnlocked || !isOnline()) return;
+                if (!cloud.isUnlocked || !isOnline() || cloud.isSyncBackoffActive?.("deferredPush")) return;
                 cloud.push(!!force);
             }, delay);
         }
@@ -3235,6 +3334,7 @@ window.PegasusCloud = PegasusCloud;
         };
 
         cloud.syncNow = async function patchedSyncNow(silent = false) {
+            if (cloud.isSyncBackoffActive?.("patchedSyncNow")) return false;
             const ts = now();
             if (silent && (ts - state.lastSilentSyncAt) < SILENT_SYNC_DEDUPE_MS && !cloud.hasPendingChanges?.()) {
                 state.counters.silentSyncDeduped += 1;
@@ -3263,6 +3363,7 @@ window.PegasusCloud = PegasusCloud;
         };
 
         cloud.push = function patchedPush(force = false) {
+            if (cloud.isSyncBackoffActive?.(force ? "patchedPushForce" : "patchedPush")) return false;
             const ts = now();
             if (!force && (ts - state.lastPushRequestAt) < PUSH_DEDUPE_MS) {
                 state.counters.pushDeduped += 1;
@@ -3284,6 +3385,7 @@ window.PegasusCloud = PegasusCloud;
         };
 
         cloud._doPush = async function patchedDoPush() {
+            if (cloud.isSyncBackoffActive?.("patchedDoPush")) return false;
             const leaseAttempt = acquireLease("_doPush");
             if (!leaseAttempt.ok) {
                 state.counters.leaseBlockedPush += 1;
@@ -3307,7 +3409,7 @@ window.PegasusCloud = PegasusCloud;
             state.counters.onlineResyncQueued += 1;
             addNote("online_recovery_scheduled", { reason });
             setTimeout(() => {
-                if (!cloud.isUnlocked || !isOnline()) return;
+                if (!cloud.isUnlocked || !isOnline() || cloud.isSyncBackoffActive?.("onlineRecovery")) return;
                 cloud.syncNow(true).catch?.(() => {});
             }, 220);
         }
