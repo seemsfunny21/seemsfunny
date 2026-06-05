@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PEGASUS CLOUD VAULT - SINGLE USER SECURE SYNC (v22.4 QUIET BACKOFF)
+   PEGASUS CLOUD VAULT - SINGLE USER SECURE SYNC (v22.5 QUOTA BACKOFF)
    STATUS: SINGLE-USER | LOCAL-ONLY PRIVATES | DAILY 07:00 LOCK | Offline QUEUE
    ========================================================================== */
 
@@ -30,7 +30,8 @@ const PegasusCloud = {
         openrouterKey: "pegasus_openrouter_key",
         protectedContactsState: "pegasus_protected_contacts_state",
         protectedContactsRepair: "pegasus_protected_contacts_repair",
-        dataGuardRepair: "pegasus_cloud_data_guard_repair_needed_v1"
+        dataGuardRepair: "pegasus_cloud_data_guard_repair_needed_v1",
+        quotaBackoffUntil: "pegasus_cloud_quota_backoff_until_v1"
     },
 
     isUnlocked: false,
@@ -1179,9 +1180,20 @@ const PegasusCloud = {
         return storedHash === incomingHash;
     },
 
+    isQuotaExhaustedError(error) {
+        const msg = String(error?.message || error || "").toLowerCase();
+        return msg.includes("requests exhausted") || msg.includes("jsonbin_quota_exhausted");
+    },
+
+    getQuotaBackoffUntil() {
+        const persisted = Number(localStorage.getItem(this.storage.quotaBackoffUntil) || 0);
+        return Math.max(Number(this.syncBackoffUntil || 0), persisted || 0);
+    },
+
     isTransientSyncError(error) {
         const msg = String(error?.message || error || "").toLowerCase();
         return !!(
+            this.isQuotaExhaustedError(error) ||
             error instanceof TypeError ||
             msg.includes("failed to fetch") ||
             msg.includes("fetch latest failed") ||
@@ -1199,7 +1211,14 @@ const PegasusCloud = {
     },
 
     getSyncBackoffRemaining() {
-        return Math.max(0, Number(this.syncBackoffUntil || 0) - Date.now());
+        return Math.max(0, this.getQuotaBackoffUntil() - Date.now());
+    },
+
+    getSyncBackoffLabel() {
+        if (Date.now() < Number(localStorage.getItem(this.storage.quotaBackoffUntil) || 0)) {
+            return "JSONBin requests exhausted";
+        }
+        return this.syncBackoffLastReason || "sync";
     },
 
     isSyncBackoffActive(reason = "sync") {
@@ -1207,9 +1226,10 @@ const PegasusCloud = {
         if (remaining <= 0) return false;
 
         const now = Date.now();
-        if (now - Number(this.syncBackoffLastLogAt || 0) > 30000) {
+        if (now - Number(this.syncBackoffLastLogAt || 0) > 60000) {
             this.syncBackoffLastLogAt = now;
-            console.warn(`⚠️ CLOUD: προσωρινά μη διαθέσιμο (${Math.ceil(remaining / 1000)}s). Κρατάω τις αλλαγές τοπικά.`, reason);
+            const mins = Math.max(1, Math.ceil(remaining / 60000));
+            console.warn(`⚠️ CLOUD: προσωρινά παύση sync (${mins}λ). Αιτία: ${this.getSyncBackoffLabel()}. Οι αλλαγές μένουν pending.`, reason);
         }
 
         this.emitSyncStatus(navigator.onLine ? "online" : "offline", true);
@@ -1219,15 +1239,25 @@ const PegasusCloud = {
     enterSyncBackoff(error, origin = "sync") {
         if (!this.isTransientSyncError(error)) return false;
 
-        this.syncBackoffFailures = Math.min(6, Number(this.syncBackoffFailures || 0) + 1);
-        const delay = Math.min(120000, 30000 * Math.pow(2, Math.max(0, this.syncBackoffFailures - 1)));
-        this.syncBackoffUntil = Date.now() + delay;
-        this.syncBackoffLastReason = origin;
+        const quota = this.isQuotaExhaustedError(error);
+        this.syncBackoffFailures = quota ? 6 : Math.min(6, Number(this.syncBackoffFailures || 0) + 1);
+        const delay = quota
+            ? 6 * 60 * 60 * 1000
+            : Math.min(120000, 30000 * Math.pow(2, Math.max(0, this.syncBackoffFailures - 1)));
+
+        const until = Date.now() + delay;
+        this.syncBackoffUntil = until;
+        this.syncBackoffLastReason = quota ? "JSONBin requests exhausted" : origin;
+        if (quota) {
+            localStorage.setItem(this.storage.quotaBackoffUntil, String(until));
+        }
 
         const now = Date.now();
-        if (now - Number(this.syncBackoffLastLogAt || 0) > 30000) {
+        if (now - Number(this.syncBackoffLastLogAt || 0) > 60000) {
             this.syncBackoffLastLogAt = now;
-            console.warn(`⚠️ CLOUD: ${origin} απέτυχε προσωρινά. Θα ξαναδοκιμάσει σε ${Math.ceil(delay / 1000)}s. Οι αλλαγές μένουν pending.`, String(error?.message || error || ""));
+            const label = quota ? "Το JSONBin εξάντλησε τα requests" : `${origin} απέτυχε προσωρινά`;
+            const wait = quota ? `${Math.ceil(delay / 3600000)} ώρες` : `${Math.ceil(delay / 1000)}s`;
+            console.warn(`⚠️ CLOUD: ${label}. Θα ξαναδοκιμάσει σε ${wait}. Οι αλλαγές μένουν pending.`, String(error?.message || error || ""));
         }
 
         this.emitSyncStatus(navigator.onLine ? "online" : "offline", true);
@@ -1235,12 +1265,13 @@ const PegasusCloud = {
     },
 
     clearSyncBackoff(origin = "sync") {
-        if (this.syncBackoffFailures || this.syncBackoffUntil) {
+        if (this.syncBackoffFailures || this.syncBackoffUntil || localStorage.getItem(this.storage.quotaBackoffUntil)) {
             console.log(`☁️ CLOUD: σύνδεση αποκαταστάθηκε (${origin}).`);
         }
         this.syncBackoffUntil = 0;
         this.syncBackoffFailures = 0;
         this.syncBackoffLastReason = "";
+        localStorage.removeItem(this.storage.quotaBackoffUntil);
     },
 
     async fetchLatestRecord() {
@@ -1264,7 +1295,13 @@ const PegasusCloud = {
                 }
             );
 
-            if (!res.ok) throw new Error(`Fetch latest failed HTTP ${res.status}`);
+            if (!res.ok) {
+                const body = await res.text().catch(() => "");
+                const message = body.toLowerCase().includes("requests exhausted")
+                    ? `JSONBIN_QUOTA_EXHAUSTED HTTP ${res.status}: ${body.slice(0, 180)}`
+                    : `Fetch latest failed HTTP ${res.status}: ${body.slice(0, 180)}`;
+                throw new Error(message);
+            }
 
             const data = await res.json();
             this.clearSyncBackoff("fetchLatestRecord");
@@ -2430,7 +2467,13 @@ const PegasusCloud = {
                 }
             );
 
-            if (!res.ok) throw new Error("Push failed");
+            if (!res.ok) {
+                const body = await res.text().catch(() => "");
+                const message = body.toLowerCase().includes("requests exhausted")
+                    ? `JSONBIN_QUOTA_EXHAUSTED PUSH HTTP ${res.status}: ${body.slice(0, 180)}`
+                    : `Push failed HTTP ${res.status}: ${body.slice(0, 180)}`;
+                throw new Error(message);
+            }
 
             this.safeSetLocal(this.storage.lastPush, ts);
             this.clearPendingChanges();

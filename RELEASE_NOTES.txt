@@ -1,9 +1,8 @@
-PEGASUS 297
+PEGASUS 298
 
-- Cloud sync: added quiet backoff mode for temporary JSONBin/fetch failures.
-- Pull/push no longer spam the Console with repeated red errors when the cloud or network is temporarily unavailable.
-- Pending local changes remain queued and are retried after the backoff window.
-- Approved-device restore, focus/visibility sync, deferred sync and push now respect the same backoff guard.
-- Weather fetch failures now degrade quietly with a throttled warning instead of repeated red errors.
-- Workout 40-minute guard, mobile timer settings, parking timestamps and permanent video cache fixes from previous versions are preserved.
-- Desktop/mobile data is not reset; this is a sync-noise and retry-safety patch.
+- Cloud sync: detects JSONBin "Requests exhausted" quota responses explicitly.
+- When JSONBin quota is exhausted, Pegasus pauses cloud sync attempts for a long quiet cooldown instead of retrying every 30-120 seconds.
+- Local changes remain pending; no data is deleted or reset.
+- Fetch/latest and push failures now keep the response body preview so we can distinguish quota exhaustion from wrong keys or network failures.
+- The 40-minute workout guard, permanent video cache, mobile timer settings and all previous UI/data fixes are preserved.
+- Desktop/mobile data is not reset; this is a cloud-quota safety patch.
