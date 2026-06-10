@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PEGASUS DYNAMIC OPTIMIZER - v3.2 (PEGASUS 215 MS-600 FOCUSED SPLIT)
+   PEGASUS DYNAMIC OPTIMIZER - v3.3 (PEGASUS 299 CLASSIC FIXED SPLIT SAFE)
    Protocol: Saturday 06:00 Week Reset, 8-Set Cycling Credit & MS-600 Mapping
    Status: FINAL STABLE | ZERO-BUG VERIFIED
    ========================================================================== */
@@ -11,11 +11,11 @@ window.PegasusOptimizer = {
     getDefaultTargets: function() {
         return {
             "Στήθος": 16,
-            "Πλάτη": 16,
+            "Πλάτη": 20,
             "Πόδια": 8,
-            "Χέρια": 14,
-            "Ώμοι": 8,
-            "Κορμός": 12
+            "Χέρια": 17,
+            "Ώμοι": 3,
+            "Κορμός": 10
         };
     },
 
@@ -179,7 +179,7 @@ window.PegasusOptimizer = {
 
         // PEGASUS 296: Brain minimum-duration top-up is intentional maintenance volume.
         // It must not be cut back to 0 just because the weekly target is almost complete.
-        let finalSets = ex.brainMinimumTopUp
+        let finalSets = (ex.brainFixedSplit || ex.brainMinimumTopUp)
             ? Math.max(1, Math.round(Number(ex.sets) || 1))
             : ((remaining <= 0) ? 0 : (ex.sets > remaining ? remaining : ex.sets));
 
@@ -199,7 +199,7 @@ window.PegasusOptimizer = {
         return {
             ...ex,
             adjustedSets: finalSets,
-            isCompleted: !ex.brainMinimumTopUp && remaining <= 0,
+            isCompleted: !(ex.brainFixedSplit || ex.brainMinimumTopUp) && remaining <= 0,
             muscleGroup: group
         };
     },

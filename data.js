@@ -516,7 +516,7 @@ window.getPegasusMacros = function(foodName, fallbackType) {
 };
 
 window.getDynamicTargets = function() {
-    const fallbackTargets = { "Στήθος": 14, "Πλάτη": 16, "Ώμοι": 8, "Χέρια": 12, "Πόδια": 8, "Κορμός": 16 };
+    const fallbackTargets = { "Στήθος": 16, "Πλάτη": 20, "Ώμοι": 3, "Χέρια": 17, "Πόδια": 8, "Κορμός": 10 };
     try {
         const key = window.PegasusManifest?.workout?.muscleTargets || "pegasus_muscle_targets";
         const stored = JSON.parse(localStorage.getItem(key) || "null");

@@ -2846,7 +2846,7 @@ window.logPegasusSet = function(exName, absoluteDone = null) {
     }
 
     function readTargets() {
-        const fallback = { "Στήθος": 14, "Πλάτη": 16, "Πόδια": 8, "Χέρια": 12, "Ώμοι": 8, "Κορμός": 16 };
+        const fallback = { "Στήθος": 16, "Πλάτη": 20, "Πόδια": 8, "Χέρια": 17, "Ώμοι": 3, "Κορμός": 10 };
         try {
             const dynamic = window.PegasusOptimizer?.getTargets?.();
             return dynamic && typeof dynamic === "object" ? { ...fallback, ...dynamic } : fallback;

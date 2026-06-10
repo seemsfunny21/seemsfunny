@@ -1,5 +1,5 @@
 /* ========================================================================== 
-   PEGASUS BRAIN - v1.0.296 (MS-600 FOCUSED SPLIT / 40-MIN MINIMUM GUARD)
+   PEGASUS BRAIN - v1.0.299 (CLASSIC FIXED 40-MIN TUE/WED/FRI SPLIT)
    Purpose: Pegasus MS-600 + floor-only weekly training plan, weekend carry-over,
    recovery guard, cycling-aware leg policy, focused split days, and 45-minute circuit spacing.
    ========================================================================== */
@@ -13,7 +13,7 @@
     // PEGASUS 215: Real exercise pool is restricted to what exists on the
     // Pegasus MS-600 plus floor/core work. Cut/Bulk share the same smart order;
     // the difference is the user's selected controllable weight/intensity.
-    const DEFAULT_TARGETS_215 = { "Στήθος": 16, "Πλάτη": 16, "Πόδια": 8, "Χέρια": 14, "Ώμοι": 8, "Κορμός": 12 };
+    const DEFAULT_TARGETS_215 = { "Στήθος": 16, "Πλάτη": 20, "Πόδια": 8, "Χέρια": 17, "Ώμοι": 3, "Κορμός": 10 };
     const MIN_WORKOUT_MINUTES = 40;
 
     const exerciseMeta = {
@@ -117,6 +117,71 @@
             ["Πλάτη", 4], ["Στήθος", 3], ["Κορμός", 3], ["Χέρια", 2]
         ]
     };
+
+
+    const CLASSIC_FIXED_MAIN_SPLIT = {
+        // PEGASUS 299: fixed classic 40-minute split. These days no longer shrink
+        // when weekly progress bars are already partly/full completed. Progress bars
+        // only record what was done; they do not decide whether Tue/Wed/Fri exists.
+        "Τρίτη": [
+            { name: "Chest Press", sets: 4, muscleGroup: "Στήθος" },
+            { name: "Chest Flys", sets: 4, muscleGroup: "Στήθος" },
+            { name: "Pushups", sets: 4, muscleGroup: "Στήθος" },
+            { name: "Tricep Pulldowns", sets: 4, muscleGroup: "Χέρια" },
+            { name: "Upright Rows", sets: 3, muscleGroup: "Ώμοι" },
+            { name: "Plank", sets: 3, muscleGroup: "Κορμός" }
+        ],
+        "Τετάρτη": [
+            { name: "Lat Pulldowns", sets: 4, muscleGroup: "Πλάτη" },
+            { name: "Seated Rows", sets: 4, muscleGroup: "Πλάτη" },
+            { name: "Straight Arm Pulldowns", sets: 4, muscleGroup: "Πλάτη" },
+            { name: "Bicep Curls", sets: 4, muscleGroup: "Χέρια" },
+            { name: "Preacher Bicep Curls", sets: 3, muscleGroup: "Χέρια" },
+            { name: "Lying Knee Raise", sets: 3, muscleGroup: "Κορμός" }
+        ],
+        "Παρασκευή": [
+            { name: "Chest Press", sets: 4, muscleGroup: "Στήθος" },
+            { name: "Lat Pulldowns Close", sets: 4, muscleGroup: "Πλάτη" },
+            { name: "Bent Over Rows", sets: 4, muscleGroup: "Πλάτη" },
+            { name: "Bicep Curls", sets: 3, muscleGroup: "Χέρια" },
+            { name: "Tricep Pulldowns", sets: 3, muscleGroup: "Χέρια" },
+            { name: "Ab Crunches", sets: 2, muscleGroup: "Κορμός" },
+            { name: "Leg Raise Hip Lift", sets: 2, muscleGroup: "Κορμός" }
+        ]
+    };
+
+    const CLASSIC_FIXED_TARGETS_299 = { "Στήθος": 16, "Πλάτη": 20, "Πόδια": 8, "Χέρια": 17, "Ώμοι": 3, "Κορμός": 10 };
+
+    function applyClassicTargetsMigration() {
+        try {
+            const flag = "pegasus_classic_fixed_split_targets_v299";
+            if (localStorage.getItem(flag) === "done") return;
+            const key = window.PegasusManifest?.workout?.muscleTargets || "pegasus_muscle_targets";
+            localStorage.setItem(`pegasus_targets_backup_before_classic_v299_${Date.now()}`, localStorage.getItem(key) || "");
+            localStorage.setItem(key, JSON.stringify(CLASSIC_FIXED_TARGETS_299));
+            localStorage.setItem(flag, "done");
+            localStorage.setItem("pegasus_custom_weekly_targets_enabled", "true");
+            localStorage.setItem("pegasus_custom_weekly_targets_updated_at", String(Date.now()));
+        } catch (e) {
+            console.warn("PEGASUS BRAIN: classic target migration skipped", e);
+        }
+    }
+
+    applyClassicTargetsMigration();
+
+    function cloneClassicFixedWorkout(day) {
+        const source = CLASSIC_FIXED_MAIN_SPLIT[day];
+        if (!Array.isArray(source)) return null;
+        return source.map((ex, index) => ({
+            ...ex,
+            weight: weightFor(ex.name),
+            brainManaged: true,
+            brainFixedSplit: true,
+            brainMinimumTopUp: true,
+            brainReason: "Κλασικό σταθερό 40λεπτο πρόγραμμα Τρίτη/Τετάρτη/Παρασκευή",
+            brainOrder: index
+        }));
+    }
 
     function weightFor(name) {
         const weights = {
@@ -685,6 +750,16 @@
         const mode = getWeekendMode(day);
         if (WEEKEND_DAYS.has(day) && mode === "bike") return [];
 
+        const fixedMain = cloneClassicFixedWorkout(day);
+        if (fixedMain) {
+            return balanceExerciseOrder(fixedMain).map((ex, index) => ({
+                ...ex,
+                brainOrder: index,
+                brainRestAware: true,
+                brainEquipmentAware: true
+            }));
+        }
+
         const { remaining } = computeRemaining({ includeCarryover: true });
         // PEGASUS 220: the old previous-day recovery guard was too aggressive for
         // the focused IRON split. Tuesday PUSH logged "Χέρια" and "Κορμός", so
@@ -779,7 +854,7 @@
     }
 
     window.PegasusBrain = {
-        version: "1.0.296",
+        version: "1.0.299",
         groups: STRICT_GROUPS.slice(),
         getWeekKey,
         getNextWeekKey,
@@ -798,5 +873,5 @@
         isManagedDay
     };
 
-    console.log("🧠 PEGASUS BRAIN: MS-600 planner active (v1.0.296, 40-minute minimum guard).");
+    console.log("🧠 PEGASUS BRAIN: MS-600 planner active (v1.0.299, classic fixed Tue/Wed/Fri 40-min split).");
 })();

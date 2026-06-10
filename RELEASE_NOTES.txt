@@ -6,3 +6,14 @@ PEGASUS 298
 - Fetch/latest and push failures now keep the response body preview so we can distinguish quota exhaustion from wrong keys or network failures.
 - The 40-minute workout guard, permanent video cache, mobile timer settings and all previous UI/data fixes are preserved.
 - Desktop/mobile data is not reset; this is a cloud-quota safety patch.
+
+
+PEGASUS 299
+
+- Restores the classic fixed 40-minute workout split for Tuesday, Wednesday and Friday.
+- Tue/Wed/Fri no longer shrink just because weekly progress bars are partly/full completed.
+- Tuesday: Chest Press, Chest Flys, Pushups, Tricep Pulldowns, Upright Rows, Plank.
+- Wednesday: Lat Pulldowns, Seated Rows, Straight Arm Pulldowns, Bicep Curls, Preacher Bicep Curls, Lying Knee Raise.
+- Friday: Chest Press, Lat Pulldowns Close, Bent Over Rows, Bicep Curls, Tricep Pulldowns, Ab Crunches, Leg Raise Hip Lift.
+- Weekly target defaults restored to match the classic split plus cycling leg credit: Chest 16, Back 20, Legs 8, Arms 17, Shoulders 3, Core 10.
+- Keeps JSONBin quota backoff, video cache, mobile timer settings and all previous cleanups.
