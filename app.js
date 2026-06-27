@@ -1610,6 +1610,7 @@ function startPause() {
         clearInterval(timer);
         timer = null;
         if (vid) vid.pause();
+        hidePegasusNextExercisePreview();
         syncPegasusProgressRuntime();
         if (window.PegasusCloud && typeof window.PegasusCloud.push === "function") window.PegasusCloud.push();
     }
@@ -1685,7 +1686,12 @@ function runPhase() {
 
     syncPegasusProgressRuntime();
 
-    if (phase !== 2) showVideo(currentIdx);
+    if (phase !== 2) {
+        hidePegasusNextExercisePreview();
+        showVideo(currentIdx);
+    } else {
+        updatePegasusNextExercisePreview();
+    }
 
     timer = setInterval(() => {
         t -= 1;
@@ -2332,6 +2338,97 @@ function waitForPegasusVideo(src, vid, label) {
     window.PegasusVideoWaiter.timers.set(cleanSrc, setInterval(tryLoad, 15000));
 }
 
+
+/* ===== PEGASUS 300: Next exercise preview during rest ===== */
+function getPegasusExerciseVideoInfo(i) {
+    const ex = (typeof exercises !== 'undefined') ? exercises[i] : null;
+    if (!ex) return null;
+    const weightInput = ex.querySelector(".weight-input");
+    if (!weightInput) return null;
+
+    const name = weightInput.getAttribute("data-name") || "";
+    let mappedVal = window.videoMap ? window.videoMap[name.trim()] : null;
+    if (!mappedVal) mappedVal = name.replace(/\s+/g, '').toLowerCase();
+
+    return {
+        index: i,
+        name: name,
+        src: `videos/${mappedVal}.mp4`
+    };
+}
+
+function ensurePegasusNextExercisePreview() {
+    let box = document.getElementById("nextExerciseVideoBox");
+    if (!box) {
+        const host = document.querySelector(".video-container");
+        if (!host) return null;
+        box = document.createElement("div");
+        box.id = "nextExerciseVideoBox";
+        box.className = "next-exercise-video-box";
+        box.style.display = "none";
+        box.innerHTML = `
+            <div class="next-exercise-video-title" id="nextExerciseVideoTitle">Επόμενη</div>
+            <video id="nextExerciseVideo" muted loop playsinline preload="metadata"></video>
+        `;
+        host.appendChild(box);
+    }
+
+    const vid = document.getElementById("nextExerciseVideo");
+    const title = document.getElementById("nextExerciseVideoTitle");
+    return { box, vid, title };
+}
+
+function hidePegasusNextExercisePreview() {
+    const ui = ensurePegasusNextExercisePreview();
+    if (!ui) return;
+    ui.box.style.display = "none";
+    ui.box.classList.remove("next-video-missing");
+    if (ui.vid) {
+        ui.vid.pause();
+        delete ui.vid.dataset.nextExerciseSrc;
+    }
+}
+
+function updatePegasusNextExercisePreview() {
+    const ui = ensurePegasusNextExercisePreview();
+    if (!ui || !ui.vid) return;
+
+    if (phase !== 2 || !running) {
+        hidePegasusNextExercisePreview();
+        return;
+    }
+
+    const nextIdx = (typeof getNextIndexCircuit === "function") ? getNextIndexCircuit() : -1;
+    if (nextIdx === -1) {
+        hidePegasusNextExercisePreview();
+        return;
+    }
+
+    const info = getPegasusExerciseVideoInfo(nextIdx);
+    if (!info || !info.src) {
+        hidePegasusNextExercisePreview();
+        return;
+    }
+
+    ui.box.style.display = "block";
+    ui.box.classList.remove("next-video-missing");
+    if (ui.title) ui.title.textContent = `Επόμενη: ${info.name}`;
+
+    if (ui.vid.dataset.nextExerciseSrc !== info.src) {
+        ui.vid.dataset.nextExerciseSrc = info.src;
+        ui.vid.onerror = () => {
+            ui.box.classList.add("next-video-missing");
+            if (ui.title) ui.title.textContent = `Επόμενη: ${info.name}`;
+        };
+        ui.vid.pause();
+        ui.vid.src = info.src;
+        ui.vid.load();
+        if (window.PegasusVideoPreloader) window.PegasusVideoPreloader.preload(info.src);
+    }
+
+    ui.vid.play().catch(() => {});
+}
+
 function showVideo(i) {
     const vid = document.getElementById("video");
     const label = document.getElementById("phaseTimer");
@@ -2538,6 +2635,7 @@ function finishWorkout() {
     clearInterval(timer);
     timer = null;
     running = false;
+    hidePegasusNextExercisePreview();
     phaseRemainingSeconds = null;
     remainingSeconds = 0;
     updateTotalBar();

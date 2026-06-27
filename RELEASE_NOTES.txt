@@ -1,3 +1,8 @@
+PEGASUS 300
+- Adds a small top-left next-exercise video preview during the rest phase.
+- The main video continues normally; the preview is muted, looped and disappears outside rest.
+- Keeps PEGASUS 299 classic fixed Tue/Wed/Fri 40-minute split and JSONBin quota backoff.
+
 PEGASUS 298
 
 - Cloud sync: detects JSONBin "Requests exhausted" quota responses explicitly.

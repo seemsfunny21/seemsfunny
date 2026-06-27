@@ -327,6 +327,10 @@
         <div class="exercise-list" id="exList"></div>
         <div class="video-container">
           <video id="video" loop muted playsinline class="main-video"></video>
+          <div id="nextExerciseVideoBox" class="next-exercise-video-box" style="display:none;">
+              <div id="nextExerciseVideoTitle" class="next-exercise-video-title">Επόμενη</div>
+              <video id="nextExerciseVideo" muted loop playsinline preload="metadata"></video>
+          </div>
 
           <div id="timerOverlay" style="position: absolute; bottom: 40px; width: 100%; text-align: center; background: transparent; pointer-events: none;">
               <div id="phaseTimer" class="phase-label" style="font-size: 26px; font-weight: 900; color: #00ff41; letter-spacing: 2px; text-shadow: 0 0 10px rgba(0,255,65,0.5);"></div>

@@ -12,3 +12,6 @@ After upload:
 1. Open PEGASUS once and let the local storage loader reach 100% for v237.
 2. The next morning report will include the backup JSON section under the existing nutrition/advice field.
 3. Keep avoiding manual JSONBin overwrite scripts; this version protects future recovery better.
+
+
+PEGASUS 300: During rest, a small top-left video preview shows the next exercise.

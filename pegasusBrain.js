@@ -1,5 +1,5 @@
 /* ========================================================================== 
-   PEGASUS BRAIN - v1.0.299 (CLASSIC FIXED 40-MIN TUE/WED/FRI SPLIT)
+   PEGASUS BRAIN - v1.0.300 (NEXT EXERCISE PREVIEW + CLASSIC 40-MIN SPLIT)
    Purpose: Pegasus MS-600 + floor-only weekly training plan, weekend carry-over,
    recovery guard, cycling-aware leg policy, focused split days, and 45-minute circuit spacing.
    ========================================================================== */
@@ -854,7 +854,7 @@
     }
 
     window.PegasusBrain = {
-        version: "1.0.299",
+        version: "1.0.300",
         groups: STRICT_GROUPS.slice(),
         getWeekKey,
         getNextWeekKey,
@@ -873,5 +873,5 @@
         isManagedDay
     };
 
-    console.log("🧠 PEGASUS BRAIN: MS-600 planner active (v1.0.299, classic fixed Tue/Wed/Fri 40-min split).");
+    console.log("🧠 PEGASUS BRAIN: MS-600 planner active (v1.0.300, next exercise preview + classic 40-min split).");
 })();

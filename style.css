@@ -292,6 +292,78 @@ input[type="number"], input[type="text"], input[type="password"] {
 }
 .main-video { width: 100%; height: 100%; object-fit: contain; }
 
+/* PEGASUS 300: μικρή προεπισκόπηση επόμενης άσκησης στο διάλειμμα */
+.next-exercise-video-box {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 26%;
+    max-width: 230px;
+    min-width: 150px;
+    aspect-ratio: 16 / 9;
+    z-index: 8;
+    background: rgba(0, 0, 0, 0.82);
+    border: 1px solid rgba(76, 175, 80, 0.95);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 16px rgba(0, 0, 0, 0.75), 0 0 12px rgba(76, 175, 80, 0.25);
+    pointer-events: none;
+}
+
+.next-exercise-video-box video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    background: #000;
+}
+
+.next-exercise-video-title {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    padding: 4px 6px;
+    font-size: 10px;
+    font-weight: 900;
+    line-height: 1.2;
+    color: #b8ffbe;
+    background: linear-gradient(180deg, rgba(0,0,0,0.92), rgba(0,0,0,0.35));
+    text-shadow: 0 0 6px #000;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.next-exercise-video-box.next-video-missing::after {
+    content: "Προεπισκόπηση";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 18px;
+    color: #4CAF50;
+    font-size: 11px;
+    font-weight: 800;
+    background: rgba(0,0,0,0.72);
+}
+
+@media (max-width: 900px) {
+    .next-exercise-video-box {
+        width: 34%;
+        min-width: 120px;
+        top: 8px;
+        left: 8px;
+    }
+
+    .next-exercise-video-title {
+        font-size: 9px;
+    }
+}
+
+
 #phaseTimer {
     position: absolute;
     bottom: 20px;
