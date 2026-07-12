@@ -260,7 +260,7 @@ window.pegasusHealthCheck = async function() {
     if (!window.PegasusDebugHelpers.isEngineReady()) errors.push("Critical: pegasusCore.js not loaded.");
 
     const lastPush = localStorage.getItem("pegasus_last_push");
-    if (!lastPush) warnings.push("Sync: No Cloud Push history.");
+    
 
     const essential = isMobile
         ? ["sync-indicator"]

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PEGASUS BACKUP & RESTORE - COMPLETE USER-DATA EDITION (V10.3.237)
+   PEGASUS BACKUP & RESTORE - LOCAL-ONLY EDITION (V19.01)
    Protocol: Universal JSON Unwrapping, Date Padding & IndexedDB Recovery
    Status: FINAL STABLE | ZERO-BUG VERIFIED
    ========================================================================== */
@@ -10,11 +10,11 @@
    Purpose: one complete, non-recursive user-data snapshot for morning reports
    ========================================================================== */
 (function installPegasusBackupCollector() {
-    if (window.PegasusBackup?.version === "10.3.237") return;
+    if (window.PegasusBackup?.version === "19.01-local-only") return;
 
     const EMAIL_BACKUP_LIMIT = 220000;
     const SKIP_KEY_RE = /(vault|pin|master|secret|hash|wrapped|api[_-]?key|gemini|openai|openrouter|token)/i;
-    const NO_RECURSIVE_BACKUP_RE = /(backup|snapshot|restore|runtime_trace|runtime_errors|error_log|system_logs|sync_debug|command_trace|permanent_assets_ready|cloud_pending|data_registry_state|self_check_history)/i;
+    const NO_RECURSIVE_BACKUP_RE = /(backup|snapshot|restore|runtime_trace|runtime_errors|error_log|system_logs|sync_debug|command_trace|permanent_assets_ready|cloud_pending|cloud|sync_pending|data_registry_state|self_check_history)/i;
 
     function safeJsonParse(value) {
         try { return JSON.parse(value); } catch (_) { return null; }
@@ -24,25 +24,12 @@
         try { return new Blob([String(text || "")]).size; } catch (_) { return String(text || "").length; }
     }
 
-    function isCloudAllowedKey(key) {
-        try {
-            const cloud = window.PegasusCloud;
-            if (!cloud) return false;
-            if (typeof cloud.isInternalStorageKey === "function" && cloud.isInternalStorageKey(key)) return false;
-            if (typeof cloud.isSensitiveStorageKey === "function" && cloud.isSensitiveStorageKey(key)) return false;
-            if (typeof cloud.isAllowedStorageKey === "function" && cloud.isAllowedStorageKey(key)) return true;
-            if (typeof cloud.getLocalOnlyKeys === "function" && cloud.getLocalOnlyKeys().includes(key)) return true;
-            if (typeof cloud.getSyncedPrefixes === "function" && cloud.getSyncedPrefixes().some(prefix => key.startsWith(prefix))) return true;
-        } catch (_) {}
-        return false;
-    }
+    function isCloudAllowedKey(key) { return false; }
 
     function isPegasusUserDataKey(key) {
         if (!key || typeof key !== "string") return false;
         if (SKIP_KEY_RE.test(key)) return false;
         if (NO_RECURSIVE_BACKUP_RE.test(key)) return false;
-
-        if (isCloudAllowedKey(key)) return true;
 
         return key.startsWith("pegasus_") ||
             key.startsWith("peg_") ||
@@ -89,12 +76,12 @@
         const localStorageBytes = safeByteLength(JSON.stringify(collected.localStorage));
 
         return {
-            schema: "PEGASUS_BACKUP_V237",
-            version: "10.3.237",
+            schema: "PEGASUS_LOCAL_ONLY_BACKUP_V301",
+            version: "19.01-local-only",
             reason,
             createdAt: now.toISOString(),
             createdLocal: now.toLocaleString("el-GR"),
-            note: "Πλήρες backup δεδομένων χρήστη. Δεν περιλαμβάνει PIN, master keys, vault secrets, API keys, runtime logs ή παλιά backup για να μη φουσκώνει/ανακυκλώνεται το αρχείο.",
+            note: "Πλήρες τοπικό backup δεδομένων χρήστη. Δεν περιλαμβάνει PIN, master keys, cloud/sync keys, API keys, runtime logs ή παλιά backup.",
             meta: {
                 ...extraMeta,
                 keyCount: collected.meta.keyCount,
@@ -122,7 +109,7 @@
     }
 
     window.PegasusBackup = {
-        version: "10.3.237",
+        version: "19.01-local-only",
         buildSnapshot,
         buildMorningEmailSnapshot: function(reportMeta = {}) {
             return buildSnapshot("morning-report-email", {
@@ -241,7 +228,7 @@ window.importPegasusData = function(event) {
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 if (!key) continue;
-                if (window.PegasusCloud?.isExportBlockedKey?.(key) || window.PegasusCloud?.isLocalOnlyStorageKey?.(key) || window.PegasusCloud?.isInternalStorageKey?.(key)) {
+                if (false) {
                     preserved[key] = localStorage.getItem(key);
                 }
             }
@@ -284,11 +271,8 @@ window.importPegasusData = function(event) {
 };
 
 async function finalizeRecovery() {
-    console.log("📡 PEGASUS: Forcing Cloud Sync after recovery...");
-    if (window.PegasusCloud && window.PegasusCloud.push) {
-        await window.PegasusCloud.push(true);
-    }
-    alert("✅ Η ανάκτηση ολοκληρώθηκε!\n\nΌλα τα δεδομένα διορθώθηκαν και συγχρονίστηκαν.");
+    console.log("💾 PEGASUS: Local restore complete.");
+    alert("✅ Η ανάκτηση ολοκληρώθηκε!\n\nΌλα τα δεδομένα διορθώθηκαν τοπικά.");
     window.location.reload();
 }
 

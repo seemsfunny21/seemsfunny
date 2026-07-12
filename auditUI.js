@@ -138,7 +138,7 @@ window.PegasusAuditUI = {
             { id: "AppCore", ok: !!(window.masterUI || window.app) },
             { id: "Optimizer", ok: !!window.PegasusOptimizer },
             { id: "Settings", ok: !!window.getPegasusSettings },
-            { id: "CloudSync", ok: !!window.PegasusCloud },
+            { id: "LocalOnly", ok: true },
             { id: "CoreEngine", ok: !!(window.PegasusEngine && window.PegasusEngine.__isCoreEngine) }
         ];
 

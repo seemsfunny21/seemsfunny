@@ -30,27 +30,10 @@
     </script>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=292">
+    <link rel="stylesheet" href="style.css?v=301">
 </head>
 <body>
-
-    <div id="pinModal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 9999; flex-direction: column; align-items: center; justify-content: center;">
-        <div style="background:#0a0a0a; border:2px solid #00ff41; padding:40px 30px; border-radius:30px; text-align:center; width:85%; max-width: 320px; box-shadow: 0 0 50px rgba(0,255,65,0.15);">
-            <div style="font-size:35px; margin-bottom:15px;">🛡️</div>
-            <div style="color:#00ff41; font-weight:900; margin-bottom:5px; letter-spacing:1px; font-size: 20px;">PEGASUS OS</div>
-            <div style="color:#555; font-size: 10px; font-weight: 800; margin-bottom: 25px; letter-spacing: 2px;">Ασφαλής ταυτοποίηση</div>
-            <input type="password" id="pinInput" style="font-size:32px; letter-spacing:12px; border-color: #333; margin-bottom: 12px;" inputmode="numeric" maxlength="4" placeholder="••••">
-            <input type="password" id="masterKeyInput" name="pegasus-master-key" data-pegasus-master-key="true" style="font-size:14px; letter-spacing:2px; border-color:#333; margin-bottom: 8px; text-align:center;" autocomplete="current-password" placeholder="master key">
-            <div id="masterKeySaveHint" style="color:#666; font-size:9px; font-weight:800; min-height:12px; margin-bottom:6px; letter-spacing:.5px; line-height:1.35;"></div>
-            <button id="forgetMasterKeyBtn" type="button" onclick="window.PegasusMobileSavedMasterKey?.forgetSavedMasterKey?.()" style="display:none; margin-bottom:10px; background:transparent; color:#ffb300; border:1px solid rgba(255,179,0,.45); border-radius:10px; padding:7px 9px; font-size:9px; font-weight:900;">Διαγραφή αποθηκευμένου master key</button>
-            <div style="color:#555; font-size:10px; font-weight:800; margin-bottom:12px; letter-spacing:1px;">PIN + master key μία φορά την ημέρα · Επαναφορά μετά τις 07:00</div>
-            <div id="pinError" style="color:#ff4444; font-size:11px; font-weight:800; min-height:14px; margin-bottom:12px;"></div>
-            <button class="primary-btn" onclick="attemptVaultUnlock()" style="font-size: 14px; padding: 20px;">Απασφάλιση</button>
-            <button class="secondary-btn" style="margin-top: 15px; border-color: #222; color: #555;" onclick="skipVault()">Λειτουργία offline</button>
-        </div>
-    </div>
-
-    <div id="sync-indicator" data-pegasus-raw-label="true">Σύστημα έτοιμο</div>
+    <div id="sync-indicator" data-pegasus-raw-label="true">Τοπική λειτουργία</div>
     <div id="dietAdvisorMobile" style="font-size: 11px; font-weight: 800; color: #ffb300; margin-bottom: 15px; text-transform: none; letter-spacing: 1px;"></div>
 
     <div id="home" class="view active">
@@ -203,7 +186,7 @@
         <div class="mini-card" style="border-left: 4px solid #ff9800;">
             <span class="mini-label">Νέα περιοχή / θέση</span>
             <input type="text" id="parkingInput" placeholder="π.χ. Γιάννενα, Κέντρο...">
-            <button class="primary-btn" onclick="window.PegasusParking.save()">Αποθήκευση στο cloud</button>
+            <button class="primary-btn" onclick="window.PegasusParking.save()">Αποθήκευση τοπικά</button>
         </div>
         <div class="mini-card" id="parkingCurrentInfo" style="border-color:rgba(255,152,0,0.3); margin-top:12px; width:100%; box-sizing:border-box;">
             <div style="font-size:13px; font-weight:900; color:#fff;">📍 --</div>
@@ -240,7 +223,7 @@
                 </label>
             </div>
             <button class="primary-btn pegasus-timer-save-btn" type="button" onclick="window.PegasusMobileWorkoutSettings?.save?.()">Αποθήκευση χρόνων</button>
-            <div id="mobileWorkoutTimerStatus" class="pegasus-data-hint">Οι χρόνοι εφαρμόζονται στην επόμενη προπόνηση και συγχρονίζονται στο cloud.</div>
+            <div id="mobileWorkoutTimerStatus" class="pegasus-data-hint">Οι χρόνοι εφαρμόζονται στην επόμενη προπόνηση και μένουν τοπικά στη συσκευή.</div>
         </div>
 
         <div class="mini-card" style="margin-top: 18px; padding: 20px; border-color: var(--main); background: rgba(0,255,65,0.04);">
@@ -260,24 +243,14 @@
             <div class="pegasus-data-hint">Για έγγραφα, όχημα, parking και ό,τι μένει μόνο στη συσκευή. Η επαναφορά γίνεται με ασφαλές merge.</div>
         </div>
 
-        <div class="mini-card pegasus-data-card">
-            <span class="mini-label pegasus-data-title">Διαχείριση δεδομένων cloud</span>
-            <div class="compact-grid pegasus-data-actions">
-                <button class="secondary-btn" onclick="PegasusMobileDataManager.backupCloud()">Αντίγραφο</button>
-                <button class="secondary-btn pegasus-file-restore" type="button" onclick="document.getElementById('pegasusRestoreCloudFile')?.click()">Ασφαλής επαναφορά</button>
-                <input id="pegasusRestoreCloudFile" type="file" style="display:none;" accept=".json,application/json" onchange="PegasusMobileDataManager.restoreCloud(event)">
-            </div>
-            <div class="pegasus-data-hint">Για τα συγχρονισμένα δεδομένα του Pegasus cloud. Η επαναφορά ενώνει πρώτα με το τωρινό cloud.</div>
-        </div>
-
         <div class="mini-card pegasus-data-card pegasus-data-card-all">
-            <span class="mini-label pegasus-data-title">Πλήρες αντίγραφο & επαναφορά</span>
+            <span class="mini-label pegasus-data-title">Πλήρες τοπικό αντίγραφο & επαναφορά</span>
             <div class="compact-grid pegasus-data-actions">
                 <button class="primary-btn" onclick="PegasusMobileDataManager.backupAll()">Αντίγραφο</button>
                 <button class="primary-btn pegasus-file-restore" type="button" onclick="document.getElementById('pegasusRestoreAllFile')?.click()">Ασφαλής επαναφορά</button>
                 <input id="pegasusRestoreAllFile" type="file" style="display:none;" accept=".json,application/json" onchange="PegasusMobileDataManager.restoreAll(event)">
             </div>
-            <div class="pegasus-data-hint">Παίρνει μαζί τοπικά δεδομένα και cloud snapshot. Η επαναφορά κάνει merge, όχι τυφλή αντικατάσταση.</div>
+            <div class="pegasus-data-hint">Όλα τα δεδομένα είναι τοπικά. Για μεταφορά σε άλλο κινητό ή υπολογιστή, κάνε αντίγραφο και μετά ασφαλή επαναφορά.</div>
         </div>
 
         <button class="primary-btn" style="background: rgba(255,68,68,0.1); border: 1px solid #ff4444; color: #ff4444; box-shadow: none; font-size: 11px; padding: 18px; margin-top: 16px;" onclick="hardResetSystem()">
@@ -652,32 +625,29 @@
     <script src="../extensions.js"></script>
     <script src="../metabolicEngine.js"></script>
     <script src="../dietAdvisor.js"></script>
-    <script src="../cloudSync.js"></script>
     <script src="../weightTracker.js"></script>
 <script src="../backup.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js" defer></script>
-    <script src="../reporting.js?v=292"></script>
+    <script src="../reporting.js?v=301"></script>
 
-    <script src="diet-mobile.js?v=292"></script>
+    <script src="diet-mobile.js?v=301"></script>
     <script src="cardio-mobile.js"></script>
-    <script src="profile-mobile.js?v=292"></script>
-    <script src="car-mobile.js?v=292"></script>
-    <script src="parking-mobile.js?v=292"></script>
+    <script src="profile-mobile.js?v=301"></script>
+    <script src="car-mobile.js?v=301"></script>
+    <script src="parking-mobile.js?v=301"></script>
     <script src="inventory-mobile.js"></script>
     <script src="ems-mobile.js"></script>
-    <script src="supplies-mobile.js?v=292"></script>
-    <script src="finance-mobile.js?v=292"></script>
+    <script src="supplies-mobile.js?v=301"></script>
+    <script src="finance-mobile.js?v=301"></script>
     <script src="social-mobile.js"></script>
-    <script src="movies-mobile.js?v=292"></script>
-    <script src="missions-mobile.js?v=292"></script>
-    <script src="biometrics-mobile.js?v=292"></script>
-    <script src="maintenance-mobile.js?v=292"></script>
+    <script src="movies-mobile.js?v=301"></script>
+    <script src="missions-mobile.js?v=301"></script>
+    <script src="maintenance-mobile.js?v=301"></script>
     <script src="oracle-mobile.js"></script>
-    <script src="lifting-mobile.js?v=292"></script>
+    <script src="lifting-mobile.js?v=301"></script>
     <script src="youtube-mobile.js"></script>
     <script src="weather-mobile.js"></script>
-    <script src="biometric-unlock-mobile.js"></script>
-    <script src="shell-layout-mobile.js?v=292"></script>
+    <script src="shell-layout-mobile.js?v=301"></script>
 
 
 <script>
@@ -818,7 +788,6 @@
             const clean = writeHistory(next);
             window.dispatchEvent(new CustomEvent("pegasus_weekly_history_updated", { detail: { source: options.source || "mobile-ledger-repair", history: clean } }));
             if (window.MuscleProgressUI?.render) setTimeout(() => window.MuscleProgressUI.render(true), 50);
-            if (window.PegasusCloud?.push && options.push !== false) setTimeout(() => window.PegasusCloud.push(), 120);
             return true;
         }
 
@@ -843,223 +812,18 @@
 </script>
 
 <script>
-    const PEGASUS = {
-        key: "$2a$10$oU/TyQjSeNEVr/k5dnFS8ulKZkbb9gUWd5xuXijAYFCBijuXrYAFC",
-        bin: "69b6757ab7ec241ddc6d7230"
-    };
-
-    let isUnlocked = false;
+    // PEGASUS v19.01: Local-only mode. No remote sync, no JSONBin, no PIN/master-key boot.
+    let isUnlocked = true;
 
     window._pegasusMobileSyncTimer = null;
     window._pegasusMobileSyncBusy = false;
     window._pegasusLastUiRefreshTs = 0;
 
-    // Integrated saved master key helper (merged from former masterkey-save-mobile.js in v266).
-    /* ============================================================================
-       PEGASUS MOBILE SAVED master key - v1.1.268
-       Purpose: local-only optional master key save for mobile PIN modal
-       Notes: stores ONLY the master key on this device; never syncs to cloud.
-       ============================================================================ */
-    (function installPegasusMobileSavedMasterKey() {
-        if (window.PegasusMobileSavedMasterKey?.version === '1.1.268') return;
-
-        const STORAGE_KEY = 'pegasus_mobile_saved_master_key_v1';
-        const SECRET_KEY = 'pegasus_mobile_saved_master_key_secret_v1';
-        const DISMISSED_KEY = 'pegasus_mobile_saved_master_key_dismissed_session_v1';
-
-        const textEncoder = new TextEncoder();
-        const textDecoder = new TextDecoder();
-
-        function hasCrypto() {
-            return !!(window.crypto?.subtle && window.crypto?.getRandomValues);
-        }
-
-        function bytesToBase64(bytes) {
-            let binary = '';
-            new Uint8Array(bytes).forEach(b => binary += String.fromCharCode(b));
-            return btoa(binary);
-        }
-
-        function base64ToBytes(text) {
-            const binary = atob(String(text || ''));
-            const bytes = new Uint8Array(binary.length);
-            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-            return bytes;
-        }
-
-        function getOrCreateSecret() {
-            let secret = localStorage.getItem(SECRET_KEY);
-            if (!secret) {
-                const bytes = new Uint8Array(32);
-                crypto.getRandomValues(bytes);
-                secret = bytesToBase64(bytes);
-                localStorage.setItem(SECRET_KEY, secret);
-            }
-            return secret;
-        }
-
-        async function getCryptoKey() {
-            const secret = getOrCreateSecret();
-            const hash = await crypto.subtle.digest('SHA-256', textEncoder.encode(secret));
-            return crypto.subtle.importKey('raw', hash, { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']);
-        }
-
-        async function encryptMasterKey(masterKey) {
-            if (!hasCrypto()) throw new Error('crypto_unavailable');
-            const iv = new Uint8Array(12);
-            crypto.getRandomValues(iv);
-            const key = await getCryptoKey();
-            const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, textEncoder.encode(masterKey));
-            return {
-                v: 1,
-                alg: 'AES-GCM-local-device',
-                iv: bytesToBase64(iv),
-                data: bytesToBase64(encrypted),
-                createdAt: new Date().toISOString(),
-                localOnly: true
-            };
-        }
-
-        async function decryptMasterKey(payload) {
-            if (!payload || !payload.iv || !payload.data || !hasCrypto()) return '';
-            const key = await getCryptoKey();
-            const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: base64ToBytes(payload.iv) }, key, base64ToBytes(payload.data));
-            return textDecoder.decode(plain);
-        }
-
-        function readPayload() {
-            try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch (_) { return null; }
-        }
-
-        function getEls() {
-            return {
-                master: document.getElementById('masterKeyInput'),
-                hint: document.getElementById('masterKeySaveHint'),
-                forget: document.getElementById('forgetMasterKeyBtn')
-            };
-        }
-
-        function setHint(text, tone = 'muted') {
-            const { hint, forget } = getEls();
-            if (!hint) return;
-            const color = tone === 'ok' ? '#00ff41' : (tone === 'warn' ? '#ffb300' : '#666');
-            hint.textContent = text || '';
-            hint.style.color = color;
-            if (forget) forget.style.display = readPayload() ? 'inline-block' : 'none';
-        }
-
-        async function getSavedMasterKey() {
-            const payload = readPayload();
-            if (!payload) return '';
-            try { return await decryptMasterKey(payload); } catch (e) {
-                console.warn('PEGASUS master key SAVE: saved key could not be decrypted; removing it.', e);
-                forgetSavedMasterKey(false);
-                return '';
-            }
-        }
-
-        async function prefillIfAvailable() {
-            const { master } = getEls();
-            if (!master) return false;
-            const saved = await getSavedMasterKey();
-            if (!saved) {
-                setHint('Μπορείς να αποθηκεύσεις μόνο το master key σε αυτή τη συσκευή μετά από επιτυχές unlock.', 'muted');
-                return false;
-            }
-            if (!String(master.value || '').trim()) master.value = saved;
-            master.setAttribute('autocomplete', 'current-password');
-            master.setAttribute('name', 'pegasus-master-key');
-            setHint('master key αποθηκευμένο μόνο σε αυτή τη συσκευή. Γράφεις μόνο PIN.', 'ok');
-            return true;
-        }
-
-        async function saveMasterKey(masterKey) {
-            const clean = String(masterKey || '').trim();
-            if (!clean || clean.length < 4) return false;
-            const payload = await encryptMasterKey(clean);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-            localStorage.removeItem(DISMISSED_KEY);
-            await prefillIfAvailable();
-            return true;
-        }
-
-        function forgetSavedMasterKey(showAlert = false) {
-            localStorage.removeItem(STORAGE_KEY);
-            localStorage.removeItem(SECRET_KEY);
-            localStorage.removeItem(DISMISSED_KEY);
-            const { master } = getEls();
-            if (master) master.value = '';
-            setHint('Το αποθηκευμένο master key διαγράφηκε από αυτή τη συσκευή.', 'warn');
-            if (showAlert) alert('✅ Διαγράφηκε το αποθηκευμένο master key από αυτή τη συσκευή.');
-        }
-
-        async function afterSuccessfulUnlock(masterKey) {
-            const clean = String(masterKey || '').trim();
-            if (!clean || clean.length < 4 || !hasCrypto()) return false;
-
-            const existing = await getSavedMasterKey();
-            if (existing && existing === clean) {
-                await prefillIfAvailable();
-                return true;
-            }
-
-            // v268: no custom popup. The user already typed the master key on this
-            // device, so we save it silently and locally. PIN is never saved.
-            try {
-                await saveMasterKey(clean);
-                setHint('master key αποθηκευμένο τοπικά. Την επόμενη φορά γράφεις μόνο PIN.', 'ok');
-                return true;
-            } catch (e) {
-                console.warn('PEGASUS master key SAVE: silent save failed.', e);
-                setHint('Δεν αποθηκεύτηκε το master key σε αυτή τη συσκευή.', 'warn');
-                return false;
-            }
-        }
-
-        function installPasswordManagerHints() {
-            const { master } = getEls();
-            if (!master) return;
-            master.setAttribute('autocomplete', 'current-password');
-            master.setAttribute('name', 'pegasus-master-key');
-            master.setAttribute('data-pegasus-master-key', 'true');
-        }
-
-        function init() {
-            installPasswordManagerHints();
-            prefillIfAvailable();
-            setInterval(() => {
-                const modal = document.getElementById('pinModal');
-                if (modal && modal.style.display !== 'none') prefillIfAvailable();
-            }, 1200);
-        }
-
-        window.PegasusMobileSavedMasterKey = {
-            version: '1.1.269',
-            afterSuccessfulUnlock,
-            prefillIfAvailable,
-            saveMasterKey,
-            forgetSavedMasterKey,
-            hasSaved: () => !!readPayload()
-        };
-
-        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
-        else init();
-
-        console.log('🔑 PEGASUS MOBILE SAVED master key: ready v1.1.268 silent local save');
-    })();
-    function getMobileDateStr() {
-        if (typeof window.getPegasusTodayDateStr === "function") {
-            return window.getPegasusTodayDateStr();
-        }
-
-        const d = new Date();
-        return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
-    }
-
-    function getMobileFoodLogKey(dateStr) {
-        const prefix = window.PegasusManifest?.nutrition?.log_prefix || "food_log_";
-        return prefix + dateStr;
-    }
+    window.PegasusMobileSavedMasterKey = {
+        prefillIfAvailable: async () => false,
+        afterSuccessfulUnlock: async () => false,
+        forgetSavedMasterKey: () => false
+    };
 
     function installMobileInventoryBridges() {
         window.PegasusInventory = window.PegasusInventory || {};
@@ -1097,7 +861,6 @@
                     localStorage.setItem('pegasus_prot_stock', String(stock.prot || 0));
                     localStorage.setItem('pegasus_crea_stock', String(stock.crea || 0));
                     updateSuppUI();
-                    if (window.PegasusCloud?.push) window.PegasusCloud.push(true);
                 }
 
                 return stock;
@@ -1108,13 +871,10 @@
     async function reconcileMobileDailyRoutine() {
         // PEGASUS 263: one single idempotent routine path.
         // Older code added routine items here manually while diet-mobile also reconciled them,
-        // which could duplicate entries during auto-unlock + cloud pull races.
+        // which could duplicate entries during auto-unlock + τοπικά pull races.
         try {
             if (window.PegasusDiet?.checkDailyRoutine) {
                 const changed = window.PegasusDiet.checkDailyRoutine();
-                if (changed && window.PegasusCloud?.push) {
-                    setTimeout(() => window.PegasusCloud.push(true), 250);
-                }
             }
             window.PegasusInventory?.updateUI?.();
         } catch (e) {
@@ -1178,13 +938,6 @@
             const values = this.apply({ exercise, rest });
             const status = document.getElementById("mobileWorkoutTimerStatus");
             if (status) status.textContent = `Αποθηκεύτηκε: άσκηση ${values.exercise}s · διάλειμμα ${values.rest}s`;
-            try {
-                window.PegasusCloud?.queuePendingChange?.(keys.exercise, String(exercise), "set");
-                window.PegasusCloud?.queuePendingChange?.(keys.rest, String(rest), "set");
-            } catch (_) {}
-            if (window.PegasusCloud?.push) {
-                setTimeout(() => window.PegasusCloud.push(true), 250);
-            }
             return values;
         }
     };
@@ -1203,12 +956,6 @@
 
             if (id === 'tv_program') {
                 window.PegasusTV?.onOpen?.();
-            }
-
-            if (id === 'diet' && window.PegasusCloud?.isUnlocked && navigator.onLine) {
-                setTimeout(() => {
-                    runMobileSyncHeartbeat();
-                }, 50);
             }
         }
     }
@@ -1315,437 +1062,68 @@
         }
     }
 
-    const MOBILE_SYNC_CYCLE_MS = () => Math.max(10000, Number(window.PegasusCloud?.config?.pullInterval || 30000));
-    let mobileSyncCountdownTimer = null;
-    let mobileLastSyncPulseTs = 0;
-    let mobileNextSyncAt = 0;
-
-    function scheduleNextMobileSyncCycle(fromNow = true) {
-        const cycleMs = MOBILE_SYNC_CYCLE_MS();
-        mobileNextSyncAt = Date.now() + (fromNow ? cycleMs : 0);
-        window.__pegasusMobileNextSyncAt = mobileNextSyncAt;
-    }
-
     function lockMobileSyncIndicatorSize() {
         const e = document.getElementById("sync-indicator");
         if (!e) return;
-
-        // PEGASUS 234: keep the sync label outside the global UI label-polish
-        // MutationObserver. That observer was changing Συνδεδεμένο to title case
-        // after each countdown tick, which made the text look big/small.
-        e.setAttribute("data-pegasus-raw-label", "true");
+        e.dataset.pegasusRawLabel = "true";
         e.classList.add("pegasus-sync-indicator-fixed");
-
-        // CSS is the single source for size. This only clears older inline locks
-        // from previous versions so the label cannot grow/shrink.
-        [
-            "font-size", "letter-spacing", "font-family", "width", "min-width",
-            "max-width", "height", "min-height", "line-height", "display",
-            "align-items", "justify-content", "white-space", "box-sizing",
-            "transform", "animation", "transition", "text-transform"
-        ].forEach(prop => e.style.removeProperty(prop));
-    }
-
-    function renderMobileSyncCycleStatus() {
-        const e = document.getElementById("sync-indicator");
-        if (!e) return;
-        lockMobileSyncIndicatorSize();
-
-        if (!window.PegasusCloud?.isUnlocked) {
-            e.textContent = "LOCKED";
-            e.style.color = "#888";
-            return;
-        }
-        if (!navigator.onLine) {
-            e.textContent = "Offline";
-            e.style.color = "#ff4444";
-            return;
-        }
-
-        const now = Date.now();
-        if (!mobileNextSyncAt) {
-            scheduleNextMobileSyncCycle(true);
-        }
-
-        const remainingSec = Math.max(0, Math.ceil((mobileNextSyncAt - now) / 1000));
-        const remainingTxt = String(remainingSec).padStart(2, "0");
-        const isCadencePulse = !!(mobileLastSyncPulseTs && (now - mobileLastSyncPulseTs) < 1200);
-
-        // PEGASUS 233: stable wording + stable dimensions. Only seconds/color change.
-        e.textContent = `Συνδεδεμένο · ${remainingTxt}s`;
-
-        if (isCadencePulse) {
-            e.style.color = "#00bcd4";
-        } else if (remainingSec > 20) {
-            e.style.color = "#00ff41";
-        } else if (remainingSec > 10) {
-            e.style.color = "#ff9800";
-        } else {
-            e.style.color = "#ff4444";
-        }
-    }
-
-    function startMobileSyncCountdown() {
-        stopMobileSyncCountdown();
-        if (!window.PegasusCloud?.isUnlocked) return;
-        renderMobileSyncCycleStatus();
-        mobileSyncCountdownTimer = setInterval(() => {
-            renderMobileSyncCycleStatus();
-        }, 1000);
-    }
-
-    function stopMobileSyncCountdown() {
-        if (mobileSyncCountdownTimer) {
-            clearInterval(mobileSyncCountdownTimer);
-            mobileSyncCountdownTimer = null;
-        }
     }
 
     function setSyncStatus(status) {
         const e = document.getElementById("sync-indicator");
         if (!e) return;
         lockMobileSyncIndicatorSize();
-
-        if (status === 'online') {
-            startMobileSyncCountdown();
-            renderMobileSyncCycleStatus();
-        } else if (status === 'offline') {
-            stopMobileSyncCountdown();
-            e.textContent = "Offline";
-            e.style.color = "#ff4444";
-        } else if (status === 'syncing') {
-            const cadencePulse = window.__pegasusMobileCadencePermit === true || !mobileNextSyncAt;
-            startMobileSyncCountdown();
-
-            // PEGASUS 232: ignore background/manual cloud "syncing" flashes visually.
-            // The indicator must stay the same size and keep counting down unless the
-            // visible 30-second heartbeat is the owner of the sync pulse.
-            if (cadencePulse) {
-                mobileLastSyncPulseTs = Date.now();
-                scheduleNextMobileSyncCycle(true);
-                renderMobileSyncCycleStatus();
-            } else {
-                renderMobileSyncCycleStatus();
-            }
-        } else if (status === 'error') {
-            stopMobileSyncCountdown();
-            e.textContent = "Σφάλμα SYNC";
-            e.style.color = "#ff9800";
-        } else if (status === 'locked') {
-            stopMobileSyncCountdown();
-            e.textContent = "LOCKED";
-            e.style.color = "#888";
-        } else {
-            stopMobileSyncCountdown();
-            e.textContent = "Σύστημα έτοιμο";
-            e.style.color = "#00bcd4";
-        }
+        e.textContent = "Τοπική λειτουργία";
+        e.style.color = "#00ff41";
     }
 
     async function runMobileSyncHeartbeat() {
-        if (window._pegasusMobileSyncBusy) return false;
-
-        if (!window.PegasusCloud?.isUnlocked) {
-            setSyncStatus('locked');
-            return false;
-        }
-
-        if (document.hidden) return false;
-
-        if (!navigator.onLine) {
-            setSyncStatus('offline');
-            return false;
-        }
-
-        window._pegasusMobileSyncBusy = true;
-        window.__pegasusMobileCadencePermit = true;
-        setSyncStatus('syncing');
-
-        try {
-            const changed = await window.PegasusCloud.syncNow(true);
-
-            if (changed) {
-                refreshAllUI();
-            }
-
-            if (window.PegasusCloud?.isUnlocked) {
-                setSyncStatus('online');
-            } else {
-                setSyncStatus('locked');
-            }
-
-            return !!changed;
-        } catch (e) {
-            console.error("📡 Mobile Heartbeat Error:", e);
-            setSyncStatus('error');
-            return false;
-        } finally {
-            window.__pegasusMobileCadencePermit = false;
-            window._pegasusMobileSyncBusy = false;
-            if (window.PegasusCloud?.isUnlocked) {
-                scheduleNextMobileSyncCycle(true);
-                renderMobileSyncCycleStatus();
-            }
-        }
+        setSyncStatus('local');
+        return false;
     }
 
-    function startMobileSyncHeartbeat() {
-        stopMobileSyncHeartbeat();
-
-        if (!window.PegasusCloud?.isUnlocked) return;
-        if (document.hidden) return;
-
-        const now = Date.now();
-        if (!mobileNextSyncAt || mobileNextSyncAt <= now) {
-            scheduleNextMobileSyncCycle(true);
-        } else {
-            window.__pegasusMobileNextSyncAt = mobileNextSyncAt;
-        }
-
-        startMobileSyncCountdown();
-
-        window._pegasusMobileSyncTimer = setInterval(() => {
-            if (
-                document.hidden ||
-                !window.PegasusCloud?.isUnlocked ||
-                window.PegasusCloud.isPulling ||
-                window.PegasusCloud.isPushing ||
-                window._pegasusMobileSyncBusy ||
-                !navigator.onLine
-            ) {
-                return;
-            }
-
-            const dueAt = Number(window.__pegasusMobileNextSyncAt || mobileNextSyncAt || 0);
-            if (dueAt && Date.now() < dueAt) return;
-
-            runMobileSyncHeartbeat();
-        }, 1000);
-    }
-
+    function startMobileSyncHeartbeat() { setSyncStatus('local'); }
     function stopMobileSyncHeartbeat() {
         if (window._pegasusMobileSyncTimer) {
             clearInterval(window._pegasusMobileSyncTimer);
             window._pegasusMobileSyncTimer = null;
         }
-        stopMobileSyncCountdown();
     }
 
-    window.addEventListener("pegasus_sync_status", (e) => {
-        const status = e.detail?.status;
-        const effectivelyUnlocked = !!(isUnlocked || window.PegasusCloud?.isUnlocked);
-
-        if (!effectivelyUnlocked && status !== "locked") {
-            setSyncStatus("locked");
-            return;
-        }
-
-        if (status === "online") setSyncStatus("online");
-        else if (status === "offline") setSyncStatus("offline");
-        else if (status === "syncing") {
-            if (window.__pegasusMobileCadencePermit === true) {
-                setSyncStatus("syncing");
-            } else {
-                if (!mobileNextSyncAt) scheduleNextMobileSyncCycle(true);
-                startMobileSyncCountdown();
-                renderMobileSyncCycleStatus();
-            }
-        }
-        else if (status === "error") setSyncStatus("error");
-        else if (status === "locked") setSyncStatus("locked");
-    });
-
-    window.addEventListener("focus", () => {
-        if (window.PegasusCloud?.isUnlocked) {
-            startMobileSyncHeartbeat();
-        }
-    });
-
-    document.addEventListener("visibilitychange", () => {
-        if (document.hidden) {
-            stopMobileSyncHeartbeat();
-        } else if (window.PegasusCloud?.isUnlocked) {
-            startMobileSyncHeartbeat();
-        }
-    });
-
-    window.addEventListener("online", () => {
-        if (window.PegasusCloud?.isUnlocked) {
-            startMobileSyncHeartbeat();
-        } else {
-            setSyncStatus('locked');
-        }
-    });
-
-    window.addEventListener("offline", () => {
-        stopMobileSyncHeartbeat();
-        setSyncStatus(isUnlocked ? 'offline' : 'locked');
-    });
-
-    window.addEventListener("pegasus_sync_complete", () => {
-        refreshAllUI();
-        if (window.__pegasusMobileCadencePermit === true) {
-            mobileLastSyncPulseTs = Date.now();
-            scheduleNextMobileSyncCycle(true);
-        }
-        if (window.PegasusCloud?.isUnlocked && !window.PegasusCloud?.isPulling && !window.PegasusCloud?.isPushing) {
-            setSyncStatus('online');
-        }
-    });
+    window.addEventListener("online", () => setSyncStatus('local'));
+    window.addEventListener("offline", () => setSyncStatus('local'));
+    window.addEventListener("focus", () => setSyncStatus('local'));
+    document.addEventListener("visibilitychange", () => setSyncStatus('local'));
 
     window.PegasusMobileVault = window.PegasusMobileVault || {};
-    window.PegasusMobileVault.finishUnlock = async function(source = "manual") {
-        const modal = document.getElementById("pinModal");
-        if (modal) modal.style.display = "none";
-
+    window.PegasusMobileVault.finishUnlock = async function(source = "local") {
         isUnlocked = true;
-        mobileLastSyncPulseTs = Date.now();
-        scheduleNextMobileSyncCycle(true);
-        setSyncStatus(window.PegasusCloud?.isUnlocked ? (navigator.onLine ? 'online' : 'offline') : 'locked');
-
+        setSyncStatus('local');
         await reconcileMobileDailyRoutine();
-        await runMobileSyncHeartbeat();
-        startMobileSyncHeartbeat();
-
-        try {
-            window.PegasusBiometricUnlock?.afterSuccessfulUnlock?.(source);
-        } catch (e) {
-            console.warn("PEGASUS BIOMETRIC: post-unlock hook failed.", e);
-        }
+        refreshAllUI();
     };
 
     async function attemptVaultUnlock() {
-        const pinInput = document.getElementById("pinInput");
-        const masterInput = document.getElementById("masterKeyInput");
-        const errorDiv = document.getElementById("pinError");
-        const pin = pinInput ? pinInput.value.trim() : "";
-        const masterKey = masterInput ? masterInput.value.trim() : "";
-
-        if (errorDiv) errorDiv.textContent = "";
-
-        if (!pin || !masterKey) {
-            if (errorDiv) errorDiv.textContent = "Συμπλήρωσε PIN και master key";
-            return;
-        }
-
-        const success = await window.PegasusCloud?.unlock(pin, masterKey);
-
-        if (success) {
-            await window.PegasusMobileVault.finishUnlock("manual");
-            try {
-                await window.PegasusMobileSavedMasterKey?.afterSuccessfulUnlock?.(masterKey);
-            } catch (e) {
-                console.warn("PEGASUS master key SAVE: post-unlock hook failed.", e);
-            }
-        } else {
-            if (errorDiv) errorDiv.textContent = "Λάθος PIN / master key";
-            if (pinInput) pinInput.value = "";
-            if (masterInput) masterInput.value = "";
-        }
+        await window.PegasusMobileVault.finishUnlock('local');
     }
 
-
-
-    // PEGASUS v292: Mobile PIN auto-unlock.
-    // When the saved master key is already filled, typing the 4-digit PIN is enough.
-    (function installMobilePinAutoUnlock() {
-        if (window.__pegasusMobilePinAutoUnlockV292) return;
-        window.__pegasusMobilePinAutoUnlockV292 = true;
-
-        let busy = false;
-        let timer = null;
-
-        function modalIsOpen() {
-            const modal = document.getElementById("pinModal");
-            return !!(modal && getComputedStyle(modal).display !== "none" && modal.style.display !== "none");
-        }
-
-        async function tryAutoUnlock(reason = "pin-input") {
-            if (busy || !modalIsOpen()) return;
-
-            const pinInput = document.getElementById("pinInput");
-            const masterInput = document.getElementById("masterKeyInput");
-            const pin = String(pinInput?.value || "").trim();
-
-            if (pin.length < 4) return;
-
-            try {
-                await window.PegasusMobileSavedMasterKey?.prefillIfAvailable?.();
-            } catch (_) {}
-
-            let masterKey = String(masterInput?.value || "").trim();
-
-            // If the saved master key is being decrypted/prefilled, wait a beat and check once more.
-            if (!masterKey) {
-                await new Promise(resolve => setTimeout(resolve, 220));
-                try { await window.PegasusMobileSavedMasterKey?.prefillIfAvailable?.(); } catch (_) {}
-                masterKey = String(masterInput?.value || "").trim();
-            }
-
-            if (!masterKey) return;
-
-            busy = true;
-            try {
-                await attemptVaultUnlock();
-            } finally {
-                setTimeout(() => { busy = false; }, 450);
-            }
-        }
-
-        function schedule(reason) {
-            clearTimeout(timer);
-            timer = setTimeout(() => tryAutoUnlock(reason), 180);
-        }
-
-        function bind() {
-            const pinInput = document.getElementById("pinInput");
-            const masterInput = document.getElementById("masterKeyInput");
-            if (!pinInput || pinInput.dataset.pegasusAutoUnlockBound === "true") return;
-
-            pinInput.dataset.pegasusAutoUnlockBound = "true";
-            pinInput.addEventListener("input", () => schedule("pin-input"));
-            pinInput.addEventListener("keyup", event => {
-                if (event.key === "Enter") schedule("pin-enter");
-            });
-
-            if (masterInput && masterInput.dataset.pegasusAutoUnlockBound !== "true") {
-                masterInput.dataset.pegasusAutoUnlockBound = "true";
-                masterInput.addEventListener("input", () => schedule("master-input"));
-                masterInput.addEventListener("keyup", event => {
-                    if (event.key === "Enter") schedule("master-enter");
-                });
-            }
-        }
-
-        if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bind, { once: true });
-        else bind();
-
-        // Modal can be shown after fast boot, so keep the binding resilient without UI side effects.
-        setInterval(bind, 1500);
-        console.log("🔓 PEGASUS MOBILE PIN AUTO-UNLOCK: Active v292");
-    })();
-
     function skipVault() {
-        document.getElementById("pinModal").style.display = "none";
-        stopMobileSyncHeartbeat();
-        isUnlocked = false;
-        setSyncStatus('locked');
+        isUnlocked = true;
+        setSyncStatus('local');
         refreshAllUI();
     }
 
-
     window.PegasusMobileDataManager = (function() {
-        const SCHEMA = 'PEGASUS_MOBILE_DATA_MANAGER_V288_SAFE_MERGE_NO_SAVEAS';
-        const SECURITY_RE = /(vault|pin|master|secret|hash|wrapped|api[_-]?key|gemini|openai|openrouter|token|saved_master)/i;
-        const LOCATION_RE = /mobile_last_location/i;
+        const SCHEMA = 'PEGASUS_LOCAL_ONLY_DATA_MANAGER_V301';
+        const SECURITY_RE = /(vault|pin|master|secret|hash|wrapped|api[_-]?key|gemini|openai|openrouter|token|τοπικά|sync_pending|pending_queue)/i;
+        const NO_RECURSIVE_RE = /(backup|snapshot|restore|runtime_trace|runtime_errors|error_log|system_logs|command_trace|permanent_assets_ready|data_registry_state|self_check_history)/i;
+        const LOCATION_RE = /(geo|gps|latitude|longitude|coords|position_watch)/i;
 
-        function pad(n) { return String(n).padStart(2, '0'); }
         function stamp() {
-            const d = new Date();
-            return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;
+            return new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
         }
-        function downloadJSON(filename, payload) {
-            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        function downloadJSON(filename, data) {
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = filename;
@@ -1753,6 +1131,7 @@
             a.click();
             a.remove();
             setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+            return filename;
         }
         function readFile(event) {
             const input = event?.target;
@@ -1769,79 +1148,37 @@
                 reader.readAsText(file);
             });
         }
-        function isBlockedKey(key) {
-            if (!key) return true;
-            if (SECURITY_RE.test(key)) return true;
-            if (LOCATION_RE.test(key)) return true;
-            try {
-                const cloud = window.PegasusCloud;
-                if (cloud?.isInternalStorageKey?.(key)) return true;
-            } catch (_) {}
-            return false;
-        }
         function isPegasusKey(key) {
             return key && (
                 key.startsWith('pegasus_') || key.startsWith('peg_') || key.startsWith('food_log_') ||
                 key.startsWith('cardio_log_') || key.startsWith('weight_') || key.startsWith('kouki_')
             );
         }
-        function isLocalKey(key) {
-            if (!isPegasusKey(key) || isBlockedKey(key)) return false;
-            try {
-                if (window.PegasusCloud?.isLocalOnlyStorageKey?.(key)) return true;
-            } catch (_) {}
-            return [
-                'pegasus_user_specs', 'pegasus_car_identity', 'pegasus_car_dates', 'pegasus_car_specs',
-                'pegasus_car_service', 'peg_car_dates', 'peg_car_service', 'pegasus_parking_loc',
-                'pegasus_parking_history', 'pegasus_notes'
-            ].includes(key);
+        function isBlockedKey(key) {
+            if (!key) return true;
+            if (SECURITY_RE.test(key)) return true;
+            if (NO_RECURSIVE_RE.test(key)) return true;
+            if (LOCATION_RE.test(key)) return true;
+            return false;
         }
-        function collectLocal(mode = 'local') {
+        function collectLocal(mode = 'all') {
             const out = {};
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
-                if (!key || isBlockedKey(key)) continue;
-                if (mode === 'all') {
-                    if (isPegasusKey(key)) out[key] = localStorage.getItem(key);
-                } else if (isLocalKey(key)) {
-                    out[key] = localStorage.getItem(key);
-                }
+                if (!key || !isPegasusKey(key) || isBlockedKey(key)) continue;
+                out[key] = localStorage.getItem(key);
             }
             return out;
         }
-        async function ensureCloudReady() {
-            const cloud = window.PegasusCloud;
-            if (!cloud) throw new Error('Δεν βρέθηκε PegasusCloud.');
-            if (!cloud.isUnlocked && cloud.canRestoreApprovedDevice?.()) {
-                try { await cloud.tryApprovedDeviceUnlock(); } catch (_) {}
-            }
-            if (!cloud.isUnlocked && !cloud.userKey && !cloud.config?.encryptedPart) {
-                throw new Error('Πρώτα ξεκλείδωσε το Pegasus cloud.');
-            }
-            return cloud;
-        }
-        async function fetchCloudRecord() {
-            const cloud = await ensureCloudReady();
-            return await cloud.fetchLatestRecord();
-        }
         function extractLocalPayload(payload) {
             if (!payload || typeof payload !== 'object') return null;
-            if (payload.localData || payload.localStorage || payload.local || payload?.data?.localData) {
-                return payload.localData || payload.localStorage || payload.local || payload?.data?.localData;
-            }
-            if (payload.mode === 'local' && payload.data && typeof payload.data === 'object') return payload.data;
-            return null;
-        }
-        function extractCloudPayload(payload) {
-            if (!payload || typeof payload !== 'object') return null;
-            return payload.cloudRecord || payload.cloudData || payload.cloud || payload?.data?.cloudRecord || null;
+            return payload.localData || payload.localStorage || payload.local || payload.data || payload;
         }
         function decodeStorageValue(value) {
             if (value === undefined || value === null) return value;
             if (typeof value !== 'string') return value;
             const s = value.trim();
-            if (!s) return value;
-            if (!(s.startsWith('{') || s.startsWith('['))) return value;
+            if (!s || !(s.startsWith('{') || s.startsWith('['))) return value;
             try { return JSON.parse(s); } catch (_) { return value; }
         }
         function encodeStorageValue(value, preferredRaw) {
@@ -1859,333 +1196,127 @@
             if (typeof value === 'object') return Object.keys(value).length === 0;
             return false;
         }
-        function normalizeForId(value) {
-            return String(value ?? '')
-                .trim()
-                .toLowerCase()
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '')
-                .replace(/\s+/g, ' ');
-        }
-        function getItemId(item, index = 0) {
+        function itemId(item, index) {
             if (item && typeof item === 'object') {
-                const id = item.id || item.key || item.reportId || item.ledgerKey || item.uid;
-                if (id) return String(id);
-                const parts = [
-                    item.date || item.dateKey || item.isoDate || item.greekDate || item.day || '',
-                    item.name || item.title || item.food || item.exercise || item.label || item.amount || '',
-                    item.ts || item.time || item.createdAt || item.updatedAt || item.recordedAt || ''
-                ].map(normalizeForId).filter(Boolean);
-                if (parts.length) return parts.join('|');
+                return String(item.id || item.key || item.date || item.dateKey || item.name || item.title || item.label || JSON.stringify(item));
             }
-            return `idx:${index}:${normalizeForId(JSON.stringify(item))}`;
+            return String(item ?? index);
         }
-        function getTimeScore(value) {
+        function newerScore(value) {
             if (!value || typeof value !== 'object') return 0;
-            const candidates = [value.updatedAt, value.importedAt, value.recordedAt, value.createdAt, value.ts, value.time, value.date, value.isoDate, value.dateKey];
-            for (const c of candidates) {
-                if (!c) continue;
-                if (typeof c === 'number') return c;
-                const n = Number(c);
+            for (const k of ['updatedAt','importedAt','recordedAt','createdAt','ts','time','date','dateKey']) {
+                const v = value[k];
+                if (!v) continue;
+                const n = Number(v);
                 if (Number.isFinite(n) && n > 100000) return n;
-                const parsed = Date.parse(String(c));
-                if (Number.isFinite(parsed)) return parsed;
+                const p = Date.parse(String(v));
+                if (Number.isFinite(p)) return p;
             }
             return 0;
         }
-        function mergeObjects(current = {}, incoming = {}, stats) {
-            const out = { ...(incoming && typeof incoming === 'object' && !Array.isArray(incoming) ? incoming : {}), ...(current && typeof current === 'object' && !Array.isArray(current) ? current : {}) };
-            const keys = new Set([...Object.keys(incoming || {}), ...Object.keys(current || {})]);
-            const currentNewer = getTimeScore(current) >= getTimeScore(incoming);
-            keys.forEach(key => {
-                const c = current?.[key];
-                const i = incoming?.[key];
-                if (isEmptyValue(c) && !isEmptyValue(i)) {
-                    out[key] = i;
-                    stats.added++;
-                    return;
-                }
-                if (isEmptyValue(i)) {
-                    out[key] = c;
-                    return;
-                }
-                if (Array.isArray(c) && Array.isArray(i)) {
-                    out[key] = mergeArrays(key, c, i, stats);
-                    return;
-                }
-                if (c && i && typeof c === 'object' && typeof i === 'object' && !Array.isArray(c) && !Array.isArray(i)) {
-                    out[key] = mergeObjects(c, i, stats);
-                    return;
-                }
-                if (JSON.stringify(c) === JSON.stringify(i)) {
-                    out[key] = c;
-                    return;
-                }
-                out[key] = currentNewer ? c : i;
-                stats.conflicts++;
-            });
-            return out;
-        }
         function mergeArrays(key, current = [], incoming = [], stats) {
             const out = [];
-            const indexById = new Map();
-            const addItem = item => {
-                const id = getItemId(item, out.length);
-                if (indexById.has(id)) {
-                    const idx = indexById.get(id);
-                    const existing = out[idx];
-                    if (existing && item && typeof existing === 'object' && typeof item === 'object' && !Array.isArray(existing) && !Array.isArray(item)) {
-                        out[idx] = mergeObjects(existing, item, stats);
+            const seen = new Map();
+            const add = item => {
+                const id = itemId(item, out.length);
+                if (seen.has(id)) {
+                    const i = seen.get(id);
+                    if (out[i] && item && typeof out[i] === 'object' && typeof item === 'object' && !Array.isArray(out[i]) && !Array.isArray(item)) {
+                        out[i] = mergeObjects(out[i], item, stats);
                     }
-                    return;
+                    return false;
                 }
-                indexById.set(id, out.length);
+                seen.set(id, out.length);
                 out.push(item);
+                return true;
             };
-            current.forEach(addItem);
-            incoming.forEach(item => {
-                const before = out.length;
-                addItem(item);
-                if (out.length > before) stats.added++;
-            });
+            current.forEach(add);
+            incoming.forEach(x => { if (add(x)) stats.added++; });
             if (/parking_history/i.test(key)) {
-                out.sort((a, b) => getTimeScore(b) - getTimeScore(a));
+                out.sort((a,b) => newerScore(b) - newerScore(a));
                 return out.slice(0, 10);
             }
             return out;
         }
-        function mergeSupplementInventory(current, incoming, stats) {
-            const c = current && typeof current === 'object' ? current : {};
-            const i = incoming && typeof incoming === 'object' ? incoming : {};
-            const out = { ...i, ...c };
-            ['prot', 'crea'].forEach(field => {
-                const tsField = field === 'prot' ? 'protUpdatedAt' : 'creaUpdatedAt';
-                const cTs = Number(c[tsField] || c.updatedAt || 0);
-                const iTs = Number(i[tsField] || i.updatedAt || 0);
-                if ((!c[field] && i[field]) || iTs > cTs) {
-                    out[field] = i[field];
-                    out[tsField] = i[tsField] || i.updatedAt || Date.now();
-                    stats.added++;
-                }
+        function mergeObjects(current = {}, incoming = {}, stats) {
+            const out = { ...(incoming && typeof incoming === 'object' && !Array.isArray(incoming) ? incoming : {}), ...(current && typeof current === 'object' && !Array.isArray(current) ? current : {}) };
+            const keys = new Set([...Object.keys(incoming || {}), ...Object.keys(current || {})]);
+            keys.forEach(key => {
+                const c = current?.[key];
+                const i = incoming?.[key];
+                if (isEmptyValue(c) && !isEmptyValue(i)) { out[key] = i; stats.added++; return; }
+                if (isEmptyValue(i)) { out[key] = c; return; }
+                if (Array.isArray(c) && Array.isArray(i)) { out[key] = mergeArrays(key, c, i, stats); return; }
+                if (c && i && typeof c === 'object' && typeof i === 'object' && !Array.isArray(c) && !Array.isArray(i)) { out[key] = mergeObjects(c, i, stats); return; }
+                if (JSON.stringify(c) === JSON.stringify(i)) { out[key] = c; return; }
+                out[key] = newerScore(i) > newerScore(c) ? i : c;
+                stats.conflicts++;
             });
-            out.syncVersion = Math.max(Number(c.syncVersion || 0), Number(i.syncVersion || 0), 2);
             return out;
         }
-        function mergeStorageValue(key, currentRaw, incomingRaw, stats) {
-            if (isEmptyValue(currentRaw)) {
-                stats.added++;
-                return typeof incomingRaw === 'string' ? incomingRaw : JSON.stringify(incomingRaw);
-            }
-            if (isEmptyValue(incomingRaw)) return currentRaw;
-            const current = decodeStorageValue(currentRaw);
-            const incoming = decodeStorageValue(incomingRaw);
-            if (key === 'pegasus_supp_inventory') {
-                return encodeStorageValue(mergeSupplementInventory(current, incoming, stats), currentRaw);
-            }
-            if (Array.isArray(current) && Array.isArray(incoming)) {
-                return encodeStorageValue(mergeArrays(key, current, incoming, stats), currentRaw);
-            }
-            if (current && incoming && typeof current === 'object' && typeof incoming === 'object' && !Array.isArray(current) && !Array.isArray(incoming)) {
-                return encodeStorageValue(mergeObjects(current, incoming, stats), currentRaw);
-            }
-            if (String(currentRaw) === String(incomingRaw)) return currentRaw;
-            stats.conflicts++;
-            return currentRaw;
-        }
-        function mergeStorageMap(currentMap = {}, incomingMap = {}) {
+        function mergeStorage(currentRaw, incomingRaw) {
             const stats = { added: 0, conflicts: 0, skipped: 0, written: 0 };
-            const merged = { ...(currentMap || {}) };
-            Object.entries(incomingMap || {}).forEach(([key, incomingValue]) => {
-                if (!key || isBlockedKey(key)) { stats.skipped++; return; }
-                const currentValue = Object.prototype.hasOwnProperty.call(merged, key) ? merged[key] : localStorage.getItem(key);
-                const nextValue = mergeStorageValue(key, currentValue, incomingValue, stats);
-                if (nextValue !== currentValue) stats.written++;
-                merged[key] = nextValue;
+            const out = { ...currentRaw };
+            Object.keys(incomingRaw || {}).forEach(key => {
+                if (!isPegasusKey(key) || isBlockedKey(key)) { stats.skipped++; return; }
+                const cRaw = currentRaw[key];
+                const iRaw = incomingRaw[key];
+                const c = decodeStorageValue(cRaw);
+                const i = decodeStorageValue(iRaw);
+                if (isEmptyValue(c) && !isEmptyValue(i)) { out[key] = encodeStorageValue(i, iRaw); stats.added++; return; }
+                if (isEmptyValue(i)) return;
+                if (Array.isArray(c) && Array.isArray(i)) { out[key] = JSON.stringify(mergeArrays(key, c, i, stats)); return; }
+                if (c && i && typeof c === 'object' && typeof i === 'object' && !Array.isArray(c) && !Array.isArray(i)) { out[key] = JSON.stringify(mergeObjects(c, i, stats)); return; }
+                if (String(cRaw) !== String(iRaw)) {
+                    out[key] = cRaw || encodeStorageValue(i, iRaw);
+                    stats.conflicts++;
+                }
             });
-            return { merged, stats };
+            return { merged: out, stats };
         }
-        async function createEmergencyBackup(scope = 'local') {
-            const localData = collectLocal('all');
-            let cloudRecord = null;
-            if (scope === 'cloud' || scope === 'all') {
-                try { cloudRecord = await fetchCloudRecord(); } catch (e) { console.warn('Emergency cloud backup skipped:', e); }
-            }
-            const emergency = {
-                schema: `${SCHEMA}_EMERGENCY_BEFORE_RESTORE`,
-                mode: 'emergency',
-                scope,
-                createdAt: new Date().toISOString(),
-                localData,
-                cloudRecord
-            };
-            const storageKey = `pegasus_emergency_restore_backup_${Date.now()}`;
-
-            // v288: στο restore ΔΕΝ κατεβάζουμε emergency .json, γιατί στο κινητό/Android
-            // άνοιγε παράθυρο “Save as” αμέσως μετά την επιλογή του αρχείου επαναφοράς.
-            // Το emergency backup μένει σιωπηλά στο localStorage της συσκευής.
-            try {
-                localStorage.setItem(storageKey, JSON.stringify(emergency));
-            } catch (e) {
-                console.warn('Emergency backup localStorage failed:', e);
-                try { sessionStorage.setItem(storageKey, JSON.stringify(emergency)); } catch (_) {}
-            }
-
-            return storageKey;
-        }
-        function refreshAfterRestore() {
-            try { window.PegasusProfile?.load?.(true); } catch (_) {}
-            try { window.PegasusCar?.load?.(); } catch (_) {}
-            try { window.PegasusParking?.updateUI?.(); } catch (_) {}
-            try { window.PegasusInventory?.updateUI?.(true); } catch (_) {}
-            try { window.PegasusDiet?.updateUI?.(); } catch (_) {}
-            try { refreshAllUI?.(); } catch (_) {}
-        }
-        function applyLocalMerge(localData) {
-            if (!localData || typeof localData !== 'object') throw new Error('Δεν βρέθηκαν τοπικά δεδομένα στο αρχείο.');
-            const current = {};
-            Object.keys(localData).forEach(key => current[key] = localStorage.getItem(key));
-            const { merged, stats } = mergeStorageMap(current, localData);
+        function applyLocalMerge(incoming) {
+            const current = collectLocal('all');
+            const { merged, stats } = mergeStorage(current, incoming || {});
             Object.entries(merged).forEach(([key, value]) => {
-                if (!key || isBlockedKey(key)) return;
-                localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+                if (!isBlockedKey(key) && isPegasusKey(key)) {
+                    localStorage.setItem(key, String(value));
+                    stats.written++;
+                }
             });
-            refreshAfterRestore();
+            try { refreshAllUI?.(); updateSuppUI?.(); window.MuscleProgressUI?.render?.(true); } catch (_) {}
             return stats;
         }
-        function mergeProtectedPayload(currentProtected = {}, incomingProtected = {}) {
-            const out = { ...(incomingProtected || {}), ...(currentProtected || {}) };
-            Object.entries(incomingProtected || {}).forEach(([key, value]) => {
-                if (isEmptyValue(out[key]) && !isEmptyValue(value)) out[key] = value;
-            });
-            return out;
-        }
-        function mergeCloudRecords(currentRecord = {}, incomingRecord = {}) {
-            if (!incomingRecord || typeof incomingRecord !== 'object') throw new Error('Δεν βρέθηκαν δεδομένα cloud στο αρχείο.');
-            const currentStorage = currentRecord.storage || {};
-            const incomingStorage = incomingRecord.storage || {};
-            const { merged: storage, stats } = mergeStorageMap(currentStorage, incomingStorage);
-            const currentProtected = currentRecord.protected || {};
-            const incomingProtected = incomingRecord.protected || {};
-            const nowTs = String(Date.now());
-            const events = mergeArrays('__events__', currentRecord.__events__ || [], incomingRecord.__events__ || [], stats).slice(-250);
-            return {
-                ...incomingRecord,
-                ...currentRecord,
-                last_update_ts: nowTs,
-                last_update_date: window.PegasusCloud?.getTodayKey?.() || new Date().toISOString().slice(0, 10),
-                __pegasus_plain_v3: true,
-                approval: currentRecord.approval || incomingRecord.approval || {},
-                storage,
-                protected: mergeProtectedPayload(currentProtected, incomingProtected),
-                __deleted_keys__: [],
-                __events__: events,
-                __data_guard_v1: {
-                    ...(incomingRecord.__data_guard_v1 || {}),
-                    ...(currentRecord.__data_guard_v1 || {}),
-                    safeMergeRestore: true,
-                    safeMergeRestoreAt: nowTs,
-                    generatedBy: SCHEMA,
-                    restoredStorageKeys: Object.keys(incomingStorage).length,
-                    finalStorageKeys: Object.keys(storage).length
-                },
-                __restore_meta_v1: {
-                    mode: 'safe_merge',
-                    restoredAt: new Date().toISOString(),
-                    sourceSchema: incomingRecord.schema || incomingRecord.__schema || 'unknown',
-                    stats
-                }
-            };
-        }
-        async function writeCloudRecord(record) {
-            if (!record || typeof record !== 'object') throw new Error('Δεν βρέθηκαν δεδομένα cloud στο αρχείο.');
-            const cloud = await ensureCloudReady();
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${cloud.config.binId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Master-Key': cloud.userKey || cloud.config.encryptedPart,
-                    'X-Bin-Meta': 'false'
-                },
-                body: JSON.stringify(record)
-            });
-            if (!res.ok) throw new Error('Αποτυχία επαναφοράς cloud: ' + res.status);
-            if (record.last_update_ts && cloud.storage?.lastPush) {
-                localStorage.setItem(cloud.storage.lastPush, String(record.last_update_ts));
-            }
-            cloud.clearPendingChanges?.();
-            cloud.hasSuccessfullyPulled = false;
-            try { await cloud.pull(true); } catch (_) {}
-        }
-        async function writeCloudRecordMerged(incomingRecord) {
-            const currentRecord = await fetchCloudRecord();
-            const mergedRecord = mergeCloudRecords(currentRecord || {}, incomingRecord || {});
-            await writeCloudRecord(mergedRecord);
-            return mergedRecord.__restore_meta_v1?.stats || { added: 0, conflicts: 0, skipped: 0, written: 0 };
+        async function createEmergencyBackup(reason) {
+            const filename = `pegasus_emergency_local_backup_${reason}_${stamp()}.json`;
+            return downloadJSON(filename, { schema: SCHEMA, mode: 'emergency-local', createdAt: new Date().toISOString(), localData: collectLocal('all') });
         }
         function statsText(stats) {
             if (!stats) return '';
-            return `Προστέθηκαν/ενώθηκαν: ${stats.added || 0}\nΣυγκρούσεις που κρατήθηκαν με ασφάλεια: ${stats.conflicts || 0}\nΚλειδιά που γράφτηκαν: ${stats.written || 0}`;
+            return `Προστέθηκαν/ενώθηκαν: ${stats.added || 0}
+Συγκρούσεις που κρατήθηκαν με ασφάλεια: ${stats.conflicts || 0}
+Κλειδιά που γράφτηκαν: ${stats.written || 0}`;
         }
-        function status(msg) { console.log('🧩 PEGASUS DATA MANAGER:', msg); }
         return {
             async backupLocal() {
-                const localData = collectLocal('local');
-                downloadJSON(`pegasus_local_backup_${stamp()}.json`, { schema: SCHEMA, mode: 'local', createdAt: new Date().toISOString(), localData });
-                status('Local backup OK');
+                const localData = collectLocal('all');
+                downloadJSON(`pegasus_local_backup_${stamp()}.json`, { schema: SCHEMA, mode: 'local-only', createdAt: new Date().toISOString(), localData });
+                console.log('🧩 PEGASUS LOCAL DATA MANAGER: Local backup OK');
             },
             async restoreLocal(event) {
                 try {
                     const payload = await readFile(event);
                     if (!payload) return;
-                    const localData = extractLocalPayload(payload) || payload;
-                    if (!confirm('Ασφαλής επαναφορά / Merge τοπικών δεδομένων;\n\nΘα κρατηθούν τα νεότερα/υπάρχοντα δεδομένα και θα ενωθούν όσα λείπουν.\nΠριν γίνει, θα δημιουργηθεί emergency backup.')) return;
-                    const emergencyFile = await createEmergencyBackup('local');
-                    const stats = applyLocalMerge(localData);
-                    alert('✅ Η ασφαλής επαναφορά τοπικών δεδομένων ολοκληρώθηκε.\n\n' + statsText(stats) + '\n\nEmergency backup κρατήθηκε τοπικά: ' + emergencyFile);
-                } catch (e) { alert('❌ Σφάλμα ασφαλούς επαναφοράς τοπικών δεδομένων: ' + e.message); }
-            },
-            async backupCloud() {
-                try {
-                    const cloudRecord = await fetchCloudRecord();
-                    downloadJSON(`pegasus_cloud_backup_${stamp()}.json`, { schema: SCHEMA, mode: 'cloud', createdAt: new Date().toISOString(), cloudRecord });
-                    status('Cloud backup OK');
-                } catch (e) { alert('❌ Δεν έγινε αντίγραφο cloud: ' + e.message); }
-            },
-            async restoreCloud(event) {
-                try {
-                    const payload = await readFile(event);
-                    if (!payload) return;
-                    const cloudRecord = extractCloudPayload(payload) || payload;
-                    if (!confirm('Ασφαλής επαναφορά / Merge δεδομένων cloud;\n\nΘα διαβαστεί πρώτα το τωρινό cloud, θα ενωθεί με το backup και μετά θα γραφτεί το αποτέλεσμα.\nΠριν γίνει, θα δημιουργηθεί emergency backup.')) return;
-                    const emergencyFile = await createEmergencyBackup('cloud');
-                    const stats = await writeCloudRecordMerged(cloudRecord);
-                    alert('✅ Η ασφαλής επαναφορά cloud ολοκληρώθηκε.\n\n' + statsText(stats) + '\n\nEmergency backup κρατήθηκε τοπικά: ' + emergencyFile);
-                } catch (e) { alert('❌ Σφάλμα ασφαλούς επαναφοράς cloud: ' + e.message); }
-            },
-            async backupAll() {
-                try {
-                    const localData = collectLocal('all');
-                    const cloudRecord = await fetchCloudRecord();
-                    downloadJSON(`pegasus_full_backup_${stamp()}.json`, { schema: SCHEMA, mode: 'all', createdAt: new Date().toISOString(), localData, cloudRecord });
-                    status('Full backup OK');
-                } catch (e) { alert('❌ Δεν έγινε πλήρες αντίγραφο: ' + e.message); }
-            },
-            async restoreAll(event) {
-                try {
-                    const payload = await readFile(event);
-                    if (!payload) return;
                     const localData = extractLocalPayload(payload);
-                    const cloudRecord = extractCloudPayload(payload);
-                    if (!localData && !cloudRecord) throw new Error('Το αρχείο δεν έχει αναγνωρίσιμα τοπικά ή cloud δεδομένα.');
-                    if (!confirm('Πλήρης ασφαλής επαναφορά / Merge;\n\nΘα ενωθούν τοπικά + cloud δεδομένα χωρίς τυφλή αντικατάσταση.\nΠριν γίνει, θα δημιουργηθεί emergency backup.')) return;
-                    const emergencyFile = await createEmergencyBackup('all');
-                    const results = [];
-                    if (localData) results.push('Τοπικά:\n' + statsText(applyLocalMerge(localData)));
-                    if (cloudRecord) results.push('Cloud:\n' + statsText(await writeCloudRecordMerged(cloudRecord)));
-                    alert('✅ Η πλήρης ασφαλής επαναφορά ολοκληρώθηκε.\n\n' + results.join('\n\n') + '\n\nEmergency backup κρατήθηκε τοπικά: ' + emergencyFile);
+                    if (!localData || typeof localData !== 'object') throw new Error('Το αρχείο δεν έχει τοπικά δεδομένα.');
+                    if (!confirm('Ασφαλής επαναφορά τοπικών δεδομένων;\n\nΘα κρατηθούν τα υπάρχοντα/νεότερα και θα ενωθούν όσα λείπουν.')) return;
+                    const emergencyFile = await createEmergencyBackup('restore');
+                    const stats = applyLocalMerge(localData);
+                    alert('✅ Η ασφαλής επαναφορά τοπικών δεδομένων ολοκληρώθηκε.\n\n' + statsText(stats) + '\n\nEmergency backup: ' + emergencyFile);
                     location.reload();
-                } catch (e) { alert('❌ Σφάλμα πλήρους ασφαλούς επαναφοράς: ' + e.message); }
-            }
+                } catch (e) { alert('❌ Σφάλμα επαναφοράς τοπικών δεδομένων: ' + e.message); }
+            },
+            backupAll() { return this.backupLocal(); },
+            restoreAll(event) { return this.restoreLocal(event); }
         };
     })();
 
@@ -2209,9 +1340,6 @@
                 console.error("Hard Reset Cleanup Error:", e);
             }
 
-            if (window.PegasusCloud?.clearLocalSecurityState) {
-                window.PegasusCloud.clearLocalSecurityState();
-            }
             location.replace(location.pathname + '?v=' + Date.now());
         }
     }
@@ -2222,7 +1350,7 @@
             const k = localStorage.key(i);
             if (!k) continue;
 
-            const shouldSkip = window.PegasusCloud?.isExportBlockedKey?.(k);
+            const shouldSkip = /(vault|pin|master|secret|hash|wrapped|api[_-]?key|token|τοπικά|sync_pending)/i.test(k);
             if (shouldSkip) continue;
 
             if (k.includes("pegasus_") || k.includes("food_log_") || k.startsWith("peg_") || k.startsWith("kouki_") || k.startsWith("weight_")) {
@@ -2252,7 +1380,7 @@
                     for (let i = 0; i < localStorage.length; i++) {
                         const key = localStorage.key(i);
                         if (!key) continue;
-                        if (window.PegasusCloud?.isExportBlockedKey?.(key) || window.PegasusCloud?.isLocalOnlyStorageKey?.(key) || window.PegasusCloud?.isInternalStorageKey?.(key)) {
+                        if (false) {
                             preserved[key] = localStorage.getItem(key);
                         }
                     }
@@ -2270,49 +1398,25 @@
     }
 
     (async function boot() {
-        console.log("⚡ PEGASUS: Fast Boot...");
+        console.log("⚡ PEGASUS: Local-only Boot...");
 
+        try { stopMobileSyncHeartbeat?.(); } catch (_) {}
+        isUnlocked = true;
+        setSyncStatus('local');
         installMobileInventoryBridges();
         refreshAllUI();
         updateSuppUI();
-
-        try {
-            if (window.PegasusCloud?.canAutoUnlock?.()) {
-                setSyncStatus('syncing');
-                const success = await window.PegasusCloud.tryAutoUnlock();
-
-                if (success) {
-                    console.log("📡 Cloud Sync: Fully Connected.");
-                    isUnlocked = true;
-                    await reconcileMobileDailyRoutine();
-                    await runMobileSyncHeartbeat();
-                    startMobileSyncHeartbeat();
-                    setTimeout(() => {
-                        refreshAllUI();
-                        updateSuppUI();
-                    }, 500);
-                    return;
-                }
-            }
-
-            const modal = document.getElementById("pinModal");
-            if (modal) modal.style.display = "flex";
-            isUnlocked = false;
-            setSyncStatus('locked');
-        } catch (e) {
-            console.error("📡 Cloud Boot Error:", e);
-            isUnlocked = false;
-            setSyncStatus('locked');
-            const modal = document.getElementById("pinModal");
-            if (modal) modal.style.display = "flex";
-        }
+        await reconcileMobileDailyRoutine();
+        const modal = document.getElementById("pinModal");
+        if (modal) modal.style.display = "none";
+        console.log("✅ PEGASUS: Τοπική λειτουργία ενεργή. Δεν υπάρχει συγχρονισμός.");
     })();
 </script>
 
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('../sw.js?v=292.36.292')
+                navigator.serviceWorker.register('../sw.js?v=301.0.0')
                     .then(reg => {
                         console.log('📡 PEGASUS: Service Worker Registered.');
                         // No forced reg.update() on every open; this keeps refresh fast after the first local download.

@@ -1,10 +1,10 @@
 /* ==========================================================================
-   PEGASUS PWA SERVICE WORKER - v3.19 (JSONBIN QUOTA BACKOFF)
+   PEGASUS PWA SERVICE WORKER - v3.20 (LOCAL-ONLY)
    Protocol: Cache-first after full local download, persistent same-origin assets
    Status: FINAL STABLE | ZERO WARMUP FALLBACK | FULL PROGRESS BRIDGE
    ========================================================================== */
 
-const PEGASUS_STORAGE_VERSION = '299';
+const PEGASUS_STORAGE_VERSION = '301';
 const CACHE_NAME = `pegasus-permanent-local-v${PEGASUS_STORAGE_VERSION}`;
 const CACHE_META_URL = './__pegasus_permanent_cache_meta__.json';
 
@@ -25,7 +25,6 @@ const ASSETS_TO_CACHE = [
     './backup.js',
     './inventoryHandler.js',
     './pegasusCore.js',
-    './cloudSync.js',
     './protcrea.js',
     './food.js',
     './foodRegistry.js',
@@ -64,8 +63,6 @@ const ASSETS_TO_CACHE = [
     './mobile/weather-mobile.js',
     './mobile/shell-layout-mobile.js',
     './mobile/missions-mobile.js',
-    './mobile/biometrics-mobile.js',
-    './mobile/biometric-unlock-mobile.js',
     './mobile/maintenance-mobile.js',
     './mobile/oracle-mobile.js',
     './mobile/lifting-mobile.js',

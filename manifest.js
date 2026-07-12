@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PEGASUS OS - MASTER MANIFEST & REGISTRY (v19.00)
+   PEGASUS OS - MASTER MANIFEST & REGISTRY (v19.01 LOCAL-ONLY)
    Protocol: Global Variable Re-declaration (Unlock M)
    Status: THE SINGLE SOURCE OF TRUTH | HARDENED: KEY CONSISTENCY + AUDIT SAFETY
    ========================================================================== */
@@ -13,7 +13,7 @@ window.PegasusManifest = {
         author: "Angelos & Gemini",
         last_update: "2026-05-09",
         logic_protocol: "Zero-Bug Simulation & Global Scope Shielding",
-        engine_version: "v19.00 Next exercise video preview during rest"
+        engine_version: "v19.01 Local-only mode, cloud removed"
     },
 
     // ---------------------------------------------------------
@@ -123,15 +123,14 @@ window.PegasusManifest = {
         "dietAdvisor.js": "Nutritional Intelligence Engine (Gap Analysis).",
         "optimizer.js": "AI Training Volumizer (Dynamic Set Adjustment).",
         "pegasusBrain.js": "Dynamic Weekly Planner, carry-over and recovery guard.",
-        "cloudSync.js": "Security & Persistence Layer (API & Vault PIN).",
         "cardio.js": "Cardio Engine (+18 σετ πόδια & Kcal target modifier).",
         "auditUI.js": "Real-time System Integrity Monitor & Diagnostic Tool.",
         "debug.js": "Tracer, health checks, calorie audit and runtime diagnostics.",
         "car.js": "Vehicle Management Module.",
         "parking.js": "Manual Parking Notes & Recent Locations Module.",
-        "mobile/mobile.html": "Mobile shell, unlock flow, silent local master-key and data management hub.",
+        "mobile/mobile.html": "Mobile shell and local-only data management hub.",
         "dragDrop.js": "UI Window Positioning Memory.",
-        "ems.js": "Electro-Muscle Stimulation Tracker & Sync.",
+        "ems.js": "Electro-Muscle Stimulation Tracker.",
         "partner.js": "Smart Co-Lifter Logic & Dual Weight Memory.",
         "reporting.js": "EmailJS Automated Morning Dispatcher."
     },
@@ -210,4 +209,4 @@ window.PegasusManifest = {
 // 🛡️ ΤΟ ΚΛΕΙΔΙ ΤΟΥ UNLOCK
 var M = window.PegasusManifest;
 
-console.log("🏛️ PEGASUS MANIFEST v19.00 LOADED. NEXT EXERCISE PREVIEW READY.");
+console.log("🏛️ PEGASUS MANIFEST v19.01 LOADED. LOCAL-ONLY MODE READY.");

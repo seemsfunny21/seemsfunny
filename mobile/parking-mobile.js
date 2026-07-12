@@ -96,7 +96,7 @@ window.PegasusParking = {
 
         if (window.PegasusCloud && window.PegasusCloud.push) {
             if (typeof setSyncStatus === 'function') setSyncStatus('Αποστολή...');
-            try { await window.PegasusCloud.push(); } catch (e) { console.warn('Parking cloud push failed:', e); }
+            
             if (typeof setSyncStatus === 'function') setSyncStatus('online');
         }
 

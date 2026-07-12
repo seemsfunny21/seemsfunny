@@ -31,20 +31,6 @@
     </div>
 </div>
 
-<div id="pinModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 999999; flex-direction: column; align-items: center; justify-content: center;">
-    <div style="background: #0a0a0a; border: 1px solid #00ff41; box-shadow: 0 0 40px rgba(0,255,65,0.15); padding: 35px 25px; border-radius: 24px; width: 85%; max-width: 340px; text-align: center;">
-        <div style="font-size:40px; margin-bottom:5px;">🛡️</div>
-        <div style="color: #00ff41; font-weight: 900; font-size: 22px; letter-spacing: 1px; margin: 10px 0 5px 0;">PEGASUS OS</div>
-        <div style="color: #888; font-size: 11px; font-weight: 800; letter-spacing: 2px; margin-bottom: 25px;">Ασφαλής ταυτοποίηση</div>
-       <input type="password" id="pinInput" style="font-size: 32px; letter-spacing: 12px; font-weight: 900; color: #00ff41; background: #000; border: 1px solid #333; padding: 15px; border-radius: 16px; margin-bottom: 12px; width: 80%; text-align: center; box-sizing: border-box;" inputmode="numeric" maxlength="4" placeholder="••••">
-        <input type="password" id="masterKeyInput" style="font-size: 14px; letter-spacing: 2px; font-weight: 800; color: #00bcd4; background: #000; border: 1px solid #333; padding: 14px; border-radius: 16px; margin-bottom: 12px; width: 100%; text-align: center; box-sizing: border-box;" autocomplete="off" placeholder="master key">
-        <div style="color:#666; font-size:10px; font-weight:800; letter-spacing:1px; margin-bottom:12px;">PIN + master key ΜΙΑ ΦΟΡΑ ΤΗΝ ΗΜΕΡΑ · Επαναφορά ΜΕΤΑ ΤΙΣ 07:00</div>
-        <div id="pinError" style="color:#ff4444; font-size:11px; font-weight:bold; margin-bottom:15px; min-height:15px;"></div>
-        <button onclick="attemptVaultUnlock()" style="width: 100%; padding: 16px; background: #00ff41; border: none; border-radius: 18px; color: #000; font-weight: 900; text-transform: none; font-size: 13px; margin-bottom: 12px; cursor: pointer;">Απασφάλιση συστήματος</button>
-        <button onclick="skipVault()" style="width:100%; background:transparent; color:#666; padding:12px; border:1px solid #222; border-radius:14px; font-weight:bold; font-size:11px; cursor:pointer;">Επιστροφή / άκυρο</button>
-    </div>
-</div>
-
 <div id="navbar" class="navbar">
     <button id="nav-Δευτέρα">Δευτέρα</button>
     <button id="nav-Τρίτη">Τρίτη</button>
@@ -121,7 +107,6 @@
     <button id="btnExportData" class="p-btn tools-btn">💾 Αποθήκευση αρχείου</button>
     <button id="btnImportData" class="p-btn tools-btn">📂 Φόρτωση αρχείου</button>
     <input type="file" id="importFileTools" style="display:none">
-    <button id="btnMasterVault" class="p-btn tools-btn" style="border-color:#00bcd4; color:#00bcd4;">🔐 Συγχρονισμός</button>
     <button id="btnOpenGallery" class="p-btn tools-btn">🖼️ Γκαλερί προόδου</button>
     <button id="btnEMS" class="p-btn tools-btn">⚡ Καταγραφή EMS</button>
     <button id="btnSystemAudit" class="p-btn tools-btn" style="border-color:#4CAF50; color:#4CAF50; margin-top: 10px; font-weight: 900;">🔍 Έλεγχος PEGASUS</button>
@@ -401,103 +386,18 @@
 </div>
 
 <script>
-    /* PEGASUS SECURITY PROTOCOL - DESKTOP ON-DEMAND SYNC (v18.3) */
-    function updateVaultButton(isConnected) {
-        const vaultBtn = document.getElementById("btnMasterVault");
-        if (!vaultBtn) return;
-
-        if (isConnected) {
-            vaultBtn.textContent = "☁️ CLOUD: Συνδεδεμένο";
-            vaultBtn.style.borderColor = "#00ff41";
-            vaultBtn.style.color = "#00ff41";
-        } else {
-            vaultBtn.textContent = "🔐 Συγχρονισμός";
-            vaultBtn.style.borderColor = "#00bcd4";
-            vaultBtn.style.color = "#00bcd4";
-        }
-    }
-
+    /* PEGASUS LOCAL-ONLY PROTOCOL (v19.01)
+       Cloud/Vault sync has been removed. Everything stays on this device.
+       These no-op functions remain only so older buttons/scripts never crash. */
+    function updateVaultButton() {}
     function openVaultModal() {
-        const modal = document.getElementById("pinModal");
-        if (!modal) return;
-        modal.style.display = "flex";
-        const pinInput = document.getElementById("pinInput");
-        if (pinInput) setTimeout(() => pinInput.focus(), 60);
+        alert("Το cloud αφαιρέθηκε. Το PEGASUS λειτουργεί μόνο τοπικά σε αυτή τη συσκευή.");
     }
-
     async function handleDesktopSyncOpen() {
-        try {
-            if (window.PegasusCloud?.isUnlocked) {
-                updateVaultButton(true);
-                if (navigator.onLine && typeof window.PegasusCloud.syncNow === "function") {
-                    await window.PegasusCloud.syncNow(true);
-                }
-                if (typeof refreshAllUI === 'function') refreshAllUI();
-                return;
-            }
-
-            if (window.PegasusCloud?.canAutoUnlock?.()) {
-                const ok = await window.PegasusCloud.tryAutoUnlock();
-                updateVaultButton(!!ok);
-                if (ok) {
-                    if (navigator.onLine && typeof window.PegasusCloud.syncNow === "function") {
-                        await window.PegasusCloud.syncNow(true);
-                    }
-                    if (typeof refreshAllUI === 'function') refreshAllUI();
-                    return;
-                }
-            }
-
-            openVaultModal();
-        } catch (e) {
-            console.error("Desktop Vault Open Error:", e);
-            updateVaultButton(false);
-            openVaultModal();
-        }
+        alert("Ο συγχρονισμός αφαιρέθηκε. Χρησιμοποίησε Αποθήκευση αρχείου / Φόρτωση αρχείου για μεταφορά δεδομένων.");
     }
-
-    async function attemptVaultUnlock() {
-        const pinInput = document.getElementById("pinInput");
-        const masterInput = document.getElementById("masterKeyInput");
-        const errorDiv = document.getElementById("pinError");
-        const pin = pinInput ? pinInput.value.trim() : "";
-        const masterKey = masterInput ? masterInput.value.trim() : "";
-
-        if (errorDiv) errorDiv.textContent = "";
-        if (!pin || !masterKey) {
-            if (errorDiv) errorDiv.textContent = "Συμπλήρωσε PIN και master key";
-            return;
-        }
-
-        const success = await window.PegasusCloud?.unlock(pin, masterKey);
-
-        if (success) {
-            document.getElementById("pinModal").style.display = "none";
-            updateVaultButton(true);
-            if (navigator.onLine && typeof window.PegasusCloud?.syncNow === "function") {
-                await window.PegasusCloud.syncNow(true);
-            }
-            if (typeof refreshAllUI === 'function') refreshAllUI();
-        } else {
-            if (errorDiv) errorDiv.textContent = "Άρνηση πρόσβασης: λάθος PIN / master key";
-            if (pinInput) pinInput.value = "";
-            if (masterInput) masterInput.value = "";
-        }
-    }
-
-    function skipVault() {
-        document.getElementById("pinModal").style.display = "none";
-        updateVaultButton(false);
-    }
-
-    window.addEventListener("load", () => {
-        updateVaultButton(false);
-    });
-
-    window.addEventListener("pegasus_sync_status", (e) => {
-        const status = e?.detail?.status || "";
-        updateVaultButton(status === "online" || status === "syncing");
-    });
+    async function attemptVaultUnlock() { return false; }
+    function skipVault() {}
 </script>
 
 <script src="manifest.js"></script>
@@ -514,7 +414,6 @@
 <script src="backup.js"></script>
 <script src="inventoryHandler.js"></script>
 <script src="pegasusCore.js"></script>
-<script src="cloudSync.js"></script>
 <script src="protcrea.js"></script>
 <script src="food.js"></script>
 <script src="foodRegistry.js"></script>

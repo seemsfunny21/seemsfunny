@@ -2039,7 +2039,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
             const staticUrls = [
                 './', './index.html', './style.css', './manifest.js', './dialogs.js', './i18n.js', './data.js',
                 './settings.js', './optimizer.js', './pegasusBrain.js', './dynamic.js', './progressUI.js', './weather.js',
-                './backup.js', './inventoryHandler.js', './pegasusCore.js', './cloudSync.js', './protcrea.js', './food.js',
+                './backup.js', './inventoryHandler.js', './pegasusCore.js', './protcrea.js', './food.js',
                 './foodRegistry.js', './slotRegistry.js', './dietAdvisor.js', './dietVariation.js', './extensions.js',
                 './ems.js', './cardio.js', './calendar.js', './gallery.js', './partner.js', './achievements.js',
                 './dragDrop.js', './reporting.js', './metabolicEngine.js', './weightTracker.js', './app.js', './debug.js',
@@ -3211,25 +3211,8 @@ window.onload = () => {
     }
 
     async function pullFreshPegasusCloudForPanel(source, afterPull) {
-        try {
-            if (
-                window.PegasusCloud?.isUnlocked &&
-                typeof window.PegasusCloud.pull === "function" &&
-                !window.PegasusCloud.isPulling &&
-                !window.PegasusCloud.isPushing
-            ) {
-                await window.PegasusCloud.pull(true);
-                try { window.enforcePegasusMondayWeeklyReset?.({ source: `${source}-after-cloud-pull`, push: true }); } catch (resetError) { console.warn('⚠️ PEGASUS: Saturday reset after panel pull skipped.', resetError); }
-            }
-        } catch (e) {
-            console.warn(`⚠️ PEGASUS: cloud pull before ${source} skipped.`, e);
-            try { window.enforcePegasusMondayWeeklyReset?.({ source: `${source}-pull-fallback`, push: true }); } catch (resetError) { console.warn('⚠️ PEGASUS: Saturday reset pull fallback skipped.', resetError); }
-        }
-
+        // v19.01 local-only: no cloud pull before panels.
         if (typeof afterPull === "function") afterPull();
-        if (typeof window.refreshAllUI === "function") window.refreshAllUI();
-        if (typeof window.updateKcalUI === "function") window.updateKcalUI();
-        if (window.PegasusMetabolic?.renderUI) window.PegasusMetabolic.renderUI();
     }
 
     window.masterUI = {
