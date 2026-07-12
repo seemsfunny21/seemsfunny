@@ -211,13 +211,16 @@
                 writeHistory(entry);
                 localStorage.setItem('pegasus_last_cardio_entry', JSON.stringify(entry));
 
-                /* --- 4. CALENDAR --- */
-                if (km >= 15 || burnedKcal >= 400) {
-                    const doneKey = 'pegasus_workouts_done';
-                    let calendarData = JSON.parse(localStorage.getItem(doneKey) || '{}');
-                    if (!calendarData || typeof calendarData !== 'object') calendarData = {};
-                    calendarData[date.iso] = true;
-                    localStorage.setItem(doneKey, JSON.stringify(calendarData));
+                /* --- 4. CALENDAR: CYCLING IS SEPARATE FROM WEIGHTS --- */
+                if (km > 0 || burnedKcal > 0) {
+                    const cyclingDoneKey = 'pegasus_cycling_done';
+                    let cyclingData = {};
+                    try {
+                        const parsed = JSON.parse(localStorage.getItem(cyclingDoneKey) || '{}');
+                        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) cyclingData = parsed;
+                    } catch (_) {}
+                    cyclingData[date.iso] = true;
+                    localStorage.setItem(cyclingDoneKey, JSON.stringify(cyclingData));
                 }
 
                 refreshCardioUI();

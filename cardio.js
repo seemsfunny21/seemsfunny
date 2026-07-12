@@ -151,15 +151,19 @@ window.saveCardioData = async function() {
 
     console.log(`🔥 CARDIO SYNC: aliases = ${aliases.join(', ')} | kcal=${nextKcal.toFixed(1)} | km=${nextKm.toFixed(1)}`);
 
-    /* --- 3. CALENDAR SYNC (MARK AS COMPLETED) --- */
-    if (km >= 15 || kcal >= 400) {
-        const doneKey = M?.workout?.done || "pegasus_workouts_done";
-        const calendarData = JSON.parse(localStorage.getItem(doneKey) || "{}");
+    /* --- 3. CALENDAR SYNC (CYCLING IS SEPARATE FROM WEIGHTS) --- */
+    if (km > 0 || kcal > 0) {
+        const cyclingDoneKey = M?.workout?.cycling_done || "pegasus_cycling_done";
+        let cyclingData = {};
+        try {
+            const parsed = JSON.parse(localStorage.getItem(cyclingDoneKey) || "{}");
+            if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) cyclingData = parsed;
+        } catch (_) {}
 
-        calendarData[workoutKey] = true;
-        localStorage.setItem(doneKey, JSON.stringify(calendarData));
+        cyclingData[workoutKey] = true;
+        localStorage.setItem(cyclingDoneKey, JSON.stringify(cyclingData));
 
-        console.log(`✅ CALENDAR: Workout marked as done (${workoutKey}).`);
+        console.log(`🚴 CALENDAR: Cycling marked orange (${workoutKey}).`);
     }
 
     /* --- 4. ΙΣΤΟΡΙΚΟ ΚαταγραφήΣ (50 entries max) --- */
@@ -197,6 +201,7 @@ window.saveCardioData = async function() {
     if (typeof window.renderFood === "function") window.renderFood();
     if (typeof window.updateKcalUI === "function") window.updateKcalUI();
     if (window.PegasusMetabolic?.renderUI) window.PegasusMetabolic.renderUI();
+    if (typeof window.renderCalendar === "function") window.renderCalendar();
 
     /* --- 6. CLOUD PUSH --- */
     const forceCardioPush = async () => {

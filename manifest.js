@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PEGASUS OS - MASTER MANIFEST & REGISTRY (v19.01 LOCAL-ONLY)
+   PEGASUS OS - MASTER MANIFEST & REGISTRY (v19.02 LOCAL-ONLY)
    Protocol: Global Variable Re-declaration (Unlock M)
    Status: THE SINGLE SOURCE OF TRUTH | HARDENED: KEY CONSISTENCY + AUDIT SAFETY
    ========================================================================== */
@@ -13,7 +13,7 @@ window.PegasusManifest = {
         author: "Angelos & Gemini",
         last_update: "2026-05-09",
         logic_protocol: "Zero-Bug Simulation & Global Scope Shielding",
-        engine_version: "v19.01 Local-only mode, cloud removed"
+        engine_version: "v19.02 Local-only activity calendar"
     },
 
     // ---------------------------------------------------------
@@ -54,6 +54,7 @@ window.PegasusManifest = {
     workout: {
         weekly_history: "pegasus_weekly_history",
         done: "pegasus_workouts_done",
+        cycling_done: "pegasus_cycling_done",
         total: "pegasus_total_workouts",
 
         // legacy compatibility key base
@@ -209,4 +210,4 @@ window.PegasusManifest = {
 // 🛡️ ΤΟ ΚΛΕΙΔΙ ΤΟΥ UNLOCK
 var M = window.PegasusManifest;
 
-console.log("🏛️ PEGASUS MANIFEST v19.01 LOADED. LOCAL-ONLY MODE READY.");
+console.log("🏛️ PEGASUS MANIFEST v19.02 LOADED. ACTIVITY COLORS READY.");

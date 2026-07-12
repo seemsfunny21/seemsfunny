@@ -1,4 +1,4 @@
-# PEGASUS 301
+# PEGASUS 302
 
 Τοπική έκδοση χωρίς cloud.
 
