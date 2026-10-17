@@ -48,7 +48,7 @@ window.videoMap = {
     "Chest Flys": "chestflys",
     "Pushups": "pushups",
     "Lat Pulldowns": "latpulldowns",
-    "Lat Pulldowns Close": "latpulldownsclose",
+    "Lat Pulldowns Close": "latpulldowns",
     "Seated Rows": "reverseseatedrows",
     "Low Rows Seated": "lowrowsseated",
     "Reverse Grip Cable Row": "reversegripcablerow", // PEGASUS 218: user-provided valid MP4
