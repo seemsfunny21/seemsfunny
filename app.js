@@ -2212,7 +2212,11 @@ function normalizePegasusVideoSrc(src) {
     if (!raw) return '';
     try {
         const url = new URL(raw, window.location.href);
-        return `${url.pathname.replace(/^\//, '')}`.replace(/^seemsfunny\//, '') || raw;
+        let path = url.pathname.replace(/^\//, '');
+        if (path.startsWith('seemsfunny/')) {
+            path = path.replace('seemsfunny/', '');
+        }
+        return path || raw;
     } catch (e) {
         return raw.split('?')[0];
     }
