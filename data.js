@@ -51,7 +51,7 @@ window.videoMap = {
     "Lat Pulldowns Close": "latpulldowns",
     "Seated Rows": "reverseseatedrows",
     "Low Rows Seated": "lowrowsseated",
-    "Reverse Grip Cable Row": "reversegripcablerow", // PEGASUS 218: user-provided valid MP4
+    "Reverse Grip Cable Row": "reversegripcablerow",
     "Bent Over Rows": "bentoverrows",
     "Straight Arm Pulldowns": "straightarmpulldowns",
     "Upright Rows": "uprightrows",
@@ -92,8 +92,7 @@ function renderPegasusPlanSelectorContent(modal) {
             ${plans.map(plan => `
                 <button type="button" onclick="window.setPegasusPlan('${plan.key}')" class="pegasus-plan-option${activePlan === plan.key ? ' selected' : ''}" style="--plan-color:${plan.color};">
                     <span class="pegasus-plan-name">${plan.title}</span>
-                    <small class="pegasus-plan-desc">${plan.desc}</small>
-                    ${activePlan === plan.key ? '<em class="pegasus-plan-selected">✓ Επιλεγμένο</em>' : ''}
+                    <small class="pegasus-plan-desc">${plan.desc}</small>${activePlan === plan.key ? '<em class="pegasus-plan-selected">✓ Επιλεγμένο</em>' : ''}
                 </button>
             `).join('')}
         </div>
@@ -103,9 +102,6 @@ function renderPegasusPlanSelectorContent(modal) {
 window.openPegasusPlanModal = function() {
     let modal = document.getElementById('planModal');
 
-    // PEGASUS 139 FIX: always normalize the legacy selector into one stable,
-    // no-i18n modal so labels like IRON / EMS only / Bike only never become
-    // IRENERGOS / ENERGOSLY and the panel always appears above the workout UI.
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'planModal';
@@ -205,11 +201,7 @@ window.setPegasusPlan = function(planKey) {
 (function applyPegasusSplit() {
     const activePlan = window.getPegasusActivePlan();
     const days = {
-        // PEGASUS 215: IRON is now a focused split, not full-body every day.
-        // 45λεπτο: λίγες ασκήσεις ανά session με 3-4 σετ, όχι 2 σετ από όλες.
-        // Γράμμωση/Όγκος μοιράζονται το ίδιο split· αλλάζει η ένταση/κιλά του χρήστη.
         iron_tuesday: [
-            // PUSH: στήθος + τρικέφαλα/ώμοι + μικρός κορμός
             { name: "Chest Press", sets: 4, muscleGroup: "Στήθος", weight: "54" },
             { name: "Chest Flys", sets: 4, muscleGroup: "Στήθος", weight: "42" },
             { name: "Pushups", sets: 4, muscleGroup: "Στήθος", weight: "0" },
@@ -218,7 +210,6 @@ window.setPegasusPlan = function(planKey) {
             { name: "Plank", sets: 3, muscleGroup: "Κορμός", weight: "0" }
         ],
         iron_wednesday: [
-            // PULL: πλάτη + δικέφαλα + κορμός. Leg Extensions μπαίνουν μόνο όταν δεν υπάρχει ποδηλασία.
             { name: "Lat Pulldowns", sets: 4, muscleGroup: "Πλάτη", weight: "36" },
             { name: "Seated Rows", sets: 4, muscleGroup: "Πλάτη", weight: "66" },
             { name: "Straight Arm Pulldowns", sets: 4, muscleGroup: "Πλάτη", weight: "30" },
@@ -227,7 +218,6 @@ window.setPegasusPlan = function(planKey) {
             { name: "Lying Knee Raise", sets: 3, muscleGroup: "Κορμός", weight: "0" }
         ],
         iron_friday: [
-            // UPPER BALANCE: δεύτερο ερέθισμα στήθους/πλάτης + χέρια/κορμός
             { name: "Chest Press", sets: 4, muscleGroup: "Στήθος", weight: "54" },
             { name: "Lat Pulldowns Close", sets: 4, muscleGroup: "Πλάτη", weight: "36" },
             { name: "Bent Over Rows", sets: 4, muscleGroup: "Πλάτη", weight: "36" },
@@ -236,7 +226,6 @@ window.setPegasusPlan = function(planKey) {
             { name: "Ab Crunches", sets: 2, muscleGroup: "Κορμός", weight: "30" },
             { name: "Leg Raise Hip Lift", sets: 2, muscleGroup: "Κορμός", weight: "0" }
         ],
-        // Cycling is logged through the Cardio module (km/kcal), not as a workout exercise.
         iron_saturday: [],
         iron_sunday: [
             { name: "Upright Rows", sets: 4, muscleGroup: "Ώμοι", weight: "30" }
@@ -298,7 +287,6 @@ window.setPegasusPlan = function(planKey) {
             { name: "Low Rows Seated", sets: 3, muscleGroup: "Πλάτη", weight: "36" },
             { name: "Leg Raise Hip Lift", sets: 4, muscleGroup: "Κορμός", weight: "0" }
         ],
-        // Cycling is logged through the Cardio module (km/kcal), not as a workout exercise.
         bike_saturday: [],
         bike_sunday: [
             { name: "Upright Rows", sets: 4, muscleGroup: "Ώμοι", weight: "30" }
@@ -387,7 +375,6 @@ window.getPegasusProgramSnapshot = function(dayName) {
     });
     return snapshot;
 };
-
 
 // 4.5 MUSCLE BADGE HELPERS (PEGASUS 134)
 window.PegasusMuscleEmojiMap = {
