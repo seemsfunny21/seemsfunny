@@ -120,44 +120,49 @@
 
 
     const CLASSIC_FIXED_MAIN_SPLIT = {
-        // PEGASUS 299: fixed classic 40-minute split. These days no longer shrink
-        // when weekly progress bars are already partly/full completed. Progress bars
-        // only record what was done; they do not decide whether Tue/Wed/Fri exists.
+        // Κατανομή μόνο με ασκήσεις που υπάρχουν ήδη στη βάση του Pegasus.
         "Τρίτη": [
-            { name: "Chest Press", sets: 4, muscleGroup: "Στήθος" },
-            { name: "Chest Flys", sets: 4, muscleGroup: "Στήθος" },
-            { name: "Pushups", sets: 4, muscleGroup: "Στήθος" },
-            { name: "Tricep Pulldowns", sets: 4, muscleGroup: "Χέρια" },
-            { name: "Upright Rows", sets: 3, muscleGroup: "Ώμοι" },
-            { name: "Plank", sets: 3, muscleGroup: "Κορμός" }
+            { name: "Chest Press", sets: 3, muscleGroup: "Στήθος" },
+            { name: "Chest Flys", sets: 3, muscleGroup: "Στήθος" },
+            { name: "Lat Pulldowns", sets: 3, muscleGroup: "Πλάτη" },
+            { name: "Seated Rows", sets: 3, muscleGroup: "Πλάτη" },
+            { name: "Plank", sets: 2, muscleGroup: "Κορμός" }
         ],
         "Τετάρτη": [
-            { name: "Lat Pulldowns", sets: 4, muscleGroup: "Πλάτη" },
-            { name: "Seated Rows", sets: 4, muscleGroup: "Πλάτη" },
-            { name: "Straight Arm Pulldowns", sets: 4, muscleGroup: "Πλάτη" },
-            { name: "Bicep Curls", sets: 4, muscleGroup: "Χέρια" },
-            { name: "Preacher Bicep Curls", sets: 3, muscleGroup: "Χέρια" },
-            { name: "Lying Knee Raise", sets: 3, muscleGroup: "Κορμός" }
+            { name: "Upright Rows", sets: 3, muscleGroup: "Ώμοι" },
+            { name: "Bicep Curls", sets: 3, muscleGroup: "Χέρια" },
+            { name: "Preacher Bicep Curls", sets: 2, muscleGroup: "Χέρια" },
+            { name: "Tricep Pulldowns", sets: 3, muscleGroup: "Χέρια" },
+            { name: "Lying Knee Raise", sets: 2, muscleGroup: "Κορμός" }
         ],
         "Παρασκευή": [
-            { name: "Chest Press", sets: 4, muscleGroup: "Στήθος" },
-            { name: "Lat Pulldowns Close", sets: 4, muscleGroup: "Πλάτη" },
-            { name: "Bent Over Rows", sets: 4, muscleGroup: "Πλάτη" },
-            { name: "Bicep Curls", sets: 3, muscleGroup: "Χέρια" },
-            { name: "Tricep Pulldowns", sets: 3, muscleGroup: "Χέρια" },
-            { name: "Ab Crunches", sets: 2, muscleGroup: "Κορμός" },
-            { name: "Leg Raise Hip Lift", sets: 2, muscleGroup: "Κορμός" }
+            { name: "Bent Over Rows", sets: 3, muscleGroup: "Πλάτη" },
+            { name: "Lat Pulldowns Close", sets: 3, muscleGroup: "Πλάτη" },
+            { name: "Chest Press", sets: 3, muscleGroup: "Στήθος" },
+            { name: "Pushups", sets: 2, muscleGroup: "Στήθος" },
+            { name: "Straight Arm Pulldowns", sets: 2, muscleGroup: "Πλάτη" },
+            { name: "Ab Crunches", sets: 2, muscleGroup: "Κορμός" }
+        ],
+        "Σάββατο": [
+            { name: "Leg Extensions", sets: 3, muscleGroup: "Πόδια" },
+            { name: "Reverse Crunch", sets: 3, muscleGroup: "Κορμός" },
+            { name: "Plank", sets: 2, muscleGroup: "Κορμός" }
+        ],
+        "Κυριακή": [
+            { name: "Chest Press", sets: 2, muscleGroup: "Στήθος" },
+            { name: "Low Rows Seated", sets: 2, muscleGroup: "Πλάτη" },
+            { name: "Ab Crunches", sets: 2, muscleGroup: "Κορμός" }
         ]
     };
 
-    const CLASSIC_FIXED_TARGETS_299 = { "Στήθος": 16, "Πλάτη": 20, "Πόδια": 8, "Χέρια": 17, "Ώμοι": 3, "Κορμός": 10 };
+    const CLASSIC_FIXED_TARGETS_299 = { "Στήθος": 11, "Πλάτη": 14, "Πόδια": 3, "Χέρια": 8, "Ώμοι": 3, "Κορμός": 11 };
 
     function applyClassicTargetsMigration() {
         try {
-            const flag = "pegasus_classic_fixed_split_targets_v299";
+            const flag = "pegasus_classic_fixed_split_targets_v300";
             if (localStorage.getItem(flag) === "done") return;
             const key = window.PegasusManifest?.workout?.muscleTargets || "pegasus_muscle_targets";
-            localStorage.setItem(`pegasus_targets_backup_before_classic_v299_${Date.now()}`, localStorage.getItem(key) || "");
+            localStorage.setItem(`pegasus_targets_backup_before_classic_v300_${Date.now()}`, localStorage.getItem(key) || "");
             localStorage.setItem(key, JSON.stringify(CLASSIC_FIXED_TARGETS_299));
             localStorage.setItem(flag, "done");
             localStorage.setItem("pegasus_custom_weekly_targets_enabled", "true");
@@ -178,7 +183,7 @@
             brainManaged: true,
             brainFixedSplit: true,
             brainMinimumTopUp: true,
-            brainReason: "Κλασικό σταθερό 40λεπτο πρόγραμμα Τρίτη/Τετάρτη/Παρασκευή",
+            brainReason: "Pegasus split με υπάρχουσες ασκήσεις και σετ προσαρμοσμένα ανά ημέρα",
             brainOrder: index
         }));
     }

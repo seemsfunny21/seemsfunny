@@ -51,7 +51,7 @@ window.videoMap = {
     "Lat Pulldowns Close": "latpulldowns",
     "Seated Rows": "reverseseatedrows",
     "Low Rows Seated": "lowrowsseated",
-    "Reverse Grip Cable Row": "reversegripcablerow",
+    "Reverse Grip Cable Row": "reversegripcablerow", // PEGASUS 218: user-provided valid MP4
     "Bent Over Rows": "bentoverrows",
     "Straight Arm Pulldowns": "straightarmpulldowns",
     "Upright Rows": "uprightrows",
@@ -70,7 +70,7 @@ window.videoMap = {
     "Stretching": "stretching"
 };
 
-// 4. PEGASUS ENGINE (PROGRAMS REBALANCED ACCORDING TO IRON PLAN)
+// 4. PEGASUS ENGINE (PROGRAMS REBALANCED FOR ABS PRIORITY & CYCLING)
 window.getPegasusActivePlan = function() {
     return localStorage.getItem('pegasus_active_plan') || 'IRON';
 };
@@ -92,7 +92,8 @@ function renderPegasusPlanSelectorContent(modal) {
             ${plans.map(plan => `
                 <button type="button" onclick="window.setPegasusPlan('${plan.key}')" class="pegasus-plan-option${activePlan === plan.key ? ' selected' : ''}" style="--plan-color:${plan.color};">
                     <span class="pegasus-plan-name">${plan.title}</span>
-                    <small class="pegasus-plan-desc">${plan.desc}</small>${activePlan === plan.key ? '<em class="pegasus-plan-selected">✓ Επιλεγμένο</em>' : ''}
+                    <small class="pegasus-plan-desc">${plan.desc}</small>
+                    ${activePlan === plan.key ? '<em class="pegasus-plan-selected">✓ Επιλεγμένο</em>' : ''}
                 </button>
             `).join('')}
         </div>
@@ -102,6 +103,9 @@ function renderPegasusPlanSelectorContent(modal) {
 window.openPegasusPlanModal = function() {
     let modal = document.getElementById('planModal');
 
+    // PEGASUS 139 FIX: always normalize the legacy selector into one stable,
+    // no-i18n modal so labels like IRON / EMS only / Bike only never become
+    // IRENERGOS / ENERGOSLY and the panel always appears above the workout UI.
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'planModal';
@@ -201,49 +205,45 @@ window.setPegasusPlan = function(planKey) {
 (function applyPegasusSplit() {
     const activePlan = window.getPegasusActivePlan();
     const days = {
-        // IRON PLAN: Δευτέρα & Πέμπτη Stretching, Τρίτη Στήθος & Πλάτη, Τετάρτη Ώμοι & Χέρια, Παρασκευή Πλάτη & Στήθος, Σάββατο Πόδια & Κορμός, Κυριακή Μικτό
-        iron_monday: [
-            { name: "Stretching", sets: 1, muscleGroup: "None", weight: "0" }
-        ],
+        // PEGASUS 215: IRON is now a focused split, not full-body every day.
+        // 45λεπτο: λίγες ασκήσεις ανά session με 3-4 σετ, όχι 2 σετ από όλες.
+        // Γράμμωση/Όγκος μοιράζονται το ίδιο split· αλλάζει η ένταση/κιλά του χρήστη.
         iron_tuesday: [
-            // Τρίτη: Στήθος & Πλάτη
-            { name: "Chest Press", sets: 4, muscleGroup: "Στήθος", weight: "54" },
+            // Στήθος + πλάτη: ισορροπημένη πρώτη προπόνηση άνω σώματος
+            { name: "Chest Press", sets: 3, muscleGroup: "Στήθος", weight: "54" },
             { name: "Chest Flys", sets: 3, muscleGroup: "Στήθος", weight: "42" },
-            { name: "Lat Pulldowns", sets: 4, muscleGroup: "Πλάτη", weight: "36" },
-            { name: "Seated Rows", sets: 4, muscleGroup: "Πλάτη", weight: "66" }
+            { name: "Lat Pulldowns", sets: 3, muscleGroup: "Πλάτη", weight: "36" },
+            { name: "Seated Rows", sets: 3, muscleGroup: "Πλάτη", weight: "66" },
+            { name: "Plank", sets: 2, muscleGroup: "Κορμός", weight: "0" }
         ],
         iron_wednesday: [
-            // Τετάρτη: Ώμοι & Χέρια
-            { name: "Upright Rows", sets: 4, muscleGroup: "Ώμοι", weight: "30" },
-            { name: "Bicep Curls", sets: 4, muscleGroup: "Χέρια", weight: "30" },
-            { name: "Tricep Pulldowns", sets: 4, muscleGroup: "Χέρια", weight: "20" },
-            { name: "Preacher Bicep Curls", sets: 3, muscleGroup: "Χέρια", weight: "30" }
-        ],
-        iron_thursday: [
-            { name: "Stretching", sets: 1, muscleGroup: "None", weight: "0" }
-        ],
-        iron_friday: [
-            // Παρασκευή: Πλάτη & Στήθος
-            { name: "Lat Pulldowns Close", sets: 4, muscleGroup: "Πλάτη", weight: "36" },
-            { name: "Bent Over Rows", sets: 4, muscleGroup: "Πλάτη", weight: "36" },
-            { name: "Chest Press", sets: 4, muscleGroup: "Στήθος", weight: "54" },
-            { name: "Pushups", sets: 3, muscleGroup: "Στήθος", weight: "0" }
-        ],
-        iron_saturday: [
-            // Σάββατο: Πόδια & Κορμός
-            { name: "Leg Extensions", sets: 4, muscleGroup: "Πόδια", weight: "0" },
-            { name: "Cycling", sets: 1, muscleGroup: "Πόδια", weight: "0" },
-            { name: "Plank", sets: 3, muscleGroup: "Κορμός", weight: "0" },
-            { name: "Ab Crunches", sets: 3, muscleGroup: "Κορμός", weight: "30" },
-            { name: "Lying Knee Raise", sets: 3, muscleGroup: "Κορμός", weight: "0" }
-        ],
-        iron_sunday: [
-            // Κυριακή: Μικτό πρόγραμμα
-            { name: "Chest Press", sets: 3, muscleGroup: "Στήθος", weight: "54" },
-            { name: "Lat Pulldowns", sets: 3, muscleGroup: "Πλάτη", weight: "36" },
+            // Ώμοι + χέρια
             { name: "Upright Rows", sets: 3, muscleGroup: "Ώμοι", weight: "30" },
             { name: "Bicep Curls", sets: 3, muscleGroup: "Χέρια", weight: "30" },
-            { name: "Plank", sets: 3, muscleGroup: "Κορμός", weight: "0" }
+            { name: "Preacher Bicep Curls", sets: 2, muscleGroup: "Χέρια", weight: "30" },
+            { name: "Tricep Pulldowns", sets: 3, muscleGroup: "Χέρια", weight: "20" },
+            { name: "Lying Knee Raise", sets: 2, muscleGroup: "Κορμός", weight: "0" }
+        ],
+        iron_friday: [
+            // Δεύτερο ερέθισμα στήθους + πλάτης, με μικρό όγκο χεριών/κορμού
+            { name: "Bent Over Rows", sets: 3, muscleGroup: "Πλάτη", weight: "36" },
+            { name: "Lat Pulldowns Close", sets: 3, muscleGroup: "Πλάτη", weight: "36" },
+            { name: "Chest Press", sets: 3, muscleGroup: "Στήθος", weight: "54" },
+            { name: "Pushups", sets: 2, muscleGroup: "Στήθος", weight: "0" },
+            { name: "Straight Arm Pulldowns", sets: 2, muscleGroup: "Πλάτη", weight: "30" },
+            { name: "Ab Crunches", sets: 2, muscleGroup: "Κορμός", weight: "30" }
+        ],
+        iron_saturday: [
+            // Ποδηλασία 30–60 km: μόνο Leg Extensions και κορμός, όχι άλλη άσκηση ποδιών
+            { name: "Leg Extensions", sets: 3, muscleGroup: "Πόδια", weight: "0" },
+            { name: "Reverse Crunch", sets: 3, muscleGroup: "Κορμός", weight: "0" },
+            { name: "Plank", sets: 2, muscleGroup: "Κορμός", weight: "0" }
+        ],
+        iron_sunday: [
+            // Προαιρετική ελαφριά μικτή ημέρα
+            { name: "Chest Press", sets: 2, muscleGroup: "Στήθος", weight: "54" },
+            { name: "Low Rows Seated", sets: 2, muscleGroup: "Πλάτη", weight: "36" },
+            { name: "Ab Crunches", sets: 2, muscleGroup: "Κορμός", weight: "30" }
         ],
         ems_wednesday: [
             { name: "EMS Training", sets: 1, muscleGroup: "Πλάτη", weight: "0" },
@@ -262,29 +262,26 @@ window.setPegasusPlan = function(planKey) {
             { name: "Reverse Crunch", sets: 3, muscleGroup: "Κορμός", weight: "0" }
         ],
         bike_only_tuesday: [
-            { name: "Chest Press", sets: 4, muscleGroup: "Στήθος", weight: "54" },
-            { name: "Chest Flys", sets: 4, muscleGroup: "Στήθος", weight: "42" },
-            { name: "Pushups", sets: 4, muscleGroup: "Στήθος", weight: "0" },
-            { name: "Tricep Pulldowns", sets: 4, muscleGroup: "Χέρια", weight: "20" },
-            { name: "Upright Rows", sets: 3, muscleGroup: "Ώμοι", weight: "30" },
-            { name: "Plank", sets: 3, muscleGroup: "Κορμός", weight: "0" }
+            { name: "Chest Press", sets: 3, muscleGroup: "Στήθος", weight: "54" },
+            { name: "Chest Flys", sets: 3, muscleGroup: "Στήθος", weight: "42" },
+            { name: "Lat Pulldowns", sets: 3, muscleGroup: "Πλάτη", weight: "36" },
+            { name: "Seated Rows", sets: 3, muscleGroup: "Πλάτη", weight: "66" },
+            { name: "Plank", sets: 2, muscleGroup: "Κορμός", weight: "0" }
         ],
         bike_only_wednesday: [
-            { name: "Lat Pulldowns", sets: 4, muscleGroup: "Πλάτη", weight: "36" },
-            { name: "Seated Rows", sets: 4, muscleGroup: "Πλάτη", weight: "66" },
-            { name: "Straight Arm Pulldowns", sets: 4, muscleGroup: "Πλάτη", weight: "30" },
-            { name: "Bicep Curls", sets: 4, muscleGroup: "Χέρια", weight: "30" },
-            { name: "Preacher Bicep Curls", sets: 3, muscleGroup: "Χέρια", weight: "30" },
-            { name: "Lying Knee Raise", sets: 3, muscleGroup: "Κορμός", weight: "0" }
+            { name: "Upright Rows", sets: 3, muscleGroup: "Ώμοι", weight: "30" },
+            { name: "Bicep Curls", sets: 3, muscleGroup: "Χέρια", weight: "30" },
+            { name: "Preacher Bicep Curls", sets: 2, muscleGroup: "Χέρια", weight: "30" },
+            { name: "Tricep Pulldowns", sets: 3, muscleGroup: "Χέρια", weight: "20" },
+            { name: "Lying Knee Raise", sets: 2, muscleGroup: "Κορμός", weight: "0" }
         ],
         bike_only_friday: [
-            { name: "Chest Press", sets: 4, muscleGroup: "Στήθος", weight: "54" },
-            { name: "Lat Pulldowns Close", sets: 4, muscleGroup: "Πλάτη", weight: "36" },
-            { name: "Bent Over Rows", sets: 4, muscleGroup: "Πλάτη", weight: "36" },
-            { name: "Bicep Curls", sets: 3, muscleGroup: "Χέρια", weight: "30" },
-            { name: "Tricep Pulldowns", sets: 3, muscleGroup: "Χέρια", weight: "20" },
-            { name: "Ab Crunches", sets: 2, muscleGroup: "Κορμός", weight: "30" },
-            { name: "Leg Raise Hip Lift", sets: 2, muscleGroup: "Κορμός", weight: "0" }
+            { name: "Bent Over Rows", sets: 3, muscleGroup: "Πλάτη", weight: "36" },
+            { name: "Lat Pulldowns Close", sets: 3, muscleGroup: "Πλάτη", weight: "36" },
+            { name: "Chest Press", sets: 3, muscleGroup: "Στήθος", weight: "54" },
+            { name: "Pushups", sets: 2, muscleGroup: "Στήθος", weight: "0" },
+            { name: "Straight Arm Pulldowns", sets: 2, muscleGroup: "Πλάτη", weight: "30" },
+            { name: "Ab Crunches", sets: 2, muscleGroup: "Κορμός", weight: "30" }
         ],
         hybrid_tuesday: [
             { name: "Chest Press", sets: 5, muscleGroup: "Στήθος", weight: "54" },
@@ -302,41 +299,40 @@ window.setPegasusPlan = function(planKey) {
             { name: "Low Rows Seated", sets: 3, muscleGroup: "Πλάτη", weight: "36" },
             { name: "Leg Raise Hip Lift", sets: 4, muscleGroup: "Κορμός", weight: "0" }
         ],
-        bike_saturday: [],
+        // Η ποδηλασία καταγράφεται στο Cardio. Προαιρετικά μόνο Leg Extensions και κορμός.
+        bike_saturday: [
+            { name: "Leg Extensions", sets: 3, muscleGroup: "Πόδια", weight: "0" },
+            { name: "Reverse Crunch", sets: 3, muscleGroup: "Κορμός", weight: "0" },
+            { name: "Plank", sets: 2, muscleGroup: "Κορμός", weight: "0" }
+        ],
         bike_sunday: [
-            { name: "Upright Rows", sets: 4, muscleGroup: "Ώμοι", weight: "30" }
+            { name: "Chest Press", sets: 2, muscleGroup: "Στήθος", weight: "54" },
+            { name: "Low Rows Seated", sets: 2, muscleGroup: "Πλάτη", weight: "36" },
+            { name: "Ab Crunches", sets: 2, muscleGroup: "Κορμός", weight: "30" }
         ]
     };
 
     if (activePlan === 'IRON') {
-        window.program["Δευτέρα"] = days.iron_monday;
         window.program["Τρίτη"] = days.iron_tuesday;
         window.program["Τετάρτη"] = days.iron_wednesday;
-        window.program["Πέμπτη"] = days.iron_thursday;
         window.program["Παρασκευή"] = days.iron_friday;
         window.program["Σάββατο"] = days.iron_saturday;
         window.program["Κυριακή"] = days.iron_sunday;
     } else if (activePlan === 'EMS_ONLY') {
-        window.program["Δευτέρα"] = days.iron_monday;
         window.program["Τρίτη"] = days.iron_tuesday;
         window.program["Τετάρτη"] = days.ems_wednesday;
-        window.program["Πέμπτη"] = days.iron_thursday;
         window.program["Παρασκευή"] = days.iron_friday;
         window.program["Σάββατο"] = days.iron_saturday;
         window.program["Κυριακή"] = days.ems_only_sunday;
     } else if (activePlan === 'BIKE_ONLY') {
-        window.program["Δευτέρα"] = days.iron_monday;
         window.program["Τρίτη"] = days.bike_only_tuesday;
         window.program["Τετάρτη"] = days.bike_only_wednesday;
-        window.program["Πέμπτη"] = days.iron_thursday;
         window.program["Παρασκευή"] = days.bike_only_friday;
         window.program["Σάββατο"] = days.bike_saturday;
         window.program["Κυριακή"] = days.bike_sunday;
     } else if (activePlan === 'HYBRID') {
-        window.program["Δευτέρα"] = days.iron_monday;
         window.program["Τρίτη"] = days.hybrid_tuesday;
         window.program["Τετάρτη"] = days.ems_wednesday;
-        window.program["Πέμπτη"] = days.iron_thursday;
         window.program["Παρασκευή"] = days.hybrid_friday;
         window.program["Σάββατο"] = days.bike_saturday;
         window.program["Κυριακή"] = days.bike_sunday;
@@ -398,6 +394,7 @@ window.getPegasusProgramSnapshot = function(dayName) {
     });
     return snapshot;
 };
+
 
 // 4.5 MUSCLE BADGE HELPERS (PEGASUS 134)
 window.PegasusMuscleEmojiMap = {
