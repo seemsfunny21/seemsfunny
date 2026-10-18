@@ -70,7 +70,7 @@ window.videoMap = {
     "Stretching": "stretching"
 };
 
-// 4. PEGASUS ENGINE (PROGRAMS REBALANCED FOR ABS PRIORITY & CYCLING)
+// 4. PEGASUS ENGINE (PROGRAMS REBALANCED ACCORDING TO IRON PLAN)
 window.getPegasusActivePlan = function() {
     return localStorage.getItem('pegasus_active_plan') || 'IRON';
 };
@@ -201,34 +201,49 @@ window.setPegasusPlan = function(planKey) {
 (function applyPegasusSplit() {
     const activePlan = window.getPegasusActivePlan();
     const days = {
+        // IRON PLAN: Δευτέρα & Πέμπτη Stretching, Τρίτη Στήθος & Πλάτη, Τετάρτη Ώμοι & Χέρια, Παρασκευή Πλάτη & Στήθος, Σάββατο Πόδια & Κορμός, Κυριακή Μικτό
+        iron_monday: [
+            { name: "Stretching", sets: 1, muscleGroup: "None", weight: "0" }
+        ],
         iron_tuesday: [
+            // Τρίτη: Στήθος & Πλάτη
             { name: "Chest Press", sets: 4, muscleGroup: "Στήθος", weight: "54" },
-            { name: "Chest Flys", sets: 4, muscleGroup: "Στήθος", weight: "42" },
-            { name: "Pushups", sets: 4, muscleGroup: "Στήθος", weight: "0" },
-            { name: "Tricep Pulldowns", sets: 4, muscleGroup: "Χέρια", weight: "20" },
-            { name: "Upright Rows", sets: 3, muscleGroup: "Ώμοι", weight: "30" },
-            { name: "Plank", sets: 3, muscleGroup: "Κορμός", weight: "0" }
+            { name: "Chest Flys", sets: 3, muscleGroup: "Στήθος", weight: "42" },
+            { name: "Lat Pulldowns", sets: 4, muscleGroup: "Πλάτη", weight: "36" },
+            { name: "Seated Rows", sets: 4, muscleGroup: "Πλάτη", weight: "66" }
         ],
         iron_wednesday: [
-            { name: "Lat Pulldowns", sets: 4, muscleGroup: "Πλάτη", weight: "36" },
-            { name: "Seated Rows", sets: 4, muscleGroup: "Πλάτη", weight: "66" },
-            { name: "Straight Arm Pulldowns", sets: 4, muscleGroup: "Πλάτη", weight: "30" },
+            // Τετάρτη: Ώμοι & Χέρια
+            { name: "Upright Rows", sets: 4, muscleGroup: "Ώμοι", weight: "30" },
             { name: "Bicep Curls", sets: 4, muscleGroup: "Χέρια", weight: "30" },
-            { name: "Preacher Bicep Curls", sets: 3, muscleGroup: "Χέρια", weight: "30" },
-            { name: "Lying Knee Raise", sets: 3, muscleGroup: "Κορμός", weight: "0" }
+            { name: "Tricep Pulldowns", sets: 4, muscleGroup: "Χέρια", weight: "20" },
+            { name: "Preacher Bicep Curls", sets: 3, muscleGroup: "Χέρια", weight: "30" }
+        ],
+        iron_thursday: [
+            { name: "Stretching", sets: 1, muscleGroup: "None", weight: "0" }
         ],
         iron_friday: [
-            { name: "Chest Press", sets: 4, muscleGroup: "Στήθος", weight: "54" },
+            // Παρασκευή: Πλάτη & Στήθος
             { name: "Lat Pulldowns Close", sets: 4, muscleGroup: "Πλάτη", weight: "36" },
             { name: "Bent Over Rows", sets: 4, muscleGroup: "Πλάτη", weight: "36" },
-            { name: "Bicep Curls", sets: 3, muscleGroup: "Χέρια", weight: "30" },
-            { name: "Tricep Pulldowns", sets: 3, muscleGroup: "Χέρια", weight: "20" },
-            { name: "Ab Crunches", sets: 2, muscleGroup: "Κορμός", weight: "30" },
-            { name: "Leg Raise Hip Lift", sets: 2, muscleGroup: "Κορμός", weight: "0" }
+            { name: "Chest Press", sets: 4, muscleGroup: "Στήθος", weight: "54" },
+            { name: "Pushups", sets: 3, muscleGroup: "Στήθος", weight: "0" }
         ],
-        iron_saturday: [],
+        iron_saturday: [
+            // Σάββατο: Πόδια & Κορμός
+            { name: "Leg Extensions", sets: 4, muscleGroup: "Πόδια", weight: "0" },
+            { name: "Cycling", sets: 1, muscleGroup: "Πόδια", weight: "0" },
+            { name: "Plank", sets: 3, muscleGroup: "Κορμός", weight: "0" },
+            { name: "Ab Crunches", sets: 3, muscleGroup: "Κορμός", weight: "30" },
+            { name: "Lying Knee Raise", sets: 3, muscleGroup: "Κορμός", weight: "0" }
+        ],
         iron_sunday: [
-            { name: "Upright Rows", sets: 4, muscleGroup: "Ώμοι", weight: "30" }
+            // Κυριακή: Μικτό πρόγραμμα
+            { name: "Chest Press", sets: 3, muscleGroup: "Στήθος", weight: "54" },
+            { name: "Lat Pulldowns", sets: 3, muscleGroup: "Πλάτη", weight: "36" },
+            { name: "Upright Rows", sets: 3, muscleGroup: "Ώμοι", weight: "30" },
+            { name: "Bicep Curls", sets: 3, muscleGroup: "Χέρια", weight: "30" },
+            { name: "Plank", sets: 3, muscleGroup: "Κορμός", weight: "0" }
         ],
         ems_wednesday: [
             { name: "EMS Training", sets: 1, muscleGroup: "Πλάτη", weight: "0" },
@@ -294,26 +309,34 @@ window.setPegasusPlan = function(planKey) {
     };
 
     if (activePlan === 'IRON') {
+        window.program["Δευτέρα"] = days.iron_monday;
         window.program["Τρίτη"] = days.iron_tuesday;
         window.program["Τετάρτη"] = days.iron_wednesday;
+        window.program["Πέμπτη"] = days.iron_thursday;
         window.program["Παρασκευή"] = days.iron_friday;
         window.program["Σάββατο"] = days.iron_saturday;
         window.program["Κυριακή"] = days.iron_sunday;
     } else if (activePlan === 'EMS_ONLY') {
+        window.program["Δευτέρα"] = days.iron_monday;
         window.program["Τρίτη"] = days.iron_tuesday;
         window.program["Τετάρτη"] = days.ems_wednesday;
+        window.program["Πέμπτη"] = days.iron_thursday;
         window.program["Παρασκευή"] = days.iron_friday;
         window.program["Σάββατο"] = days.iron_saturday;
         window.program["Κυριακή"] = days.ems_only_sunday;
     } else if (activePlan === 'BIKE_ONLY') {
+        window.program["Δευτέρα"] = days.iron_monday;
         window.program["Τρίτη"] = days.bike_only_tuesday;
         window.program["Τετάρτη"] = days.bike_only_wednesday;
+        window.program["Πέμπτη"] = days.iron_thursday;
         window.program["Παρασκευή"] = days.bike_only_friday;
         window.program["Σάββατο"] = days.bike_saturday;
         window.program["Κυριακή"] = days.bike_sunday;
     } else if (activePlan === 'HYBRID') {
+        window.program["Δευτέρα"] = days.iron_monday;
         window.program["Τρίτη"] = days.hybrid_tuesday;
         window.program["Τετάρτη"] = days.ems_wednesday;
+        window.program["Πέμπτη"] = days.iron_thursday;
         window.program["Παρασκευή"] = days.hybrid_friday;
         window.program["Σάββατο"] = days.bike_saturday;
         window.program["Κυριακή"] = days.bike_sunday;
