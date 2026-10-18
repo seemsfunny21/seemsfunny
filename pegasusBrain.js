@@ -13,7 +13,7 @@
     // PEGASUS 215: Real exercise pool is restricted to what exists on the
     // Pegasus MS-600 plus floor/core work. Cut/Bulk share the same smart order;
     // the difference is the user's selected controllable weight/intensity.
-    const DEFAULT_TARGETS_215 = { "Στήθος": 16, "Πλάτη": 20, "Πόδια": 8, "Χέρια": 17, "Ώμοι": 3, "Κορμός": 10 };
+    const DEFAULT_TARGETS_215 = { "Στήθος": 11, "Πλάτη": 14, "Πόδια": 3, "Χέρια": 8, "Ώμοι": 2, "Κορμός": 11 };
     const MIN_WORKOUT_MINUTES = 40;
 
     const exerciseMeta = {
@@ -129,7 +129,7 @@
             { name: "Plank", sets: 2, muscleGroup: "Κορμός" }
         ],
         "Τετάρτη": [
-            { name: "Upright Rows", sets: 3, muscleGroup: "Ώμοι" },
+            { name: "Upright Rows", sets: 2, muscleGroup: "Ώμοι" },
             { name: "Bicep Curls", sets: 3, muscleGroup: "Χέρια" },
             { name: "Preacher Bicep Curls", sets: 2, muscleGroup: "Χέρια" },
             { name: "Tricep Pulldowns", sets: 3, muscleGroup: "Χέρια" },
@@ -155,15 +155,15 @@
         ]
     };
 
-    const CLASSIC_FIXED_TARGETS_299 = { "Στήθος": 11, "Πλάτη": 14, "Πόδια": 3, "Χέρια": 8, "Ώμοι": 3, "Κορμός": 11 };
+    const CLASSIC_FIXED_TARGETS_301 = { "Στήθος": 11, "Πλάτη": 14, "Πόδια": 3, "Χέρια": 8, "Ώμοι": 2, "Κορμός": 11 };
 
     function applyClassicTargetsMigration() {
         try {
-            const flag = "pegasus_classic_fixed_split_targets_v300";
+            const flag = "pegasus_classic_fixed_split_targets_v301";
             if (localStorage.getItem(flag) === "done") return;
             const key = window.PegasusManifest?.workout?.muscleTargets || "pegasus_muscle_targets";
-            localStorage.setItem(`pegasus_targets_backup_before_classic_v300_${Date.now()}`, localStorage.getItem(key) || "");
-            localStorage.setItem(key, JSON.stringify(CLASSIC_FIXED_TARGETS_299));
+            localStorage.setItem(`pegasus_targets_backup_before_classic_v301_${Date.now()}`, localStorage.getItem(key) || "");
+            localStorage.setItem(key, JSON.stringify(CLASSIC_FIXED_TARGETS_301));
             localStorage.setItem(flag, "done");
             localStorage.setItem("pegasus_custom_weekly_targets_enabled", "true");
             localStorage.setItem("pegasus_custom_weekly_targets_updated_at", String(Date.now()));
@@ -754,6 +754,22 @@
 
         const mode = getWeekendMode(day);
         if (WEEKEND_DAYS.has(day) && mode === "bike") return [];
+
+        // Preserve the configured EMS session on Wednesday for EMS_ONLY and HYBRID.
+        // The Data Engine fallback is plan-specific and contains only known exercises.
+        const configuredFallback = Array.isArray(options.fallback) ? options.fallback : [];
+        if (day === "Τετάρτη" && configuredFallback.some(ex => ex?.name === "EMS Training")) {
+            return configuredFallback.map((ex, index) => ({
+                ...ex,
+                weight: ex.weight ?? weightFor(ex.name),
+                brainManaged: true,
+                brainFixedSplit: true,
+                brainRestAware: true,
+                brainEquipmentAware: true,
+                brainReason: "EMS ημέρα από το ενεργό πλάνο",
+                brainOrder: index
+            }));
+        }
 
         const fixedMain = cloneClassicFixedWorkout(day);
         if (fixedMain) {
