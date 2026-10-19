@@ -433,7 +433,7 @@
     function getPlannedTemplateGroups(day) {
         if (RECOVERY_DAYS.has(day)) return [];
         const mode = getWeekendMode(day);
-        if (WEEKEND_DAYS.has(day) && mode === "bike") return [];
+        if (day === "Κυριακή" && mode === "bike") return [];
         const blueprint = resolveSessionBlueprint(day, canTrainLegsOnDay(day), mode);
         return blueprint.map(([group]) => group);
     }
@@ -753,7 +753,7 @@
         }
 
         const mode = getWeekendMode(day);
-        if (WEEKEND_DAYS.has(day) && mode === "bike") return [];
+        if (day === "Κυριακή" && mode === "bike") return [];
 
         // Preserve the configured EMS session on Wednesday for EMS_ONLY and HYBRID.
         // The Data Engine fallback is plan-specific and contains only known exercises.
