@@ -1299,6 +1299,7 @@ function createNavbar() {
 function ensurePegasusWeekendModeUi(day, listEl) {
     const list = listEl || document.getElementById("exList");
     if (!list || (day !== "Σάββατο" && day !== "Κυριακή")) return;
+    if (localStorage.getItem('pegasus_weekend_training_mode_' + day) === 'weights' || localStorage.getItem('pegasus_weekend_training_mode_' + day) === 'bike_weights') return;
 
     if (!list.querySelector('.pegasus-weekend-mode-panel') && window.PegasusBrain?.renderWeekendModePanel) {
         window.PegasusBrain.renderWeekendModePanel(day, list, () => {
