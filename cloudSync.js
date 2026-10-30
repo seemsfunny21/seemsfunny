@@ -605,13 +605,7 @@ const PegasusCloud = {
 
 
     getPegasusCurrentWeekKey() {
-        const d = new Date();
-        const start = new Date(d);
-        const daysSinceSaturday = (d.getDay() + 1) % 7;
-        start.setHours(6, 0, 0, 0);
-        start.setDate(d.getDate() - daysSinceSaturday);
-        if (d.getDay() === 6 && d.getTime() < start.getTime()) start.setDate(start.getDate() - 7);
-        return `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, "0")}-${String(start.getDate()).padStart(2, "0")}`;
+        return window.PegasusWeekClock.weekKey();
     },
 
     safeParseStorageObject(value, fallback = {}) {
@@ -787,8 +781,8 @@ const PegasusCloud = {
         const remoteCandidate = this.maxWeeklyHistories(remoteHistory, remoteLedgerHistory);
         const localTotal = this.getWeeklyHistoryTotalValue(localCandidate);
         const remoteTotal = this.getWeeklyHistoryTotalValue(remoteCandidate);
-        const resetWeek = String(localStorage.getItem("pegasus_saturday_reset_applied_week_key") || localStorage.getItem("pegasus_monday_reset_applied_week_key") || "").trim();
-        const resetAt = Math.max(0, Number(localStorage.getItem("pegasus_saturday_reset_applied_at") || localStorage.getItem("pegasus_monday_reset_applied_at")) || 0);
+        const resetWeek = String(localStorage.getItem("pegasus_monday_reset_applied_week_key") || "").trim();
+        const resetAt = Math.max(0, Number(localStorage.getItem("pegasus_monday_reset_applied_at")) || 0);
         const remoteLedgerRaw = this.safeParseStorageObject(remoteStorage.pegasus_weekly_history_counted_v2, null);
         const remoteUpdatedAt = Math.max(0, Number(remoteLedgerRaw?.updatedAt) || 0, Number(remoteLedgerRaw?.createdAt) || 0);
 
@@ -814,7 +808,7 @@ const PegasusCloud = {
             });
         })();
 
-        // PEGASUS 204: after a Saturday zero reset, do not re-import same-week stale totals.
+        // PEGASUS 204: after a Monday zero reset, do not re-import same-week stale totals.
         // A same-week ledger is trusted only when it contains entries dated inside the actual current week.
         if (resetWeek === currentWeek && localTotal === 0 && remoteTotal > 0 && (!remoteHasCurrentWeekEntries || !remoteUpdatedAt || remoteUpdatedAt <= resetAt)) {
             localStorage.setItem("pegasus_weekly_history_week_key", currentWeek);
@@ -822,14 +816,14 @@ const PegasusCloud = {
         }
 
         // If local has already moved into the current week, never re-import an older remote week,
-        // even when the current local value is zero after a Saturday reset.
+        // even when the current local value is zero after a Monday reset.
         if (localWeek === currentWeek && remoteWeek && remoteWeek !== currentWeek) {
             localStorage.setItem("pegasus_weekly_history_week_key", currentWeek);
             return JSON.stringify(localCandidate);
         }
 
         // If both sides are from an older week, start the new week clean instead of carrying
-        // last week's completed muscle totals into the new Saturday cycle.
+        // last week's completed muscle totals into the new Monday cycle.
         if (localWeek && remoteWeek && localWeek !== currentWeek && remoteWeek !== currentWeek) {
             localStorage.setItem("pegasus_weekly_history_week_key", currentWeek);
             return JSON.stringify(this.normalizeWeeklyHistoryObject({}));
@@ -858,8 +852,8 @@ const PegasusCloud = {
 
         const localWeek = String(local?.weekKey || localStorage.getItem("pegasus_weekly_history_week_key") || currentWeek);
         const remoteWeek = String(remote?.weekKey || this._remoteStorageMergeContext?.pegasus_weekly_history_week_key || currentWeek);
-        const resetWeek = String(localStorage.getItem("pegasus_saturday_reset_applied_week_key") || localStorage.getItem("pegasus_monday_reset_applied_week_key") || "").trim();
-        const resetAt = Math.max(0, Number(localStorage.getItem("pegasus_saturday_reset_applied_at") || localStorage.getItem("pegasus_monday_reset_applied_at")) || 0);
+        const resetWeek = String(localStorage.getItem("pegasus_monday_reset_applied_week_key") || "").trim();
+        const resetAt = Math.max(0, Number(localStorage.getItem("pegasus_monday_reset_applied_at")) || 0);
         const localHasValues = !!(local?.exercises && typeof local.exercises === "object" && Object.values(local.exercises).some(count => Math.max(0, Number(count) || 0) > 0));
         const remoteHasValues = !!(remote?.exercises && typeof remote.exercises === "object" && Object.values(remote.exercises).some(count => Math.max(0, Number(count) || 0) > 0));
         const remoteUpdatedAt = Math.max(0, Number(remote?.updatedAt) || 0, Number(remote?.createdAt) || 0);
@@ -2238,13 +2232,9 @@ const PegasusCloud = {
             this.hasSuccessfullyPulled = true;
 
             try {
-                if (typeof window.enforcePegasusSaturdayWeeklyReset === "function") {
-                    window.enforcePegasusSaturdayWeeklyReset({ source: "cloud-pull-complete", push: false });
-                } else if (typeof window.enforcePegasusMondayWeeklyReset === "function") {
-                    window.enforcePegasusMondayWeeklyReset({ source: "cloud-pull-complete", push: false });
-                }
+                window.enforcePegasusMondayWeeklyReset?.({ source: "cloud-pull-complete", push: false });
             } catch (resetError) {
-                console.warn("⚠️ CLOUD: Saturday reset check after pull skipped.", resetError);
+                console.warn("⚠️ CLOUD: Monday reset check after pull skipped.", resetError);
             }
 
             if (pendingExists) {

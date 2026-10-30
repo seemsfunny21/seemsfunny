@@ -123,6 +123,8 @@
                 const aliases = date.aliases;
                 const cardioOffsetBase = window.PegasusManifest?.workout?.cardio_offset || 'pegasus_cardio_offset_sets';
 
+        window.enforcePegasusMondayWeeklyReset?.({ source: 'mobile-progress', push: false });
+
                 /* --- 1. LEG LOAD / WEEKLY PROGRESS --- */
                 const maxCyclingCredit = 8;
                 const credit = km > 0
@@ -136,13 +138,7 @@
                     history['Πόδια'] = currentLegSets + credit;
                     localStorage.setItem('pegasus_weekly_history', JSON.stringify(history));
 
-                    const weekDate = new Date();
-                    const weekStart = new Date(weekDate);
-                    const daysSinceSaturday = (weekDate.getDay() + 1) % 7;
-                    weekStart.setHours(6, 0, 0, 0);
-                    weekStart.setDate(weekDate.getDate() - daysSinceSaturday);
-                    if (weekDate.getDay() === 6 && weekDate.getTime() < weekStart.getTime()) weekStart.setDate(weekStart.getDate() - 7);
-                    const weekKey = `${weekStart.getFullYear()}-${pad(weekStart.getMonth() + 1)}-${pad(weekStart.getDate())}`;
+                    const weekKey = window.PegasusWeekClock.weekKey();
                     localStorage.setItem('pegasus_weekly_history_week_key', weekKey);
 
                     if (window.PegasusBrain?.recordWeekendCarryover) {

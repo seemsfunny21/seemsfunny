@@ -48,6 +48,8 @@ window.PegasusEMS = {
     complete: async function() {
         console.log("⚡ EMS: Session Completed. Running Final Pulse Protocol...");
 
+        window.enforcePegasusMondayWeeklyReset?.({ source: 'mobile-progress', push: false });
+
         // --- 0. DATA SOURCE RECOVERY ---
         let h = JSON.parse(localStorage.getItem('pegasus_weekly_history')) || {};
         const groups = ["Στήθος", "Πλάτη", "Πόδια", "Χέρια", "Ώμοι", "Κορμός"];
@@ -78,12 +80,7 @@ window.PegasusEMS = {
 
         // --- 3. FINAL SAVE & SYNC ---
         localStorage.setItem('pegasus_weekly_history', JSON.stringify(h));
-        const weekStart = new Date(rawDate);
-        const daysSinceSaturday = (rawDate.getDay() + 1) % 7;
-        weekStart.setHours(6, 0, 0, 0);
-        weekStart.setDate(rawDate.getDate() - daysSinceSaturday);
-        if (rawDate.getDay() === 6 && rawDate.getTime() < weekStart.getTime()) weekStart.setDate(weekStart.getDate() - 7);
-        const weekKey = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}-${String(weekStart.getDate()).padStart(2, '0')}`;
+        const weekKey = window.PegasusWeekClock.weekKey(rawDate);
         localStorage.setItem('pegasus_weekly_history_week_key', weekKey);
         window.dispatchEvent?.(new CustomEvent('pegasus_weekly_history_updated', { detail: { source: 'mobile-ems', history: { ...h } } }));
 

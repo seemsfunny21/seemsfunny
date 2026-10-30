@@ -1404,6 +1404,10 @@ function selectDay(btn, day) {
     const list = document.getElementById("exList");
     if (!list) return;
     list.innerHTML = "";
+    // PEGASUS 304: navigation must start from the top of the day's list.
+    // Otherwise the tall weekend mode selector can leave Leg Extensions above
+    // the scrolled viewport, making Saturday appear to contain only two exercises.
+    list.scrollTop = 0;
     if (window.PegasusBrain?.renderWeekendModePanel) {
         window.PegasusBrain.renderWeekendModePanel(day, list, () => selectDay(document.getElementById(`nav-${day}`), day));
     }
@@ -1503,9 +1507,9 @@ function selectDay(btn, day) {
     setTimeout(() => {
         if (pegasusSelectDayToken !== window.__pegasusSelectDayToken) return;
         if (typeof showVideo === "function") showVideo(0);
-        if (typeof scrollPegasusActiveExerciseIntoView === "function") {
-            scrollPegasusActiveExerciseIntoView(0, { force: true, instant: true });
-        }
+        // Only auto-scroll while a workout is running. The initial navigation
+        // must keep the first exercise visible without requiring a mode click.
+        list.scrollTop = 0;
         if (exercises.length === 0) {
             if (isPegasusWeekendDay && window.PegasusBrain?.renderWeekendModePanel) {
                 ensurePegasusWeekendModeUi(day, list);
@@ -2112,7 +2116,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
                     }
 
                     const swPath = window.location.pathname.includes('/mobile/') ? '../sw.js' : './sw.js';
-                    await navigator.serviceWorker.register(`${swPath}?v=3.36.294`);
+                    await navigator.serviceWorker.register(`${swPath}?v=3.36.304`);
                     const registration = await navigator.serviceWorker.ready;
                     const target = navigator.serviceWorker.controller || registration.active || registration.waiting || registration.installing;
 
@@ -2762,6 +2766,7 @@ window.openExercisePreview = openExercisePreview;
 
 /* ===== 10. TRACKING ===== */
 window.logPegasusSet = function(exName, absoluteDone = null) {
+    window.enforcePegasusMondayWeeklyReset?.({ source: 'before-set', push: false });
     const strictGroups = ["Στήθος", "Πλάτη", "Πόδια", "Χέρια", "Ώμοι", "Κορμός"];
     const historyKey = P_M?.workout?.weekly_history || 'pegasus_weekly_history';
     const ledgerKey = 'pegasus_weekly_history_counted_v2';
@@ -2776,15 +2781,7 @@ window.logPegasusSet = function(exName, absoluteDone = null) {
         }
     };
 
-    const getWeekKey = () => {
-        const d = new Date();
-        const start = new Date(d);
-        const daysSinceSaturday = (d.getDay() + 1) % 7;
-        start.setHours(6, 0, 0, 0);
-        start.setDate(d.getDate() - daysSinceSaturday);
-        if (d.getDay() === 6 && d.getTime() < start.getTime()) start.setDate(start.getDate() - 7);
-        return `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`;
-    };
+    const getWeekKey = () => window.PegasusWeekClock.weekKey();
 
     const normalizeName = value => String(value || '')
         .trim()
@@ -2908,13 +2905,7 @@ window.logPegasusSet = function(exName, absoluteDone = null) {
     }
 
     function weekKey() {
-        const d = new Date();
-        const start = new Date(d);
-        const daysSinceSaturday = (d.getDay() + 1) % 7;
-        start.setHours(6, 0, 0, 0);
-        start.setDate(d.getDate() - daysSinceSaturday);
-        if (d.getDay() === 6 && d.getTime() < start.getTime()) start.setDate(start.getDate() - 7);
-        return `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, "0")}-${String(start.getDate()).padStart(2, "0")}`;
+        return window.PegasusWeekClock.weekKey();
     }
 
     function todayKey() {
@@ -3057,123 +3048,7 @@ window.updateTotalWorkoutCount = function() {
 };
 
 /* ===== 11. BOOT SEQUENCE ===== */
-window.enforcePegasusSaturdayWeeklyReset = function(options = {}) {
-    const source = options.source || 'unknown';
-    const pushAfterReset = options.push !== false;
-    const now = new Date();
-    const isSaturdayResetWindow = now.getDay() === 6 && now.getHours() >= 6;
-    if (!isSaturdayResetWindow) return false;
-
-    const pad = value => String(value).padStart(2, '0');
-    const todayDateStr = (typeof window.getPegasusLocalDateKey === 'function')
-        ? window.getPegasusLocalDateKey()
-        : `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-
-    const weekStart = new Date(now);
-    const daysSinceSaturday = (now.getDay() + 1) % 7;
-    weekStart.setHours(6, 0, 0, 0);
-    weekStart.setDate(now.getDate() - daysSinceSaturday);
-    if (now.getDay() === 6 && now.getTime() < weekStart.getTime()) weekStart.setDate(weekStart.getDate() - 7);
-    const currentWeekKey = `${weekStart.getFullYear()}-${pad(weekStart.getMonth() + 1)}-${pad(weekStart.getDate())}`;
-
-    const historyKey = window.PegasusManifest?.workout?.weekly_history || 'pegasus_weekly_history';
-    const ledgerKey = 'pegasus_weekly_history_counted_v2';
-    const weekKeyName = 'pegasus_weekly_history_week_key';
-    const groups = ["Στήθος", "Πλάτη", "Πόδια", "Χέρια", "Ώμοι", "Κορμός"];
-    const freshHistory = { "Στήθος": 0, "Πλάτη": 0, "Πόδια": 0, "Χέρια": 0, "Ώμοι": 0, "Κορμός": 0 };
-
-    const safeRead = (key, fallback) => {
-        try {
-            const parsed = JSON.parse(localStorage.getItem(key) || 'null');
-            return parsed && typeof parsed === 'object' ? parsed : fallback;
-        } catch (err) {
-            return fallback;
-        }
-    };
-
-    const history = safeRead(historyKey, freshHistory);
-    const ledger = safeRead(ledgerKey, null);
-    const daily = safeRead('pegasus_daily_progress', null);
-    const storedWeek = String(localStorage.getItem(weekKeyName) || '').trim();
-    const lastReset = localStorage.getItem('pegasus_last_reset');
-
-    const getLocalDateVariants = (dateObj = now) => {
-        const yyyy = dateObj.getFullYear();
-        const mm = pad(dateObj.getMonth() + 1);
-        const dd = pad(dateObj.getDate());
-        return new Set([
-            `${yyyy}-${mm}-${dd}`,
-            `${dd}/${mm}/${yyyy}`,
-            `${Number(dd)}/${Number(mm)}/${yyyy}`,
-            `${yyyy}${mm}${dd}`
-        ]);
-    };
-
-    const todayDateVariants = getLocalDateVariants(now);
-    const hasLedgerEntriesForToday = ledger?.weekKey === currentWeekKey
-        && ledger.exercises
-        && typeof ledger.exercises === 'object'
-        && Object.entries(ledger.exercises).some(([entryKey, value]) => {
-            const count = Math.max(0, Number(value) || 0);
-            if (count <= 0) return false;
-            const entryDate = String(entryKey || '').split('|')[0];
-            return todayDateVariants.has(entryDate);
-        });
-
-    const hasTodayDaily = daily?.date === todayDateStr
-        && daily.exercises
-        && typeof daily.exercises === 'object'
-        && Object.values(daily.exercises).some(value => Math.max(0, Number(value) || 0) > 0);
-
-    const visibleTotal = groups.reduce((sum, group) => sum + Math.max(0, Number(history?.[group]) || 0), 0);
-    const staleWeek = !!storedWeek && storedWeek !== currentWeekKey;
-    const resetAppliedWeek = String(localStorage.getItem('pegasus_saturday_reset_applied_week_key') || localStorage.getItem('pegasus_monday_reset_applied_week_key') || '').trim();
-    const needsReset = resetAppliedWeek !== currentWeekKey || lastReset !== todayDateStr || staleWeek;
-
-    if (!needsReset) return false;
-
-    if (hasLedgerEntriesForToday || hasTodayDaily) {
-        localStorage.setItem(weekKeyName, currentWeekKey);
-        localStorage.setItem('pegasus_last_reset', todayDateStr);
-        localStorage.setItem('pegasus_last_reset_timestamp', todayDateStr);
-        localStorage.setItem('pegasus_saturday_reset_applied_week_key', currentWeekKey);
-        localStorage.setItem('pegasus_saturday_reset_applied_at', String(Date.now()));
-        // legacy guards kept for cloud compatibility
-        localStorage.setItem('pegasus_monday_reset_applied_week_key', currentWeekKey);
-        localStorage.setItem('pegasus_monday_reset_applied_at', String(Date.now()));
-        if (window.PegasusWeeklyProgress?.repairFromLedger) {
-            setTimeout(() => window.PegasusWeeklyProgress.repairFromLedger({ source: `saturday-reset-guard:${source}` }), 100);
-        }
-        console.log('🛡️ PEGASUS RESET: Skipped Saturday zero because real Saturday sets already exist.', { source, currentWeekKey });
-        return false;
-    }
-
-    localStorage.setItem(historyKey, JSON.stringify(freshHistory));
-    localStorage.setItem(weekKeyName, currentWeekKey);
-    localStorage.removeItem(ledgerKey);
-    localStorage.setItem('pegasus_weekly_kcal', '0.0');
-    localStorage.setItem('pegasus_last_reset', todayDateStr);
-    localStorage.setItem('pegasus_last_reset_timestamp', todayDateStr);
-    localStorage.setItem('pegasus_saturday_reset_applied_week_key', currentWeekKey);
-    localStorage.setItem('pegasus_saturday_reset_applied_at', String(Date.now()));
-    // legacy guards kept for cloud compatibility
-    localStorage.setItem('pegasus_monday_reset_applied_week_key', currentWeekKey);
-    localStorage.setItem('pegasus_monday_reset_applied_at', String(Date.now()));
-
-    window.dispatchEvent(new CustomEvent('pegasus_weekly_history_updated', {
-        detail: { source: `saturday-reset:${source}`, history: { ...freshHistory }, weekKey: currentWeekKey }
-    }));
-
-    if (window.MuscleProgressUI?.render) setTimeout(() => window.MuscleProgressUI.render(true), 50);
-    if (typeof window.renderPreview === 'function') setTimeout(() => window.renderPreview(), 80);
-    if (pushAfterReset && window.PegasusCloud?.push) setTimeout(() => window.PegasusCloud.push(true), 150);
-
-    console.log('🛡️ PEGASUS RESET: Saturday weekly progress reset applied.', { source, currentWeekKey, previousStoredWeek: storedWeek || null, previousTotal: visibleTotal });
-    return true;
-};
-
-// Backwards-compatible alias for older call sites.
-window.enforcePegasusMondayWeeklyReset = window.enforcePegasusSaturdayWeeklyReset;
+// Monday reset is shared by desktop and mobile via manifest.js.
 
 
 window.onload = () => {

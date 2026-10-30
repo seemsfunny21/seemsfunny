@@ -257,12 +257,7 @@ window.MuscleProgressUI = {
     },
 
     checkWeeklyReset() {
-        if (typeof window.enforcePegasusSaturdayWeeklyReset === "function") {
-            window.enforcePegasusSaturdayWeeklyReset({ source: "progress-ui", push: true });
-        } else if (typeof window.enforcePegasusMondayWeeklyReset === "function") {
-            // Compatibility fallback; in PEGASUS 205 this alias points to the Saturday 06:00 reset.
-            window.enforcePegasusMondayWeeklyReset({ source: "progress-ui", push: true });
-        }
+        window.enforcePegasusMondayWeeklyReset?.({ source: 'progress-ui', push: true });
     }
 };
 

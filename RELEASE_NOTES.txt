@@ -21,3 +21,20 @@ LOCAL-ONLY BUILD
 
 Μεταφορά δεδομένων πλέον γίνεται μόνο με:
 Αποθήκευση αρχείου / Φόρτωση αρχείου ή Πλήρες τοπικό αντίγραφο / Ασφαλής επαναφορά.
+
+PEGASUS 303 - Monday Weekly Progress Reset (Europe/Athens)
+- Weekly progress resets on the first check after Monday 00:00 in Greece, including reopening after a closed week.
+- Shared Monday week key for desktop, mobile, optimizer, brain, progress preview and the optional cloud module.
+- A previous-week totals snapshot is kept in pegasus_weekly_history_archive_v1 in localStorage.
+- Normal past workout records, cycling logs, and program settings are not cleared.
+- Service worker storage version 303 refreshes JavaScript assets after deployment.
+- Local-only mode remains unchanged; cloudSync.js is not loaded.
+
+PEGASUS 304 - Saturday Exercise List Visibility / Maintenance
+- Saturday defaults to Weights only if no weekend preference has been saved.
+- All three fixed Saturday exercises remain present: Leg Extensions (3), Reverse Crunch (3), Plank (2).
+- Navigating to a workout day resets the exercise-list scroll to the top, rather than auto-centering an exercise behind the weekend controls.
+- Explicit Bike / Bike + Weights / Weights selections remain available and persistent.
+- Service worker cache version 304 plus desktop/mobile registration refresh after deployment.
+- Does not remove or rename features or change exercise targets.
+- Videos not included in this source package; keep existing videos/ folder in GitHub.

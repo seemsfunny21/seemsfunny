@@ -241,13 +241,7 @@
     }
 
     function getWeekKey(date = new Date()) {
-        const d = typeof date === "string" ? dateFromKey(date) : new Date(date);
-        const start = new Date(d);
-        const daysSinceSaturday = (d.getDay() + 1) % 7;
-        start.setHours(6, 0, 0, 0);
-        start.setDate(d.getDate() - daysSinceSaturday);
-        if (d.getDay() === 6 && d.getTime() < start.getTime()) start.setDate(start.getDate() - 7);
-        return normalizeGreekDate(start);
+        return window.PegasusWeekClock.weekKey(typeof date === "string" ? dateFromKey(date) : date);
     }
 
     function getNextWeekKey(date = new Date()) {
@@ -355,8 +349,8 @@
     }
 
     function getCycleDatesForWeek(weekKey = getWeekKey()) {
-        const saturday = dateFromKey(weekKey);
-        return Array.from({ length: 7 }, (_, index) => addDays(saturday, index));
+        const monday = dateFromKey(weekKey);
+        return Array.from({ length: 7 }, (_, index) => addDays(monday, index));
     }
 
     function entryMatchesDate(entry, aliases) {
@@ -414,7 +408,11 @@
         const today = window.getPegasusLocalDateKey ? window.getPegasusLocalDateKey() : normalizeGreekDate();
         const dateKey = (getDayName(today) === day) ? today : normalizeGreekDate();
         const datedKey = `pegasus_weekend_training_mode_${dateKey}`;
-        return localStorage.getItem(datedKey) || localStorage.getItem(`pegasus_weekend_training_mode_${day}`) || "bike";
+        // PEGASUS 304: Saturday's fixed three-exercise plan is the default.
+        // Respect any mode the user explicitly saved (including Bike).
+        return localStorage.getItem(datedKey)
+            || localStorage.getItem(`pegasus_weekend_training_mode_${day}`)
+            || (day === "Σάββατο" ? "weights" : "bike");
     }
 
     function setWeekendMode(day, mode) {

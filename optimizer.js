@@ -1,6 +1,6 @@
 /* ==========================================================================
    PEGASUS DYNAMIC OPTIMIZER - v3.3 (PEGASUS 299 CLASSIC FIXED SPLIT SAFE)
-   Protocol: Saturday 06:00 Week Reset, 8-Set Cycling Credit & MS-600 Mapping
+   Protocol: Monday 00:00 Greece Week Reset, 8-Set Cycling Credit & MS-600 Mapping
    Status: FINAL STABLE | ZERO-BUG VERIFIED
    ========================================================================== */
 
@@ -52,67 +52,17 @@ window.PegasusOptimizer = {
     },
 
     getCurrentWeekKey: function() {
-        const d = new Date();
-        const start = new Date(d);
-        const daysSinceSaturday = (d.getDay() + 1) % 7;
-        start.setHours(6, 0, 0, 0);
-        start.setDate(d.getDate() - daysSinceSaturday);
-        if (d.getDay() === 6 && d.getTime() < start.getTime()) start.setDate(start.getDate() - 7);
-        return `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`;
+        return window.PegasusWeekClock.weekKey();
     },
 
     apply: function(day, sessionExercises) {
         const historyKey = M?.workout?.weekly_history || 'pegasus_weekly_history';
         let progress = this.getProgressSnapshot();
 
-        const lastResetKey = M?.system?.lastResetTimestamp || 'pegasus_last_reset_timestamp';
-        const lastReset = localStorage.getItem(lastResetKey);
-        const now = new Date();
-        const todayDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-
-        const lastResetTime = new Date(lastReset || "1970-01-01").getTime();
-        const daysSinceReset = (now.getTime() - lastResetTime) / (1000 * 3600 * 24);
-
-        // 🛡️ TACTICAL RESET EXECUTION (Persistence Patch)
-        // PEGASUS 134: never wipe a current non-zero week just because lastReset is missing.
-        // Reset is allowed only on Saturday after 06:00 or when an existing reset marker is stale.
-        if (!lastReset) {
-            localStorage.setItem(lastResetKey, todayDate);
-        }
-        const cloudBootPending = !!(window.PegasusCloud?.canRestoreApprovedDevice?.() && !window.PegasusCloud?.hasSuccessfullyPulled && navigator.onLine);
-        const storedWeekKey = localStorage.getItem("pegasus_weekly_history_week_key") || "";
-        const currentWeekKey = this.getCurrentWeekKey ? this.getCurrentWeekKey() : todayDate;
-
-        // PEGASUS 182: no stale non-Saturday-reset reset. A desktop that was closed for days must pull cloud first,
-        // otherwise it can briefly zero the week and push that zero over the real mobile progress.
-        if (!(now.getDay() === 6 && now.getHours() >= 6) && !!lastReset && daysSinceReset >= 7) {
-            console.log("🛡️ PEGASUS OPTIMIZER: Stale reset marker ignored outside Saturday 06:00; waiting for cloud/current week.");
-        }
-
-        const shouldResetThisWeek = (now.getDay() === 6 && now.getHours() >= 6 && lastReset !== todayDate);
-        if (shouldResetThisWeek && cloudBootPending) {
-            console.log("🛡️ PEGASUS OPTIMIZER: Saturday reset deferred until initial cloud pull completes.");
-        } else if (shouldResetThisWeek) {
-            console.log("%c 🚀 PEGASUS: Weekly Cycle Reset Initialized.", "color: #00ff41; font-weight: bold;");
-            progress = this.getEmptyProgress();
-            localStorage.setItem(historyKey, JSON.stringify(progress));
-            localStorage.setItem("pegasus_weekly_history_week_key", currentWeekKey);
-            localStorage.setItem("pegasus_weekly_history_counted_v2", JSON.stringify({
-                weekKey: currentWeekKey,
-                exercises: {},
-                resetAt: Date.now()
-            }));
-            localStorage.setItem(lastResetKey, todayDate);
-
-            if (window.PegasusEngine?.dispatch) {
-                window.PegasusEngine.dispatch({
-                    type: "OPTIMIZER_WEEKLY_RESET",
-                    payload: { day: day, date: todayDate }
-                });
-            }
-
-            if (window.PegasusCloud?.push) window.PegasusCloud.push(true);
-        }
+        // Week rollover is owned exclusively by the canonical Monday reset.
+        // Never reset independently on Saturday or based on a stale daily marker.
+        window.enforcePegasusMondayWeeklyReset?.({ source: 'optimizer-apply', push: false });
+        progress = this.getProgressSnapshot();
 
         let sessionTracker = { ...progress };
         const currentTargets = this.getTargets();

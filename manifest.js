@@ -211,3 +211,105 @@ window.PegasusManifest = {
 var M = window.PegasusManifest;
 
 console.log("🏛️ PEGASUS MANIFEST v19.02 LOADED. ACTIVITY COLORS READY.");
+
+
+/* PEGASUS 303 - Canonical Monday 00:00 Europe/Athens weekly clock.
+   The same key is used by desktop, mobile modules and the dormant cloud bridge. */
+window.PegasusWeekClock = Object.freeze({
+    dateKey(date = new Date()) {
+        const parts = new Intl.DateTimeFormat("en-GB", {
+            timeZone: "Europe/Athens", year: "numeric", month: "2-digit", day: "2-digit"
+        }).formatToParts(date);
+        const pick = type => parts.find(part => part.type === type)?.value;
+        return `${pick("year")}-${pick("month")}-${pick("day")}`;
+    },
+    weekKey(date = new Date()) {
+        const dateKey = this.dateKey(date);
+        const [year, month, day] = dateKey.split("-").map(Number);
+        const midnightUTC = new Date(Date.UTC(year, month - 1, day));
+        const daysSinceMonday = (midnightUTC.getUTCDay() + 6) % 7;
+        midnightUTC.setUTCDate(midnightUTC.getUTCDate() - daysSinceMonday);
+        return `${midnightUTC.getUTCFullYear()}-${String(midnightUTC.getUTCMonth() + 1).padStart(2, "0")}-${String(midnightUTC.getUTCDate()).padStart(2, "0")}`;
+    }
+});
+
+
+/* Shared weekly progress rollover. Loaded on both desktop and mobile. */
+window.enforcePegasusMondayWeeklyReset = function(options = {}) {
+    const source = options.source || 'unknown';
+    const currentWeekKey = window.PegasusWeekClock.weekKey();
+    const todayDateStr = window.PegasusWeekClock.dateKey();
+    const historyKey = window.PegasusManifest?.workout?.weekly_history || 'pegasus_weekly_history';
+    const ledgerKey = 'pegasus_weekly_history_counted_v2';
+    const weekKeyName = 'pegasus_weekly_history_week_key';
+    const appliedKey = 'pegasus_monday_reset_applied_week_key';
+    const appliedAtKey = 'pegasus_monday_reset_applied_at';
+    const archiveKey = 'pegasus_weekly_history_archive_v1';
+    const freshHistory = { "Στήθος": 0, "Πλάτη": 0, "Πόδια": 0, "Χέρια": 0, "Ώμοι": 0, "Κορμός": 0 };
+    const safeRead = (key, fallback) => {
+        try {
+            const data = JSON.parse(localStorage.getItem(key) || 'null');
+            return data && typeof data === 'object' ? data : fallback;
+        } catch (_) { return fallback; }
+    };
+    const storedWeek = String(localStorage.getItem(weekKeyName) || '').trim();
+    const appliedWeek = String(localStorage.getItem(appliedKey) || '').trim();
+    const ledger = safeRead(ledgerKey, null);
+
+    // A device that stayed shut on Monday still rolls over the first time it opens.
+    // Repeated checks during the week must never clear today's real workouts.
+    if (appliedWeek === currentWeekKey && storedWeek === currentWeekKey) return false;
+
+    // On upgrade, a current-week ledger may already contain legitimate exercises.
+    // Never discard them just because the reset marker was introduced in v303.
+    const currentLedger = ledger?.weekKey === currentWeekKey
+        && ledger.exercises && typeof ledger.exercises === 'object';
+    const hasCurrentSets = currentLedger && Object.values(ledger.exercises)
+        .some(value => Math.max(0, Number(value) || 0) > 0);
+    const previous = safeRead(historyKey, freshHistory);
+    const oldTotal = Object.values(freshHistory).reduce((sum, _v, index) =>
+        sum + Math.max(0, Number(previous?.[Object.keys(freshHistory)[index]]) || 0), 0);
+    const previousWeek = storedWeek || (ledger?.weekKey && ledger.weekKey !== currentWeekKey ? ledger.weekKey : 'legacy-unknown');
+
+    if (storedWeek !== currentWeekKey) {
+        // Retain a snapshot, plus the normal calendar/workout/statistics records.
+        if (oldTotal > 0) {
+            const archive = safeRead(archiveKey, {});
+            if (!archive[previousWeek]) {
+                archive[previousWeek] = { history: previous, archivedAt: Date.now(), reason: 'monday-week-rollover' };
+                localStorage.setItem(archiveKey, JSON.stringify(archive));
+            }
+        }
+        // If current-week exercises exist, reconstruct from the current-week ledger.
+        // Otherwise start at zero; old Saturday-based entries must not come back.
+        const keepCurrent = hasCurrentSets && window.PegasusWeeklyProgress?.computeFromLedger;
+        const nextHistory = keepCurrent
+            ? window.PegasusWeeklyProgress.computeFromLedger(ledger)
+            : freshHistory;
+        localStorage.setItem(historyKey, JSON.stringify(nextHistory));
+        if (!currentLedger) {
+            localStorage.setItem(ledgerKey, JSON.stringify({
+                weekKey: currentWeekKey, exercises: {}, initializedAt: Date.now(), updatedAt: Date.now()
+            }));
+        }
+        localStorage.setItem('pegasus_weekly_kcal', '0.0');
+    }
+
+    localStorage.setItem(weekKeyName, currentWeekKey);
+    localStorage.setItem(appliedKey, currentWeekKey);
+    localStorage.setItem(appliedAtKey, String(Date.now()));
+    localStorage.setItem('pegasus_last_reset', todayDateStr);
+    localStorage.setItem('pegasus_last_reset_timestamp', todayDateStr);
+
+    window.dispatchEvent(new CustomEvent('pegasus_weekly_history_updated', {
+        detail: { source: `monday-reset:${source}`, weekKey: currentWeekKey }
+    }));
+    if (window.MuscleProgressUI?.render) setTimeout(() => window.MuscleProgressUI.render(true), 50);
+    if (typeof window.renderPreview === 'function') setTimeout(() => window.renderPreview(), 80);
+    if (options.push !== false && window.PegasusCloud?.push) setTimeout(() => window.PegasusCloud.push(true), 150);
+    console.log('🛡️ PEGASUS: Monday 00:00 Greece weekly progress applied.', { source, currentWeekKey, previousWeek: storedWeek });
+    return true;
+};
+
+// Compatibility for older callers; no Saturday reset is performed.
+window.enforcePegasusSaturdayWeeklyReset = window.enforcePegasusMondayWeeklyReset;

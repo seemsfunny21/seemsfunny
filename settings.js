@@ -38,13 +38,7 @@ const PEGASUS_211_TARGETS = {
 };
 
 function getPegasusWeekKeyForTargets() {
-    const d = new Date();
-    const start = new Date(d);
-    const daysSinceSaturday = (d.getDay() + 1) % 7;
-    start.setHours(6, 0, 0, 0);
-    start.setDate(d.getDate() - daysSinceSaturday);
-    if (d.getDay() === 6 && d.getTime() < start.getTime()) start.setDate(start.getDate() - 7);
-    return `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`;
+    return window.PegasusWeekClock.weekKey();
 }
 
 function migratePegasus211MuscleTargets() {
@@ -74,7 +68,6 @@ function migratePegasus211MuscleTargets() {
 
     if (missing || looksOldDefault || looksV134Default || looksGeneratedFromOldProgram) {
         localStorage.setItem(key, JSON.stringify(PEGASUS_211_TARGETS));
-        localStorage.setItem("pegasus_weekly_history_week_key", getPegasusWeekKeyForTargets());
         console.log("✅ PEGASUS 211: MS-600 weekly muscle targets rebalanced.", PEGASUS_211_TARGETS);
     }
 

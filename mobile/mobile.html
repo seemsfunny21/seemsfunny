@@ -678,13 +678,7 @@
         }
 
         function weekKey() {
-            const d = new Date();
-            const start = new Date(d);
-            const daysSinceSaturday = (d.getDay() + 1) % 7;
-            start.setHours(6, 0, 0, 0);
-            start.setDate(d.getDate() - daysSinceSaturday);
-            if (d.getDay() === 6 && d.getTime() < start.getTime()) start.setDate(start.getDate() - 7);
-            return `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, "0")}-${String(start.getDate()).padStart(2, "0")}`;
+            return window.PegasusWeekClock.weekKey();
         }
 
         function readHistory() {
@@ -943,6 +937,12 @@
     };
 
     document.addEventListener("DOMContentLoaded", () => {
+        window.enforcePegasusMondayWeeklyReset?.({ source: 'mobile-boot', push: false });
+        setInterval(() => {
+            if (window.enforcePegasusMondayWeeklyReset?.({ source: 'mobile-midnight', push: false })) {
+                if (typeof updateMuscleUI === 'function') updateMuscleUI();
+            }
+        }, 30000);
         try { window.PegasusMobileWorkoutSettings.load(); } catch (_) {}
         try { window.PegasusMobileWorkoutSettings.apply(); } catch (_) {}
     });
@@ -1031,6 +1031,7 @@
     }
 
     function updateMuscleUI() {
+        window.enforcePegasusMondayWeeklyReset?.({ source: 'mobile-preview', push: false });
         const h = JSON.parse(localStorage.getItem('pegasus_weekly_history')) || {};
         const container = document.getElementById("muscle-container");
         if (!container) return;
@@ -1416,7 +1417,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('../sw.js?v=301.0.0')
+                navigator.serviceWorker.register('../sw.js?v=304.0.0')
                     .then(reg => {
                         console.log('📡 PEGASUS: Service Worker Registered.');
                         // No forced reg.update() on every open; this keeps refresh fast after the first local download.
