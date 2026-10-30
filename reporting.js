@@ -154,7 +154,7 @@ const PegasusReporting = {
 
         const sourceData = sessionData || Array.from(document.querySelectorAll('.exercise'))
             .map(node => ({
-                name: node.querySelector('.exercise-name')?.textContent?.trim()?.replace(" ☀️", "") || "",
+                name: node.dataset.name || node.querySelector('.exercise-name')?.textContent?.trim()?.replace(" ☀️", "") || "",
                 weight: parseFloat(node.querySelector('.weight-input')?.value) || 0,
                 done: parseInt(node.dataset.done || 0, 10),
                 group: node.dataset.group

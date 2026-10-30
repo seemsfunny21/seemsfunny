@@ -1115,7 +1115,7 @@ window.syncSessionWithHistory = function() {
     const targets = (typeof window.getDynamicTargets === "function") ? window.getDynamicTargets() : {};
 
     exercises.forEach((exDiv, i) => {
-        const exName = exDiv.querySelector(".exercise-name")?.textContent?.trim();
+        const exName = exDiv.dataset.name || exDiv.querySelector(".exercise-name")?.textContent?.trim();
         const muscle = (window.exercisesDB?.find(e => e.name.trim() === exName))?.muscleGroup;
 
         if (muscle) {
@@ -1454,7 +1454,12 @@ function selectDay(btn, day) {
         `;
 
         const nameNode = d.querySelector(".exercise-name");
-        if (nameNode) nameNode.textContent = cleanName;
+        if (nameNode) {
+            // Keep canonical keys in datasets; translate the displayed exercise label only.
+            nameNode.dataset.i18nKind = 'exercise';
+            nameNode.dataset.i18nSource = cleanName;
+            nameNode.textContent = window.getPegasusExerciseDisplayName?.(cleanName) || cleanName;
+        }
 
         const badgeNode = d.querySelector(".exercise-muscle-badge");
         if (badgeNode) {
@@ -2417,13 +2422,13 @@ function updatePegasusNextExercisePreview() {
 
     ui.box.style.display = "block";
     ui.box.classList.remove("next-video-missing");
-    if (ui.title) ui.title.textContent = `Επόμενη: ${info.name}`;
+    if (ui.title) ui.title.textContent = `${window.PegasusI18n?.getLanguage?.() === 'en' ? 'Next:' : 'Επόμενη:'} ${window.getPegasusExerciseDisplayName?.(info.name) || info.name}`;
 
     if (ui.vid.dataset.nextExerciseSrc !== info.src) {
         ui.vid.dataset.nextExerciseSrc = info.src;
         ui.vid.onerror = () => {
             ui.box.classList.add("next-video-missing");
-            if (ui.title) ui.title.textContent = `Επόμενη: ${info.name}`;
+            if (ui.title) ui.title.textContent = `${window.PegasusI18n?.getLanguage?.() === 'en' ? 'Next:' : 'Επόμενη:'} ${window.getPegasusExerciseDisplayName?.(info.name) || info.name}`;
         };
         ui.vid.pause();
         ui.vid.src = info.src;

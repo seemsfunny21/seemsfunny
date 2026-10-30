@@ -471,6 +471,11 @@
     }
 
 
+    function getTranslatedExerciseName(name) {
+        const canonical = getCanonicalDisplayName(name);
+        return window.getPegasusExerciseDisplayName?.(canonical) || canonical;
+    }
+
     function getCanonicalDisplayName(name) {
         const raw = normalizeExerciseName(name);
         if (!raw) return "";
@@ -783,7 +788,7 @@
             return `
                 <button class="lift-plan-row" data-index="${index}" style="width:100%; margin-bottom:8px; text-align:left; border:1px solid var(--border); background:rgba(0,255,65,0.05); color:#fff; border-radius:12px; padding:10px; display:flex; justify-content:space-between; gap:8px; align-items:center;">
                     <span style="display:flex; flex-direction:column; gap:3px; min-width:0;">
-                        <b style="color:var(--main); font-size:12px; white-space:normal;">${escapeHtml(row.name)}</b>
+                        <b style="color:var(--main); font-size:12px; white-space:normal;">${escapeHtml(getTranslatedExerciseName(row.name))}</b>
                         <small style="color:var(--muted); font-size:9px;">${subTxt}</small>
                     </span>
                     <span style="font-size:13px; font-weight:900; color:#fff; white-space:nowrap;">${weightTxt}</span>
@@ -811,7 +816,7 @@
         todayBox.innerHTML = todayLogs.length ? todayLogs.map(l => `
             <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); border-radius:12px; padding:9px; margin-bottom:7px; background:rgba(0,0,0,0.45);">
                 <span style="display:flex; flex-direction:column; gap:2px;">
-                    <b style="color:var(--main); font-size:12px;">${escapeHtml(l.exercise)}</b>
+                    <b style="color:var(--main); font-size:12px;">${escapeHtml(getTranslatedExerciseName(l.exercise))}</b>
                     <small style="color:var(--muted); font-size:9px;">${escapeHtml(l.weight)}kg × ${escapeHtml(l.reps)} reps</small>
                 </span>
                 <button onclick="window.PegasusLifting.deleteSet('${escapeHtml(l.id)}')" style="background:transparent; color:#ff4b4b; border:1px solid #ff4b4b; border-radius:8px; padding:5px 7px; font-size:10px;">Διαγρ.</button>
@@ -835,7 +840,7 @@
         const prs = Object.entries(prMap).sort((a, b) => a[0].localeCompare(b[0], 'el'));
         historyBox.innerHTML = prs.length ? prs.map(([name, max]) => `
             <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(0,255,65,0.15); padding:7px 0; font-size:11px;">
-                <span>${escapeHtml(name)}</span><b style="color:var(--main);">${escapeHtml(max)}kg</b>
+                <span>${escapeHtml(getTranslatedExerciseName(name))}</span><b style="color:var(--main);">${escapeHtml(max)}kg</b>
             </div>
         `).join('') : `<div style="color:var(--muted); font-size:11px; text-align:center; padding:10px;">Δεν υπάρχει ιστορικό βαρών.</div>`;
     }
@@ -868,7 +873,7 @@
             return `
                 <div class="mini-card pegasus-target-exercise-row">
                     <span class="pegasus-target-exercise-info">
-                        <b>${escapeHtml(row.name)}</b>
+                        <b>${escapeHtml(getTranslatedExerciseName(row.name))}</b>
                         <small>${escapeHtml(row.group)} • Σετ ${escapeHtml(doneTxt)}</small>
                     </span>
                     ${renderExerciseThumb(row.name)}
@@ -892,7 +897,7 @@
         container.innerHTML = rows.map(row => `
             <div class="mini-card pegasus-target-exercise-row">
                 <span class="pegasus-target-exercise-info">
-                    <b>${escapeHtml(row.name)}</b>
+                    <b>${escapeHtml(getTranslatedExerciseName(row.name))}</b>
                     <small>${escapeHtml(row.group || '--')} • Αποθηκευμένα κιλά</small>
                 </span>
                 ${renderExerciseThumb(row.name)}
@@ -1041,6 +1046,12 @@
         cleanupLegacyTestData();
         repairAllWeightAliases();
         renderTargetsPanel();
+    });
+
+    window.addEventListener('pegasus_language_changed', () => {
+        if (document.getElementById('lifting')?.classList.contains('active') || document.getElementById('preview')?.classList.contains('active')) {
+            window.renderLiftingContent?.();
+        }
     });
 
     document.addEventListener('pegasus_sync_complete', () => {

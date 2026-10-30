@@ -174,7 +174,7 @@ window.MuscleProgressUI = {
                 const total = Math.max(0, parseFloat(el.dataset.total) || 0);
                 const done = Math.max(0, parseFloat(el.dataset.done) || 0);
                 return {
-                    name: el.querySelector(".exercise-name")?.innerText?.trim() || "",
+                    name: el.dataset.name || el.querySelector(".exercise-name")?.innerText?.trim() || "",
                     isSkipped: el.classList.contains("exercise-skipped"),
                     total,
                     done,

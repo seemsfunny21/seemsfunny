@@ -70,14 +70,20 @@ window.PegasusDynamic = {
 
         ordered.forEach(ex => {
             const muscle = this.getExerciseMuscle(ex);
-            if (muscle === "Πόδια" && !allowLegs) {
+            // The fixed Saturday session explicitly contains Leg Extensions.
+            // canTrainLegsOnDay() governs optional leg work, not exercises already
+            // prescribed in Saturday's fixed plan. Never hide that one card on
+            // the delayed 300ms optimize pass (or subsequent recalculations).
+            const isFixedSaturdayLegExtensions = activeDay === "Σάββατο"
+                && ex.dataset?.name === "Leg Extensions";
+            if (muscle === "Πόδια" && !allowLegs && !isFixedSaturdayLegExtensions) {
                 this.markHidden(ex);
                 fragment.appendChild(ex);
                 return;
             }
 
             const sets = this.getExerciseSets(ex);
-            const nameText = ex.querySelector?.(".exercise-name")?.textContent || ex.textContent || "";
+            const nameText = ex.dataset?.name || ex.querySelector?.(".exercise-name")?.textContent || ex.textContent || "";
             const isStretching = /stretching|διατάσεις/i.test(nameText);
             const cost = isStretching ? 2 : (sets * this.setDuration);
 

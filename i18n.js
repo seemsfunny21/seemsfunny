@@ -80,6 +80,7 @@
 
 
     const phrasePairs = [
+        ['Επόμενη:', 'Next:'],
         ['Συνεργάτης:', 'PARTNER:'], ['Ανενεργός', 'OFF'], ['Ενεργός', 'ON'],
         ['Συνεργάτης:', 'Partner:'], ['ανενεργός', 'inactive'], ['ενεργός', 'active'],
         ['Προθέρμανση', 'Warmup'], ['Έναρξη', 'Start'], ['Επόμενο', 'Next'], ['Ημερολόγιο', 'Calendar'],
@@ -109,9 +110,14 @@
         ['Κωπηλατική σκυφτή','Bent Over Rows'], ['Τροχαλία με ίσια χέρια','Straight Arm Pulldowns'],
         ['Όρθια κωπηλατική','Upright Rows'], ['Κάμψεις δικεφάλων','Bicep Curls'],
         ['Κάμψεις δικεφάλων στο μαξιλάρι','Preacher Bicep Curls'], ['Πιέσεις τρικεφάλων','Tricep Pulldowns'],
-        ['Κοιλιακοί crunch','Ab Crunches'], ['Κοιλιακοί sit-up','Situps'], ['Σανίδα','Plank'], ['Αντίστροφοι κοιλιακοί','Reverse Crunch'],
-        ['Άρσεις γονάτων ξαπλωτός','Lying Knee Raise'], ['Άρσεις ποδιών με ανύψωση λεκάνης','Leg Raise Hip Lift'],
-        ['Εκτάσεις ποδιών','Leg Extensions'], ['Ποδηλασία','Cycling'], ['Διατάσεις','Stretching'], ['Προπόνηση EMS','EMS Training']
+        ['Ροκανίσματα κοιλιακών','Ab Crunches'], ['Ανασηκώσεις κορμού','Situps'], ['Σανίδα','Plank'], ['Αντίστροφοι κοιλιακοί','Reverse Crunch'],
+        ['Άρσεις γονάτων ξαπλωτά','Lying Knee Raise'], ['Άρσεις ποδιών με ανύψωση λεκάνης','Leg Raise Hip Lift'],
+        ['Εκτάσεις ποδιών','Leg Extensions'], ['Ποδηλασία','Cycling'], ['Διατάσεις','Stretching'], ['Προπόνηση ηλεκτρομυοδιέγερσης','EMS Training'],
+        // Older workout-library names: translations only, no exercises added to the programme.
+        ['Ανοιχτή τροχαλία πλάτης','Wide Pulldowns'],
+        ['Τροχαλία πλάτης πίσω από τον αυχένα','Behind the Neck Pulldown'],
+        ['Τροχαλία με ένα χέρι','One Arm Pulldowns'], ['Κωπηλατική με ένα χέρι','One Arm Rows'],
+        ['Ανάστροφη κωπηλατική καθιστή','Reverse Seated Rows'], ['Εκτάσεις γλουτών','Glute Kickbacks']
     ];
 
     const lookup = new Map();
@@ -126,6 +132,9 @@
         exerciseLookup.set(pair[0], pair);
         exerciseLookup.set(pair[1], pair);
     });
+    const exercisePairsByLength = [...exercisePairs].sort((a, b) =>
+        Math.max(b[0].length, b[1].length) - Math.max(a[0].length, a[1].length)
+    );
 
     function getLanguage() { return localStorage.getItem(LANG_KEY) || localStorage.getItem(LEGACY_LANG_KEY) || 'gr'; }
     function setLanguage(lang) {
@@ -175,10 +184,12 @@
         if (pair) return raw.replace(trimmed, translatePairText(trimmed, pair, lang));
 
         let translated = raw;
-        // PEGASUS 196: Exercise names stay English-only in both GR and EN modes.
-        // If an older rendered/cache label contains a Greek exercise name, normalize it back to English.
-        exercisePairs.forEach((exercisePair) => {
-            translated = replacePhraseSafely(translated, exercisePair[0], exercisePair[1]);
+        // Exercise identifiers remain English in storage; only visible labels are translated.
+        // Match longer names first (e.g. Preacher Bicep Curls before Bicep Curls).
+        const directExercise = exerciseLookup.get(trimmed);
+        if (directExercise) return raw.replace(trimmed, translatePairText(trimmed, directExercise, lang));
+        exercisePairsByLength.forEach(([elName, enName]) => {
+            translated = replacePhraseSafely(translated, lang === 'en' ? elName : enName, lang === 'en' ? enName : elName);
         });
         phrasePairs.forEach((phrasePair) => {
             const from = lang === 'en' ? phrasePair[0] : phrasePair[1];
@@ -191,8 +202,7 @@
     function getExerciseDisplayName(name, forcedLang) {
         const raw = String(name ?? '').trim();
         const pair = exerciseLookup.get(raw);
-        // PEGASUS 196: exercises are product/workout identifiers, so display them in English only.
-        return pair ? pair[1] : raw;
+        return pair ? ((forcedLang || getLanguage()) === 'en' ? pair[1] : pair[0]) : raw;
     }
 
     function translateTextNode(node) {
