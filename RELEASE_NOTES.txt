@@ -38,3 +38,10 @@ PEGASUS 304 - Saturday Exercise List Visibility / Maintenance
 - Service worker cache version 304 plus desktop/mobile registration refresh after deployment.
 - Does not remove or rename features or change exercise targets.
 - Videos not included in this source package; keep existing videos/ folder in GitHub.
+
+PEGASUS 307 - MAINTENANCE / REGRESSION CHECKS
+- Aligned desktop and mobile service-worker registration URLs to v3.36.307.
+- New permanent PWA cache namespace pegasus-permanent-local-v307; existing permanent video caches are retained for offline playback.
+- Standardized version query params for referenced mobile assets, without editing CSS/JS logic.
+- Added reproducible Node.js regression checks for rollover/DST, Saturday list filtering, GR/EN exercise labels, syntax and internal asset paths.
+- Updated maintenance notes. No user data is cleared, and no modules were removed.
