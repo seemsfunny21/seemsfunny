@@ -1,6 +1,6 @@
 /* ==========================================================================
    📦 PEGASUS DATA ENGINE - v17.11 (PEGASUS 218 USER VIDEO FIX)
-   Protocol: 10" Prep | 45" Work | 60" Rest
+   Protocol: 10" Prep | 45" Work | 90" Rest
    Status: PRODUCTION READY (MS-600 Final Mapping)
    ========================================================================== */
 

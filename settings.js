@@ -15,7 +15,7 @@ const DEFAULT_SETTINGS = {
     goalKcal: 2800,
     goalProtein: 160,
     exTime: 45,
-    restTime: 60,
+    restTime: 90,
     activeSplit: 'IRON',
     bodyGoalMode: 'cut',
     muscleTargets: {

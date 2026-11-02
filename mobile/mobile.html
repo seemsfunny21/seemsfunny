@@ -219,7 +219,7 @@
                 </label>
                 <label class="pegasus-timer-setting-row" for="mobileRestTimeInput">
                     <span>Χρόνος διαλείμματος</span>
-                    <input type="number" id="mobileRestTimeInput" min="10" max="180" step="5" inputmode="numeric" placeholder="60">
+                    <input type="number" id="mobileRestTimeInput" min="10" max="180" step="5" inputmode="numeric" placeholder="90">
                 </label>
             </div>
             <button class="primary-btn pegasus-timer-save-btn" type="button" onclick="window.PegasusMobileWorkoutSettings?.save?.()">Αποθήκευση χρόνων</button>
@@ -878,7 +878,7 @@
 
 
     window.PegasusMobileWorkoutSettings = window.PegasusMobileWorkoutSettings || {
-        defaults: { exercise: 45, rest: 60 },
+        defaults: { exercise: 45, rest: 90 },
         clamp(value, min, max, fallback) {
             const n = parseInt(value, 10);
             if (!Number.isFinite(n)) return fallback;
@@ -1417,7 +1417,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('../sw.js?v=3.36.307')
+                navigator.serviceWorker.register('../sw.js?v=3.36.308')
                     .then(reg => {
                         console.log('📡 PEGASUS: Service Worker Registered.');
                         // No forced reg.update() on every open; this keeps refresh fast after the first local download.

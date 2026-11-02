@@ -207,7 +207,7 @@ function getPegasusTimerConfig() {
     const normalized = {
         prep: normalizePhase(raw.prep, 10),
         work: normalizePhase(raw.work, 45),
-        rest: normalizePhase(raw.rest, 60)
+        rest: normalizePhase(raw.rest, 90)
     };
 
     window.pegasusTimerConfig = normalized;
@@ -2121,7 +2121,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
                     }
 
                     const swPath = window.location.pathname.includes('/mobile/') ? '../sw.js' : './sw.js';
-                    await navigator.serviceWorker.register(`${swPath}?v=3.36.307`);
+                    await navigator.serviceWorker.register(`${swPath}?v=3.36.308`);
                     const registration = await navigator.serviceWorker.ready;
                     const target = navigator.serviceWorker.controller || registration.active || registration.waiting || registration.installing;
 
