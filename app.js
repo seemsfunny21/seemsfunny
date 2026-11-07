@@ -14,19 +14,27 @@ if (!M) {
 }
 
 /* ===== 1. ISSUE LOGGER (DIAGNOSTIC MODE) ===== */
-window.pegasusLogs = (() => { try { return JSON.parse(localStorage.getItem(P_M?.system?.logs || "pegasus_system_logs") || "[]"); } catch (e) { console.warn("⚠️ PEGASUS LOGS RESET:", e); return []; } })();
+window.pegasusLogs = (() => {
+    const value = window.PegasusSafeStorage?.readJSON?.(P_M?.system?.logs || "pegasus_system_logs", []);
+    return Array.isArray(value) ? value.slice(-50) : [];
+})();
 const originalError = console.error;
 const originalWarn = console.warn;
 
+// Diagnostics must NEVER crash a workout if localStorage is full or blocked.
+function appendPegasusDiagnostic(type, args) {
+    try {
+        window.pegasusLogs.push({ type, time: new Date().toLocaleTimeString('el-GR'), msg: args.join(" ") });
+        if (window.pegasusLogs.length > 50) window.pegasusLogs.splice(0, window.pegasusLogs.length - 50);
+        localStorage.setItem(P_M?.system?.logs || "pegasus_system_logs", JSON.stringify(window.pegasusLogs));
+    } catch (_) {} // Original error/warning still reaches the browser console.
+}
 console.error = function(...args) {
-    window.pegasusLogs.push({ type: "ERROR", time: new Date().toLocaleTimeString('el-GR'), msg: args.join(" ") });
-    localStorage.setItem(P_M?.system?.logs || "pegasus_system_logs", JSON.stringify(window.pegasusLogs.slice(-50)));
+    appendPegasusDiagnostic("ERROR", args);
     originalError.apply(console, args);
 };
-
 console.warn = function(...args) {
-    window.pegasusLogs.push({ type: "WARNING", time: new Date().toLocaleTimeString('el-GR'), msg: args.join(" ") });
-    localStorage.setItem(P_M?.system?.logs || "pegasus_system_logs", JSON.stringify(window.pegasusLogs.slice(-50)));
+    appendPegasusDiagnostic("WARNING", args);
     originalWarn.apply(console, args);
 };
 
@@ -122,7 +130,7 @@ function writePegasusExerciseDone(exNode, name, index, done) {
     dailyProg.exercises[String(name || '').trim()] = safeDone; // compatibility for older read-only views
     dailyProg.updatedAt = Date.now();
     dailyProg.progressMode = 'per-exercise-instance-v293';
-    localStorage.setItem('pegasus_daily_progress', JSON.stringify(dailyProg));
+    window.PegasusSafeStorage.writeJSON('pegasus_daily_progress', dailyProg, true);
     return dailyProg;
 }
 
@@ -1111,7 +1119,7 @@ function syncPegasusUserRuntime(extraUser) {
 window.syncSessionWithHistory = function() {
     console.log("🔄 PEGASUS SMART SYNC: Executing...");
     const historyKey = P_M?.workout?.weekly_history || 'pegasus_weekly_history';
-    const history = JSON.parse(localStorage.getItem(historyKey) || "{}");
+    const history = window.PegasusSafeStorage.readJSON(historyKey, {});
     const targets = (typeof window.getDynamicTargets === "function") ? window.getDynamicTargets() : {};
 
     exercises.forEach((exDiv, i) => {
@@ -1417,7 +1425,7 @@ function selectDay(btn, day) {
     remainingSets = [];
 
     const todayStr = window.getPegasusLocalDateKey();
-    let dailyProg = JSON.parse(localStorage.getItem('pegasus_daily_progress') || "{}");
+    let dailyProg = window.PegasusSafeStorage.readJSON('pegasus_daily_progress', {});
     if (dailyProg.date !== todayStr) dailyProg = { date: todayStr, exercises: {} };
 
     mappedData.forEach((e) => {
@@ -1919,7 +1927,7 @@ window.getActiveLifter = function() {
 window.getSavedWeight = function(exerciseName) {
     const cleanName = exerciseName.trim();
     const lifter = window.getActiveLifter();
-    let allWeights = JSON.parse(localStorage.getItem(M?.workout?.exerciseWeights || "pegasus_exercise_weights") || "{}");
+    let allWeights = window.PegasusSafeStorage.readJSON(M?.workout?.exerciseWeights || "pegasus_exercise_weights", {});
 
     if (allWeights[lifter] && allWeights[lifter][cleanName] !== undefined) return allWeights[lifter][cleanName];
 
@@ -1935,14 +1943,14 @@ window.getSavedWeight = function(exerciseName) {
 window.saveWeight = function(name, val) {
     const cleanName = name.trim();
     const lifter = window.getActiveLifter();
-    let allWeights = JSON.parse(localStorage.getItem(M?.workout?.exerciseWeights || "pegasus_exercise_weights") || "{}");
+    let allWeights = window.PegasusSafeStorage.readJSON(M?.workout?.exerciseWeights || "pegasus_exercise_weights", {});
 
     if (!allWeights[lifter]) allWeights[lifter] = {};
     allWeights[lifter][cleanName] = val;
-    localStorage.setItem(M?.workout?.exerciseWeights || "pegasus_exercise_weights", JSON.stringify(allWeights));
+    window.PegasusSafeStorage.writeJSON(M?.workout?.exerciseWeights || "pegasus_exercise_weights", allWeights, true);
 
     if (lifter === "ΑΓΓΕΛΟΣ") {
-        localStorage.setItem(`weight_ΑΓΓΕΛΟΣ_${cleanName}`, val);
+        window.PegasusSafeStorage.write(`weight_ΑΓΓΕΛΟΣ_${cleanName}`, val, true);
     }
 
     syncPegasusUserRuntime();
@@ -2757,9 +2765,9 @@ function finishWorkout() {
     const workoutKey = window.getPegasusLocalDateKey();
 
     let doneKey = P_M?.workout?.done || "pegasus_workouts_done";
-    let data = JSON.parse(localStorage.getItem(doneKey) || "{}");
+    let data = window.PegasusSafeStorage.readJSON(doneKey, {});
     data[workoutKey] = true;
-    localStorage.setItem(doneKey, JSON.stringify(data));
+    window.__pegasusWorkoutSaveFailed = !window.PegasusSafeStorage.writeJSON(doneKey, data, true);
 
     if (window.updateTotalWorkoutCount) window.updateTotalWorkoutCount();
     if (window.PegasusCloud?.push) window.PegasusCloud.push();
@@ -2769,20 +2777,25 @@ function finishWorkout() {
         if (window.PegasusReporting?.prepareAndSaveReport) {
             let sessionKcal = sessionActiveKcal;
             let currentWeekly = parseFloat(localStorage.getItem("pegasus_weekly_kcal")) || 0;
-            localStorage.setItem("pegasus_weekly_kcal", (currentWeekly + sessionKcal).toFixed(1));
-            if (typeof window.recordPegasusWorkoutBurn === "function") {
-                window.recordPegasusWorkoutBurn(sessionKcal);
+            window.PegasusSafeStorage.write("pegasus_weekly_kcal", (currentWeekly + sessionKcal).toFixed(1), true);
+            try {
+                if (typeof window.recordPegasusWorkoutBurn === "function") {
+                    window.recordPegasusWorkoutBurn(sessionKcal);
+                }
+                window.PegasusReporting.prepareAndSaveReport(sessionKcal.toFixed(1));
+            } catch (error) {
+                console.error('PEGASUS: optional reporting failed, workout completion is preserved.', error);
             }
-
-            window.PegasusReporting.prepareAndSaveReport(sessionKcal.toFixed(1));
             sessionActiveKcal = 0;
-            localStorage.setItem("pegasus_session_kcal", "0.0");
+            window.PegasusSafeStorage.write("pegasus_session_kcal", "0.0", true);
             syncPegasusProgressRuntime();
         }
 
         const list = document.getElementById("exList");
         if (list) {
-            list.innerHTML = `<div style="padding:20px; color:#4CAF50; text-align:center; font-weight:bold; font-size:16px;">✅ Η προπόνηση ολοκληρώθηκε επιτυχώς</div>`;
+            list.innerHTML = window.__pegasusWorkoutSaveFailed
+                ? `<div style="padding:20px;color:#ff9800;text-align:center;font-weight:bold;font-size:16px;">⚠️ Η προπόνηση ολοκληρώθηκε, αλλά δεν αποθηκεύτηκε. Έλεγξε τον χώρο του browser.</div>`
+                : `<div style="padding:20px; color:#4CAF50; text-align:center; font-weight:bold; font-size:16px;">✅ Η προπόνηση ολοκληρώθηκε επιτυχώς</div>`;
         }
 
         const vid = document.getElementById("video");
@@ -3138,9 +3151,9 @@ window.logPegasusSet = function(exName, absoluteDone = null) {
 
 
 window.updateTotalWorkoutCount = function() {
-    const data = JSON.parse(localStorage.getItem(P_M?.workout?.done || "pegasus_workouts_done") || "{}");
+    const data = window.PegasusSafeStorage.readJSON(P_M?.workout?.done || "pegasus_workouts_done", {});
     const count = Object.keys(data).length;
-    localStorage.setItem(P_M?.workout?.total || "pegasus_total_workouts", count);
+    window.PegasusSafeStorage.write(P_M?.workout?.total || "pegasus_total_workouts", count, true);
     const display = document.getElementById("totalWorkoutsDisplay");
     if (display) {
         const lang = (typeof window.PegasusI18n?.getLanguage === "function") ? window.PegasusI18n.getLanguage() : (localStorage.getItem('pegasus_language') || 'gr');
