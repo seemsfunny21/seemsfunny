@@ -1326,6 +1326,7 @@ function ensurePegasusWeekendModeUi(day, listEl) {
 window.ensurePegasusWeekendModeUi = ensurePegasusWeekendModeUi;
 
 function selectDay(btn, day) {
+    window.__pegasusFinishingSession = false;
     if (typeof window.program === 'undefined' || !window.program) return;
 
     localStorage.setItem(window.PEGASUS_SELECTED_WORKOUT_DAY_KEY || "pegasus_selected_workout_day_v1", String(day || ""));
@@ -1548,6 +1549,7 @@ function isPegasusExerciseAvailable(idx) {
 /* ===== 5. WORKOUT ENGINE CORE (DYNAMIC TIMER PATCH) ===== */
 function startPause() {
     if (exercises.length === 0) return;
+    if (!running && currentIdx === 0 && phase === 0 && totalSeconds === remainingSeconds) window.__pegasusFinishingSession = false;
 
     const vid = document.getElementById("video");
     const config = getPegasusTimerConfig();
@@ -1754,16 +1756,18 @@ function runPhase() {
                 dispatchPegasusWorkoutAction("WORKOUT_START_RUNTIME");
                 runPhase();
             } else if (phase === 1) {
-                let done = parseInt(e.dataset.done) || 0;
-                done++;
+                const previousDone = Math.max(0, parseInt(e.dataset.done, 10) || 0);
+                const maxSets = Math.max(0, Number(e.dataset.total) || 0);
+                const done = Math.min(maxSets, previousDone + 1);
                 e.dataset.done = done;
                 remainingSets[currentIdx] = Math.max(0, parseFloat(e.dataset.total) - done);
                 e.querySelector(".set-counter").textContent = `${done}/${e.dataset.total}`;
 
-                writePegasusExerciseDone(e, exName, currentIdx, done);
-
-                if (window.updateAchievements) window.updateAchievements(exName);
-                if (window.logPegasusSet) window.logPegasusSet(exName, done);
+                if (done > previousDone) {
+                    writePegasusExerciseDone(e, exName, currentIdx, done);
+                    if (window.updateAchievements) window.updateAchievements(exName);
+                    if (window.logPegasusSet) window.logPegasusSet(exName, done);
+                }
                 if (window.PegasusCloud && typeof window.PegasusCloud.push === "function") window.PegasusCloud.push();
 
                 phase = 2;
@@ -1806,15 +1810,16 @@ function skipToNextExercise() {
         const weightInput = currentExNode ? currentExNode.querySelector(".weight-input") : null;
         const exName = weightInput ? (weightInput.getAttribute("data-name") || "") : "";
 
-        let done = parseInt(currentExNode.dataset.done) || 0;
-        done++;
+        const previousDone = Math.max(0, parseInt(currentExNode.dataset.done, 10) || 0);
+        const done = Math.min(Math.max(0, Number(currentExNode.dataset.total) || 0), previousDone + 1);
         currentExNode.dataset.done = done;
         remainingSets[currentIdx] = Math.max(0, parseFloat(currentExNode.dataset.total) - done);
         currentExNode.querySelector(".set-counter").textContent = `${done}/${currentExNode.dataset.total}`;
 
-        writePegasusExerciseDone(currentExNode, exName, currentIdx, done);
-
-        if (window.logPegasusSet) window.logPegasusSet(exName, done);
+        if (done > previousDone) {
+            writePegasusExerciseDone(currentExNode, exName, currentIdx, done);
+            if (window.logPegasusSet) window.logPegasusSet(exName, done);
+        }
     }
 
     if (window.PegasusCloud && typeof window.PegasusCloud.push === "function") window.PegasusCloud.push();
@@ -2652,7 +2657,8 @@ window.calculatePegasusBioMetrics = function(settingsObj) {
 
 /* ===== 8. FINISH & REPORTING ===== */
 function finishWorkout() {
-    if (!running && !timer && phase === 0) return;
+    if (window.__pegasusFinishingSession || (!running && !timer && phase === 0)) return;
+    window.__pegasusFinishingSession = true;
 
     clearInterval(timer);
     timer = null;
