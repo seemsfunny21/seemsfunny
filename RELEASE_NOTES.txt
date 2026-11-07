@@ -1,3 +1,17 @@
+PEGASUS 309 - DATA SAFETY / TIMER ACCURACY / RELIABLE OFFLINE
+- Pre-restore validation and emergency local JSON export; no global localStorage.clear().
+- Roll back imported localStorage keys on write failure; preserve original IndexedDB gallery photos.
+- Legacy mobile destructive import rerouted to the existing safe merge process.
+- Timer uses monotonic elapsed time and preserves Turbo, Pause and all phase durations.
+- Clamp completion to planned set count, block duplicate finish side effects.
+- Offline cache readiness requires 100% success; old video-only caches retained until safely redundant.
+- Cache failure falls back to network instead of failing the application.
+- Automated regression testing (Node.js 22) on GitHub Actions for all JavaScript syntax, timer,
+  Greek DST/weekly calendar, media mappings, safe restore failures and offline cache checks.
+- Appearance, exercises, training split, default 90s rest and personal browser data unchanged.
+- SOURCE BACKUP: backup/pegasus-308-before-hardening-2026-11-07
+- PERSONAL DATA: keep an external user-data export. GitHub cannot back up localStorage.
+
 PEGASUS 302 - ACTIVITY CALENDAR COLORS
 - Βάρη: πράσινο.
 - Ποδηλασία: πορτοκαλί.

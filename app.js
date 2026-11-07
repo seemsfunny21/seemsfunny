@@ -1326,6 +1326,7 @@ function ensurePegasusWeekendModeUi(day, listEl) {
 window.ensurePegasusWeekendModeUi = ensurePegasusWeekendModeUi;
 
 function selectDay(btn, day) {
+    window.__pegasusFinishingSession = false;
     if (typeof window.program === 'undefined' || !window.program) return;
 
     localStorage.setItem(window.PEGASUS_SELECTED_WORKOUT_DAY_KEY || "pegasus_selected_workout_day_v1", String(day || ""));
@@ -1548,6 +1549,7 @@ function isPegasusExerciseAvailable(idx) {
 /* ===== 5. WORKOUT ENGINE CORE (DYNAMIC TIMER PATCH) ===== */
 function startPause() {
     if (exercises.length === 0) return;
+    if (!running && currentIdx === 0 && phase === 0 && totalSeconds === remainingSeconds) window.__pegasusFinishingSession = false;
 
     const vid = document.getElementById("video");
     const config = getPegasusTimerConfig();
@@ -1624,6 +1626,19 @@ function startPause() {
         syncPegasusProgressRuntime();
         if (window.PegasusCloud && typeof window.PegasusCloud.push === "function") window.PegasusCloud.push();
     }
+}
+
+// Pure elapsed-time calculation, also exercised by safety regression tests.
+function computePegasusElapsedTick(previousMs, currentMs, speed, carrySeconds, phaseSeconds) {
+    const elapsedMs = Math.max(0, Number(currentMs) - Number(previousMs));
+    const rate = Number.isFinite(Number(speed)) && Number(speed) > 0 ? Number(speed) : 1;
+    const total = Math.max(0, Number(carrySeconds) || 0) + (Number.isFinite(elapsedMs) ? elapsedMs : 0) * rate / 1000;
+    const whole = Math.floor(total);
+    const remainingPhase = Math.max(0, Number(phaseSeconds) || 0);
+    return {
+        advancedSeconds: Math.min(whole, remainingPhase),
+        carrySeconds: total - whole
+    };
 }
 
 function runPhase() {
@@ -1703,20 +1718,31 @@ function runPhase() {
         updatePegasusNextExercisePreview();
     }
 
+    // Monotonic elapsed time keeps the timer accurate if callbacks are delayed
+    // by mobile browsers, background tabs or a busy CPU. A delayed callback may
+    // complete only the CURRENT phase; it never silently records multiple sets.
+    let lastTimerTick = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
+    let timerFraction = 0;
     timer = setInterval(() => {
-        t -= 1;
-        phaseRemainingSeconds = Math.max(0, t);
+        const nowTick = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
+        const tick = computePegasusElapsedTick(lastTimerTick, nowTick, SPEED, timerFraction, t);
+        lastTimerTick = nowTick;
+        timerFraction = tick.carrySeconds;
+        const advancedSeconds = tick.advancedSeconds;
+        if (advancedSeconds < 1) return;
+        t = Math.max(0, t - advancedSeconds);
+        phaseRemainingSeconds = t;
 
         if (remainingSeconds > 0) {
-            remainingSeconds -= 1;
+            remainingSeconds = Math.max(0, remainingSeconds - advancedSeconds);
             updateTotalBar();
         }
 
         if (phase === 1) {
-            sessionActiveKcal += (kcalPerSecond * SPEED);
+            sessionActiveKcal += kcalPerSecond * advancedSeconds;
         } else if (phase === 2) {
             let restKcalPerSec = ((2.0 * userWeight * 3.5) / 200) / 60;
-            sessionActiveKcal += (restKcalPerSec * SPEED);
+            sessionActiveKcal += restKcalPerSec * advancedSeconds;
         }
 
         if (label) label.textContent = `${pName} (${Math.max(0, Math.ceil(t))})`;
@@ -1742,16 +1768,18 @@ function runPhase() {
                 dispatchPegasusWorkoutAction("WORKOUT_START_RUNTIME");
                 runPhase();
             } else if (phase === 1) {
-                let done = parseInt(e.dataset.done) || 0;
-                done++;
+                const previousDone = Math.max(0, parseInt(e.dataset.done, 10) || 0);
+                const maxSets = Math.max(0, Number(e.dataset.total) || 0);
+                const done = Math.min(maxSets, previousDone + 1);
                 e.dataset.done = done;
                 remainingSets[currentIdx] = Math.max(0, parseFloat(e.dataset.total) - done);
                 e.querySelector(".set-counter").textContent = `${done}/${e.dataset.total}`;
 
-                writePegasusExerciseDone(e, exName, currentIdx, done);
-
-                if (window.updateAchievements) window.updateAchievements(exName);
-                if (window.logPegasusSet) window.logPegasusSet(exName, done);
+                if (done > previousDone) {
+                    writePegasusExerciseDone(e, exName, currentIdx, done);
+                    if (window.updateAchievements) window.updateAchievements(exName);
+                    if (window.logPegasusSet) window.logPegasusSet(exName, done);
+                }
                 if (window.PegasusCloud && typeof window.PegasusCloud.push === "function") window.PegasusCloud.push();
 
                 phase = 2;
@@ -1794,15 +1822,16 @@ function skipToNextExercise() {
         const weightInput = currentExNode ? currentExNode.querySelector(".weight-input") : null;
         const exName = weightInput ? (weightInput.getAttribute("data-name") || "") : "";
 
-        let done = parseInt(currentExNode.dataset.done) || 0;
-        done++;
+        const previousDone = Math.max(0, parseInt(currentExNode.dataset.done, 10) || 0);
+        const done = Math.min(Math.max(0, Number(currentExNode.dataset.total) || 0), previousDone + 1);
         currentExNode.dataset.done = done;
         remainingSets[currentIdx] = Math.max(0, parseFloat(currentExNode.dataset.total) - done);
         currentExNode.querySelector(".set-counter").textContent = `${done}/${currentExNode.dataset.total}`;
 
-        writePegasusExerciseDone(currentExNode, exName, currentIdx, done);
-
-        if (window.logPegasusSet) window.logPegasusSet(exName, done);
+        if (done > previousDone) {
+            writePegasusExerciseDone(currentExNode, exName, currentIdx, done);
+            if (window.logPegasusSet) window.logPegasusSet(exName, done);
+        }
     }
 
     if (window.PegasusCloud && typeof window.PegasusCloud.push === "function") window.PegasusCloud.push();
@@ -1976,7 +2005,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
     });
 
     const state = {
-        version: '294',
+        version: '309',
         started: false,
         completed: false,
         percent: 0,
@@ -1986,14 +2015,14 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
         skipped: 0,
         bytes: 0,
         readyPromise,
-        readyKey: 'pegasus_permanent_assets_ready_v294',
+        readyKey: 'pegasus_permanent_assets_ready_v309',
 
         getReadyMarker() {
             try {
                 const raw = localStorage.getItem(this.readyKey);
                 if (!raw) return null;
                 const marker = JSON.parse(raw);
-                if (!marker || String(marker.version || '') !== this.version) return null;
+                if (!marker || String(marker.version || '') !== this.version || marker.skipped > 0 || marker.ok < marker.total) return null;
                 return marker;
             } catch (_) {
                 return null;
@@ -2025,8 +2054,9 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
             if (this.completed) return;
             this.completed = true;
             this.setLoader(100, data);
+            const offlineVerified = this.total > 0 && this.ok >= this.total && this.skipped === 0 && data.status !== 'partial';
             try {
-                localStorage.setItem(this.readyKey, JSON.stringify({
+                if (offlineVerified) localStorage.setItem(this.readyKey, JSON.stringify({
                     version: this.version,
                     at: Date.now(),
                     done: this.done,
@@ -2035,10 +2065,13 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
                     skipped: this.skipped,
                     bytes: this.bytes
                 }));
+                else localStorage.removeItem(this.readyKey);
             } catch (_) {}
 
             const loaderText = document.querySelector('.loader-text');
-            if (loaderText) loaderText.innerHTML = `Τρέχει από τοπική αποθήκευση<span class="dots"></span> 100%`;
+            if (loaderText) loaderText.innerHTML = offlineVerified
+                ? `Τρέχει από τοπική αποθήκευση<span class="dots"></span> 100%`
+                : `Η εφαρμογή είναι έτοιμη · η offline λήψη δεν ολοκληρώθηκε<span class="dots"></span>`;
 
             resolveReady(true);
         },
@@ -2062,7 +2095,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
             ];
 
             const all = Array.from(new Set([...staticUrls, ...urls]));
-            const cache = await caches.open('pegasus-permanent-local-v294-page-fallback');
+            const cache = await caches.open('pegasus-permanent-local-v309-page-fallback');
             let done = 0;
             let ok = 0;
             let skipped = 0;
@@ -2071,11 +2104,17 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
                 try {
                     const request = new Request(url, { credentials: 'same-origin' });
                     const existing = await cache.match(request, { ignoreSearch: true });
-                    if (!existing) {
+                    if (existing) {
+                        ok++;
+                    } else {
                         const response = await fetch(request, { cache: 'reload' });
-                        if (response && response.ok) await cache.put(request, response.clone());
+                        if (response && response.ok) {
+                            await cache.put(request, response.clone());
+                            ok++;
+                        } else {
+                            skipped++;
+                        }
                     }
-                    ok++;
                 } catch (_) {
                     skipped++;
                 }
@@ -2083,7 +2122,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
                 this.setLoader(Math.round((done / all.length) * 100), { done, total: all.length, ok, skipped });
             }
 
-            this.complete({ done, total: all.length, ok, skipped });
+            this.complete({ done, total: all.length, ok, skipped, status: skipped ? 'partial' : 'complete' });
             return true;
         },
 
@@ -2121,7 +2160,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
                     }
 
                     const swPath = window.location.pathname.includes('/mobile/') ? '../sw.js' : './sw.js';
-                    await navigator.serviceWorker.register(`${swPath}?v=3.36.308`);
+                    await navigator.serviceWorker.register(`${swPath}?v=3.36.309`);
                     const registration = await navigator.serviceWorker.ready;
                     const target = navigator.serviceWorker.controller || registration.active || registration.waiting || registration.installing;
 
@@ -2640,7 +2679,8 @@ window.calculatePegasusBioMetrics = function(settingsObj) {
 
 /* ===== 8. FINISH & REPORTING ===== */
 function finishWorkout() {
-    if (!running && !timer && phase === 0) return;
+    if (window.__pegasusFinishingSession || (!running && !timer && phase === 0)) return;
+    window.__pegasusFinishingSession = true;
 
     clearInterval(timer);
     timer = null;
