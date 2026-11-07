@@ -5,6 +5,7 @@ on:
       - main
       - maintenance/pegasus-309-safety
       - maintenance/pegasus-310-reliability-video
+      - maintenance/pegasus-311-preload-cache
   pull_request:
     branches:
       - main
