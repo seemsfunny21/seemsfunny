@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - maintenance/pegasus-309-safety
+      - maintenance/pegasus-310-reliability-video
   pull_request:
     branches:
       - main
