@@ -123,6 +123,39 @@ async function main() {
         assert.equal(ctx.store.get('pegasus_weight'),'74');
         assert.equal(ctx.clicks,0);assert.equal(ctx.reloads,0);
     });
+    check('existing gallery photos are never overwritten during restore', () => {
+        const restore=read('backup.js');
+        assert.ok(restore.includes('photos.get(photo.id)'));
+        assert.ok(restore.includes('photos.add(photo)'));
+        assert.ok(!restore.includes('photos.put(photo)'));
+        assert.ok(!restore.includes('indexedDB.deleteDatabase('));
+    });
+    check('set counters are capped and workout finish cannot run twice',()=>{
+        assert.ok(app.includes('window.__pegasusFinishingSession'));
+        assert.ok(app.includes('Math.min(maxSets, previousDone + 1)'));
+        assert.ok(app.includes('if (done > previousDone)'));
+    });
+    await checkAsync('network still works when Cache Storage rejects',async()=>{
+        const handlers={};
+        const ctx={
+            URL,Request,Response,Headers,Blob,
+            console:{warn(){},log(){}},
+            self:{location:{origin:'https://example.test',href:'https://example.test/pegasus/sw.js'},addEventListener(type,fn){handlers[type]=fn;},clients:{async matchAll(){return[];}}},
+            caches:{async open(){throw new Error('Cache unavailable')},async keys(){return[];}},
+            fetch:async()=>new Response('live-file',{status:200,headers:{'Content-Type':'application/javascript'}})
+        };
+        vm.createContext(ctx);vm.runInContext(sw,ctx);
+        let result=null;
+        handlers.fetch({
+            request:new Request('https://example.test/pegasus/app.js'),
+            respondWith(promise){result=promise;},
+            waitUntil(){}
+        });
+        assert.ok(result,'SW must intercept the request');
+        const response=await result;
+        assert.equal(response.status,200);
+        assert.equal(await response.text(),'live-file');
+    });
     // Evaluate SW in a mock service worker, without network or the user's browser data.
     await checkAsync('PWA failed downloads are not marked complete',async()=>{
         const cached=new Map();
