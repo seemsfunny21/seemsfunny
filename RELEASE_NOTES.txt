@@ -1,3 +1,11 @@
+PEGASUS 311 — RESTORE ONCE-ONLY PERMANENT OFFLINE PRELOAD
+Root cause: v310 generated 103 media URLs, 51 did not exist (.jpg/.webp variants).
+This prevented "complete" metadata, restarting all downloads on each page open.
+v311 preloads only the 59 actual media files, preserving previous cached media.
+Regression tests assert all media paths exist and a second preload makes zero requests.
+No UI, workout, timer, preferences, user data or video playback behavior changed.
+CODE BACKUP: backup/pegasus-310-before-preload-fix-2026-11-07
+
 PEGASUS 310 — RELIABILITY & CLOSE-GRIP VIDEO FALLBACK
 - Dedicated Lat Pulldowns Close MP4 is now preferred; if playback/decoding fails or stalls,
   player and next-exercise preview switch to the existing reliable regular-grip video.
