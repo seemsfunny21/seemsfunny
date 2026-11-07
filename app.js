@@ -1972,7 +1972,7 @@ function getPegasusExerciseVideoSrcByIndex(index) {
     let mappedVal = window.videoMap ? window.videoMap[name] : null;
     if (!mappedVal) mappedVal = name.replace(/\s+/g, '').toLowerCase();
 
-    return `videos/${mappedVal}.mp4`;
+    return getPegasusPlayableVideoSrc(name, `videos/${mappedVal}.mp4`);
 }
 
 function getPegasusKnownMediaUrls() {
