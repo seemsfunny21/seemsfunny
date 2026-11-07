@@ -15,7 +15,9 @@ function weatherCodeToEmoji(code) {
 
 // 🎯 FIXED: Η γέφυρα που λέει στο app.js αν πρέπει να αλλάξει το πρόγραμμα σε "Indoor"
 window.isRaining = function() {
-    const code = parseInt(localStorage.getItem('pegasus_weather_code')) || 0;
+    let code = 0;
+    try { code = parseInt(localStorage.getItem('pegasus_weather_code'), 10) || 0; }
+    catch (_) {} // Restricted storage must not prevent workouts.
     // WMO Codes: 51-67 (Drizzle/Rain), 71-77 (Snow), 80-82 (Showers), 95-99 (Thunderstorm)
     const badWeather = (code >= 51 && code <= 67) || (code >= 71 && code <= 77) || (code >= 80 && code <= 82) || (code >= 95);
 
@@ -29,16 +31,21 @@ window.updateWeatherUI = async function() {
     try {
         // Ioannina Coordinates
         const url = "https://api.open-meteo.com/v1/forecast?latitude=39.667&longitude=20.850&current_weather=true";
-        const res = await fetch(url);
+        const options = (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function')
+            ? { signal: AbortSignal.timeout(7000) }
+            : {};
+        const res = await fetch(url, options);
+        if (!res.ok) throw new Error('Weather HTTP ' + res.status);
         const data = await res.json();
 
-        if (data && data.current_weather) {
+        if (data?.current_weather && Number.isFinite(Number(data.current_weather.temperature))
+            && Number.isFinite(Number(data.current_weather.weathercode))) {
             const temp = Math.round(data.current_weather.temperature);
             const code = data.current_weather.weathercode;
             const emoji = weatherCodeToEmoji(code);
 
             // 🎯 Αποθήκευση του κωδικού για άμεση χρήση (synchronous) από το app.js στο boot
-            localStorage.setItem('pegasus_weather_code', code);
+            window.PegasusSafeStorage?.write('pegasus_weather_code', code);
 
             const weatherEl = document.querySelector('.weather-text');
             if (weatherEl) {
