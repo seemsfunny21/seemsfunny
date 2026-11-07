@@ -1,3 +1,17 @@
+PEGASUS 310 — RELIABILITY & CLOSE-GRIP VIDEO FALLBACK
+- Dedicated Lat Pulldowns Close MP4 is now preferred; if playback/decoding fails or stalls,
+  player and next-exercise preview switch to the existing reliable regular-grip video.
+- No binary media files, workouts, exercise sets or appearance altered.
+- Shared safe JSON readers for desktop and mobile, guarded writes for critical progress/weights,
+  workout completion indication reflects storage failure.
+- Console logging cannot fail recursively when browser storage is full.
+- Weather request timeout and graceful unavailable-network behavior.
+- EmailJS optional send tolerates unavailable localStorage or missing external library.
+- PWA cache and service worker updated to v310.
+- CI expanded: video fallback, malformed JSON, QuotaExceeded, weather offline, logging.
+- CODE ROLLBACK: backup/pegasus-309-before-reliability-video-2026-11-07
+- PERSONAL DATA: export a separate JSON backup from the browser.
+
 PEGASUS 309 - DATA SAFETY / TIMER ACCURACY / RELIABLE OFFLINE
 - Pre-restore validation and emergency local JSON export; no global localStorage.clear().
 - Roll back imported localStorage keys on write failure; preserve original IndexedDB gallery photos.

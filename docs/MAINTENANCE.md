@@ -1,3 +1,13 @@
+# PEGASUS 310 — Reliability και βίντεο
+
+- Source rollback: `backup/pegasus-309-before-reliability-video-2026-11-07`.
+- Πρόσθετοι έλεγχοι `node tests/safety-regression.cjs`: corrupted JSON, quota exhaustion, logging recursion, weather outage και αυτόματο MP4 fallback.
+- Για το **Lat Pulldowns Close**: ο χάρτης βίντεο δείχνει `latpulldownsclose.mp4`. Αν υπάρξει video error ή καθυστέρηση αποκωδικοποίησης, χρησιμοποιείται για την τρέχουσα συνεδρία το `latpulldowns.mp4` ως backup. Για μόνιμη λύση πρώτης επιλογής, αν αποτύχει σε πραγματικό PC/κινητό, επιβεβαίωσε την κωδικοποίηση H.264/AAC με μετατροπή του MP4 εξωτερικά και κάνε ξανά δοκιμή.
+- Η συμπεριφορά των μετρητών και το εβδομαδιαίο πρόγραμμα παραμένουν αμετάβλητα.
+- **Μη διαγράφετε `localStorage` κατά τη διάγνωση**. Κρατήστε εξωτερικό JSON backup πριν οποιαδήποτε χειροκίνητη διόρθωση.
+
+---
+
 # PEGASUS 309 — Ενημέρωση ελέγχων ασφαλείας
 
 Ο σταθερός κώδικας PEGASUS 308 διατηρείται στο `backup/pegasus-308-before-hardening-2026-11-07`. Η έκδοση 309 δεν αλλάζει εμφάνιση ή πρόγραμμα ασκήσεων.

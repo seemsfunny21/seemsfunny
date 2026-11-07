@@ -23,8 +23,8 @@ async function main() {
     const app = read('app.js'), mobile = read('mobile/mobile.html'), html = read('index.html'), sw = read('sw.js');
     const data = read('data.js'), i18n = read('i18n.js'), manifest = read('manifest.js');
     check('service worker versions match', () => {
-        assert.ok(sw.includes("PEGASUS_STORAGE_VERSION = '309'"));
-        for (const content of [html, mobile, app]) assert.ok(content.includes('v=3.36.309'));
+        assert.ok(sw.includes("PEGASUS_STORAGE_VERSION = '310'"));
+        for (const content of [html, mobile, app]) assert.ok(content.includes('v=3.36.310'));
     });
     check('safe desktop restore never clears all site storage', () => {
         assert.ok(!read('backup.js').includes('localStorage.clear()'));
@@ -131,7 +131,7 @@ async function main() {
         assert.ok(!restore.includes('indexedDB.deleteDatabase('));
     });
     check('loader marks offline ready only when all assets succeeded', () => {
-        assert.ok(app.includes("readyKey: 'pegasus_permanent_assets_ready_v309'"));
+        assert.ok(app.includes("readyKey: 'pegasus_permanent_assets_ready_v310'"));
         assert.ok(app.includes('const offlineVerified = this.total > 0 && this.ok >= this.total && this.skipped === 0'));
         assert.ok(app.includes("marker.skipped > 0 || marker.ok < marker.total"));
     });
@@ -161,6 +161,124 @@ async function main() {
         assert.equal(response.status,200);
         assert.equal(await response.text(),'live-file');
     });
+    check('close-grip uses its dedicated video with a tested fallback', () => {
+        assert.ok(mapPart.includes('"Lat Pulldowns Close": "latpulldownsclose"'));
+        assert.ok(app.includes('function fallbackPegasusCloseVideo('));
+        assert.ok(app.includes('monitorPegasusCloseVideo(vid, newSrc, label)'));
+        assert.ok(app.includes("const fallback = 'videos/latpulldowns.mp4'"));
+    });
+    check('close-grip fallback is activated only if decoding fails or times out', () => {
+        const start=app.indexOf('function getPegasusPlayableVideoSrc(');
+        const end=app.indexOf('function loadPegasusVideoCandidate(', start);
+        assert.ok(start>=0 && end>start);
+        const timers=[];
+        const win={};
+        const ctx={
+            window:win,
+            console:{warn(){}},
+            normalizePegasusVideoSrc:s=>s,
+            stopPegasusVideoWaiter(){},
+            markPegasusVideoActuallyReady(){},
+            setTimeout:fn=>{timers.push(fn);return timers.length;}
+        };
+        vm.createContext(ctx);
+        vm.runInContext(app.slice(start,end),ctx);
+        function fakeVideo(readyState,error){
+            return {
+                src:'videos/latpulldownsclose.mp4',
+                readyState,error,
+                getAttribute(){return this.src;},
+                pause(){},
+                load(){this.loads=(this.loads||0)+1},
+                play(){return Promise.resolve();},
+                addEventListener(){}
+            };
+        }
+        const label={style:{},textContent:''};
+        const good=fakeVideo(3,null);
+        ctx.monitorPegasusCloseVideo(good,good.src,label);
+        timers.pop()();
+        assert.equal(good.src,'videos/latpulldownsclose.mp4');
+        const bad=fakeVideo(0,{code:4});
+        ctx.monitorPegasusCloseVideo(bad,bad.src,label);
+        timers.pop()();
+        assert.equal(bad.src,'videos/latpulldowns.mp4');
+        assert.equal(win.__pegasusCloseVideoUnavailable,true);
+        assert.equal(ctx.getPegasusPlayableVideoSrc('Lat Pulldowns Close','videos/latpulldownsclose.mp4'),'videos/latpulldowns.mp4');
+        assert.equal(ctx.getPegasusPlayableVideoSrc('Lat Pulldowns','videos/latpulldowns.mp4'),'videos/latpulldowns.mp4');
+        assert.equal(bad.loads,1);
+    });
+    check('malformed browser JSON does not crash or silently erase the original value', () => {
+        const start=manifest.indexOf('window.PegasusSafeStorage =');
+        const end=manifest.indexOf('window.PegasusManifest =',start);
+        assert.ok(start>=0&&end>start);
+        const raw=new Map([['pegasus_daily_progress','{malformed']]);
+        const ctx={
+            window:{},console:{error(){},warn(){}},
+            localStorage:{getItem:k=>raw.get(k)??null,setItem(k,v){raw.set(k,String(v))}}
+        };
+        vm.createContext(ctx);
+        vm.runInContext(manifest.slice(start,end),ctx);
+        const saved=ctx.window.PegasusSafeStorage.readJSON('pegasus_daily_progress',{});
+        assert.equal(typeof saved,'object');
+        assert.equal(Object.keys(saved).length,0);
+        assert.equal(raw.get('pegasus_daily_progress'),'{malformed');
+    });
+    check('storage quota failures warn once and leave old data intact', () => {
+        const start=manifest.indexOf('window.PegasusSafeStorage =');
+        const end=manifest.indexOf('window.PegasusManifest =',start);
+        let warnings=0, errors=0;
+        const ctx={
+            window:{alert(){warnings++}},
+            console:{error(){errors++},warn(){}},
+            localStorage:{getItem:()=>null,setItem(){throw new Error('QuotaExceededError')}}
+        };
+        vm.createContext(ctx);
+        vm.runInContext(manifest.slice(start,end),ctx);
+        assert.equal(ctx.window.PegasusSafeStorage.write('pegasus_weight','80',true),false);
+        assert.equal(ctx.window.PegasusSafeStorage.write('pegasus_weight','80',true),false);
+        assert.equal(warnings,1);
+        assert.ok(errors>=2);
+    });
+    check('diagnostic logging cannot recursively crash when storage is full', () => {
+        const start=app.indexOf('window.pegasusLogs =');
+        const end=app.indexOf("window.addEventListener('error'",start);
+        assert.ok(start>=0 && end>start);
+        const messages=[];
+        const mockConsole={error(...args){messages.push(args)},warn(...args){messages.push(args)}};
+        const ctx={
+            window:{PegasusSafeStorage:{readJSON:()=>[]}},
+            console:mockConsole,
+            localStorage:{setItem(){throw new Error('QuotaExceededError')}},
+            P_M:{system:{}},Date
+        };
+        vm.createContext(ctx);
+        vm.runInContext(app.slice(start,end),ctx);
+        assert.doesNotThrow(()=>vm.runInContext("console.error('broken');console.warn('error')",ctx));
+        assert.equal(messages.length,2);
+    });
+    await checkAsync('offline weather service cannot interrupt PEGASUS',async()=>{
+        const weather=read('weather.js');
+        const memory=new Map([['pegasus_weather_code','61']]);
+        const ctx={
+            window:{PegasusSafeStorage:{write(){return true;}}},
+            localStorage:{getItem:k=>memory.get(k)||null},
+            document:{addEventListener(){},querySelector:()=>({textContent:'',innerText:''})},
+            console:{warn(){},log(){}},
+            fetch:async()=>{throw new Error('Network unavailable')},
+            Date,AbortSignal
+        };
+        vm.createContext(ctx);vm.runInContext(weather,ctx);
+        await ctx.window.updateWeatherUI();
+        assert.equal(memory.get('pegasus_weather_code'),'61');
+        assert.equal(ctx.window.isRaining(),true);
+    });
+    check('optional reporting failure does not prevent workout completion UI',()=>{
+        assert.ok(app.includes("console.error('PEGASUS: optional reporting failed"));
+        const reporting=read('reporting.js');
+        assert.ok(reporting.includes("PEGASUS EMAIL: storage unavailable"));
+        assert.ok(reporting.includes("PEGASUS EMAIL: EmailJS did not load"));
+    });
     // Evaluate SW in a mock service worker, without network or the user's browser data.
     await checkAsync('PWA failed downloads are not marked complete',async()=>{
         const cached=new Map();
@@ -169,7 +287,7 @@ async function main() {
         const context={
             URL,Request,Response,Headers,Blob,console:{warn(){},log(){}},
             self:{location:{origin:'https://example.test',href:'https://example.test/pegasus/sw.js'},addEventListener(){},clients:{async matchAll(){return[];}}},
-            caches:{async open(){return cache;},async keys(){return ['pegasus-permanent-local-v309'];},async delete(){}},
+            caches:{async open(){return cache;},async keys(){return ['pegasus-permanent-local-v310'];},async delete(){}},
             fetch:async()=>{throw new Error('No external network')}
         };
         vm.createContext(context);vm.runInContext(sw,context);

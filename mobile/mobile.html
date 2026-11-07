@@ -30,7 +30,7 @@
     </script>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=309">
+    <link rel="stylesheet" href="style.css?v=310">
 </head>
 <body>
     <div id="sync-indicator" data-pegasus-raw-label="true">Τοπική λειτουργία</div>
@@ -628,26 +628,26 @@
     <script src="../weightTracker.js"></script>
 <script src="../backup.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js" defer></script>
-    <script src="../reporting.js?v=309"></script>
+    <script src="../reporting.js?v=310"></script>
 
-    <script src="diet-mobile.js?v=309"></script>
+    <script src="diet-mobile.js?v=310"></script>
     <script src="cardio-mobile.js"></script>
-    <script src="profile-mobile.js?v=309"></script>
-    <script src="car-mobile.js?v=309"></script>
-    <script src="parking-mobile.js?v=309"></script>
+    <script src="profile-mobile.js?v=310"></script>
+    <script src="car-mobile.js?v=310"></script>
+    <script src="parking-mobile.js?v=310"></script>
     <script src="inventory-mobile.js"></script>
     <script src="ems-mobile.js"></script>
-    <script src="supplies-mobile.js?v=309"></script>
-    <script src="finance-mobile.js?v=309"></script>
+    <script src="supplies-mobile.js?v=310"></script>
+    <script src="finance-mobile.js?v=310"></script>
     <script src="social-mobile.js"></script>
-    <script src="movies-mobile.js?v=309"></script>
-    <script src="missions-mobile.js?v=309"></script>
-    <script src="maintenance-mobile.js?v=309"></script>
+    <script src="movies-mobile.js?v=310"></script>
+    <script src="missions-mobile.js?v=310"></script>
+    <script src="maintenance-mobile.js?v=310"></script>
     <script src="oracle-mobile.js"></script>
-    <script src="lifting-mobile.js?v=309"></script>
+    <script src="lifting-mobile.js?v=310"></script>
     <script src="youtube-mobile.js"></script>
     <script src="weather-mobile.js"></script>
-    <script src="shell-layout-mobile.js?v=309"></script>
+    <script src="shell-layout-mobile.js?v=310"></script>
 
 
 <script>
@@ -824,7 +824,7 @@
 
         if (typeof window.PegasusInventory.getInventory !== "function") {
             window.PegasusInventory.getInventory = function() {
-                return JSON.parse(localStorage.getItem('pegasus_supp_inventory') || '{"prot":2500,"crea":1000}');
+                return window.PegasusSafeStorage.readJSON('pegasus_supp_inventory', { prot: 2500, crea: 1000 });
             };
         }
 
@@ -842,7 +842,7 @@
                     return inv;
                 }
 
-                const stock = JSON.parse(localStorage.getItem('pegasus_supp_inventory') || '{"prot":2500,"crea":1000}');
+                const stock = window.PegasusSafeStorage.readJSON('pegasus_supp_inventory', { prot: 2500, crea: 1000 });
                 const key = (type === 'protein') ? 'prot' : (type === 'creatine' ? 'crea' : type);
 
                 if (stock[key] !== undefined) {
@@ -851,9 +851,9 @@
                     stock.updatedAt = now;
                     stock[key + 'UpdatedAt'] = now;
                     stock.syncVersion = 2;
-                    localStorage.setItem('pegasus_supp_inventory', JSON.stringify(stock));
-                    localStorage.setItem('pegasus_prot_stock', String(stock.prot || 0));
-                    localStorage.setItem('pegasus_crea_stock', String(stock.crea || 0));
+                    window.PegasusSafeStorage.writeJSON('pegasus_supp_inventory', stock, true);
+                    window.PegasusSafeStorage.write('pegasus_prot_stock', String(stock.prot || 0), true);
+                    window.PegasusSafeStorage.write('pegasus_crea_stock', String(stock.crea || 0), true);
                     updateSuppUI();
                 }
 
@@ -1008,7 +1008,7 @@
     }
 
     function updateSuppUI() {
-        const s = JSON.parse(localStorage.getItem('pegasus_supp_inventory') || '{"prot":2500,"crea":1000}');
+        const s = window.PegasusSafeStorage.readJSON('pegasus_supp_inventory', { prot: 2500, crea: 1000 });
         const pPct = Math.max(0, Math.min(100, (s.prot / 2500) * 100));
         const cPct = Math.max(0, Math.min(100, (s.crea / 1000) * 100));
 
@@ -1032,7 +1032,7 @@
 
     function updateMuscleUI() {
         window.enforcePegasusMondayWeeklyReset?.({ source: 'mobile-preview', push: false });
-        const h = JSON.parse(localStorage.getItem('pegasus_weekly_history')) || {};
+        const h = window.PegasusSafeStorage.readJSON('pegasus_weekly_history', {});
         const container = document.getElementById("muscle-container");
         if (!container) return;
 
@@ -1393,7 +1393,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('../sw.js?v=3.36.309')
+                navigator.serviceWorker.register('../sw.js?v=3.36.310')
                     .then(reg => {
                         console.log('📡 PEGASUS: Service Worker Registered.');
                         // No forced reg.update() on every open; this keeps refresh fast after the first local download.

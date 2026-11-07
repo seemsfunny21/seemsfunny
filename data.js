@@ -48,7 +48,7 @@ window.videoMap = {
     "Chest Flys": "chestflys",
     "Pushups": "pushups",
     "Lat Pulldowns": "latpulldowns",
-    "Lat Pulldowns Close": "latpulldowns",
+    "Lat Pulldowns Close": "latpulldownsclose", // If decoding fails, app.js falls back to latpulldowns.mp4.
     "Seated Rows": "reverseseatedrows",
     "Low Rows Seated": "lowrowsseated",
     "Reverse Grip Cable Row": "reversegripcablerow", // PEGASUS 218: user-provided valid MP4

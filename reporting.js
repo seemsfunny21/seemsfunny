@@ -336,14 +336,16 @@ const PegasusReporting = {
 
     sendPreparedReport: async function(pending, dateParts, options = {}) {
         const now = Date.now();
-        const lockRaw = localStorage.getItem(this.sendingLockKey);
+        let lockRaw = null;
+        try { lockRaw = localStorage.getItem(this.sendingLockKey); }
+        catch (error) { console.warn('PEGASUS EMAIL: storage unavailable; pending report preserved.', error); return false; }
         const lockTs = parseInt(lockRaw || '0', 10) || 0;
         if (!options.forceSend && lockTs && (now - lockTs < 120000)) {
             console.log('🛡️ PEGASUS EMAIL: send already in progress, skipping duplicate.');
             return false;
         }
 
-        localStorage.setItem(this.sendingLockKey, String(now));
+        if (!window.PegasusSafeStorage?.write(this.sendingLockKey, String(now))) return false;
         this.markEmailButton('sending');
         this.setEmailStatus('sending', { reportDate: pending?.reportDateDisplay || pending?.dateSent || dateParts?.display });
 
@@ -353,6 +355,7 @@ const PegasusReporting = {
                 console.warn('❌ PEGASUS EMAIL: EmailJS did not load. Pending report kept for retry.');
                 this.setEmailStatus('emailjs_not_loaded', { reportDate: pending?.reportDateDisplay || pending?.dateSent || dateParts?.display });
                 this.markEmailButton('error');
+                try { localStorage.removeItem(this.sendingLockKey); } catch (_) {}
                 return false;
             }
 
@@ -372,7 +375,7 @@ const PegasusReporting = {
             }
             return true;
         } catch (err) {
-            localStorage.removeItem(this.sendingLockKey);
+            try { localStorage.removeItem(this.sendingLockKey); } catch (_) {}
             const message = err?.text || err?.message || String(err || 'unknown');
             console.error('❌ PEGASUS: Email Error', err);
             this.setEmailStatus('error', { message, reportDate: pending?.reportDateDisplay || pending?.dateSent || dateParts?.display });
