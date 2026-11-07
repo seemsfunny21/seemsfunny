@@ -824,7 +824,7 @@
 
         if (typeof window.PegasusInventory.getInventory !== "function") {
             window.PegasusInventory.getInventory = function() {
-                return JSON.parse(localStorage.getItem('pegasus_supp_inventory') || '{"prot":2500,"crea":1000}');
+                return window.PegasusSafeStorage.readJSON('pegasus_supp_inventory', { prot: 2500, crea: 1000 });
             };
         }
 
@@ -842,7 +842,7 @@
                     return inv;
                 }
 
-                const stock = JSON.parse(localStorage.getItem('pegasus_supp_inventory') || '{"prot":2500,"crea":1000}');
+                const stock = window.PegasusSafeStorage.readJSON('pegasus_supp_inventory', { prot: 2500, crea: 1000 });
                 const key = (type === 'protein') ? 'prot' : (type === 'creatine' ? 'crea' : type);
 
                 if (stock[key] !== undefined) {
@@ -851,9 +851,9 @@
                     stock.updatedAt = now;
                     stock[key + 'UpdatedAt'] = now;
                     stock.syncVersion = 2;
-                    localStorage.setItem('pegasus_supp_inventory', JSON.stringify(stock));
-                    localStorage.setItem('pegasus_prot_stock', String(stock.prot || 0));
-                    localStorage.setItem('pegasus_crea_stock', String(stock.crea || 0));
+                    window.PegasusSafeStorage.writeJSON('pegasus_supp_inventory', stock, true);
+                    window.PegasusSafeStorage.write('pegasus_prot_stock', String(stock.prot || 0), true);
+                    window.PegasusSafeStorage.write('pegasus_crea_stock', String(stock.crea || 0), true);
                     updateSuppUI();
                 }
 
@@ -1008,7 +1008,7 @@
     }
 
     function updateSuppUI() {
-        const s = JSON.parse(localStorage.getItem('pegasus_supp_inventory') || '{"prot":2500,"crea":1000}');
+        const s = window.PegasusSafeStorage.readJSON('pegasus_supp_inventory', { prot: 2500, crea: 1000 });
         const pPct = Math.max(0, Math.min(100, (s.prot / 2500) * 100));
         const cPct = Math.max(0, Math.min(100, (s.crea / 1000) * 100));
 
@@ -1032,7 +1032,7 @@
 
     function updateMuscleUI() {
         window.enforcePegasusMondayWeeklyReset?.({ source: 'mobile-preview', push: false });
-        const h = JSON.parse(localStorage.getItem('pegasus_weekly_history')) || {};
+        const h = window.PegasusSafeStorage.readJSON('pegasus_weekly_history', {});
         const container = document.getElementById("muscle-container");
         if (!container) return;
 
