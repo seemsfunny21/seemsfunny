@@ -1703,20 +1703,32 @@ function runPhase() {
         updatePegasusNextExercisePreview();
     }
 
+    // Monotonic elapsed time keeps the timer accurate if callbacks are delayed
+    // by mobile browsers, background tabs or a busy CPU. A delayed callback may
+    // complete only the CURRENT phase; it never silently records multiple sets.
+    let lastTimerTick = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
+    let timerFraction = 0;
     timer = setInterval(() => {
-        t -= 1;
-        phaseRemainingSeconds = Math.max(0, t);
+        const nowTick = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
+        timerFraction += Math.max(0, nowTick - lastTimerTick) * SPEED / 1000;
+        lastTimerTick = nowTick;
+        const elapsedWholeSeconds = Math.floor(timerFraction);
+        if (elapsedWholeSeconds < 1) return;
+        timerFraction -= elapsedWholeSeconds;
+        const advancedSeconds = Math.min(t, elapsedWholeSeconds);
+        t = Math.max(0, t - advancedSeconds);
+        phaseRemainingSeconds = t;
 
         if (remainingSeconds > 0) {
-            remainingSeconds -= 1;
+            remainingSeconds = Math.max(0, remainingSeconds - advancedSeconds);
             updateTotalBar();
         }
 
         if (phase === 1) {
-            sessionActiveKcal += (kcalPerSecond * SPEED);
+            sessionActiveKcal += kcalPerSecond * advancedSeconds;
         } else if (phase === 2) {
             let restKcalPerSec = ((2.0 * userWeight * 3.5) / 200) / 60;
-            sessionActiveKcal += (restKcalPerSec * SPEED);
+            sessionActiveKcal += restKcalPerSec * advancedSeconds;
         }
 
         if (label) label.textContent = `${pName} (${Math.max(0, Math.ceil(t))})`;
