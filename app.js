@@ -1976,30 +1976,29 @@ function getPegasusExerciseVideoSrcByIndex(index) {
 }
 
 function getPegasusKnownMediaUrls() {
-    const urls = new Set();
-    const mapValues = window.videoMap ? Object.values(window.videoMap) : [];
-
-    mapValues.forEach(value => {
-        const clean = String(value || '').trim();
-        if (!clean) return;
-        urls.add(`videos/${clean}.mp4`);
-        urls.add(`images/${clean}.png`);
-        urls.add(`images/${clean}.jpg`);
-        urls.add(`images/${clean}.webp`);
-    });
-
-    ['warmup', 'stretching', 'cycling'].forEach(name => {
-        urls.add(`videos/${name}.mp4`);
-        urls.add(`images/${name}.png`);
-        urls.add(`images/${name}.jpg`);
-        urls.add(`images/${name}.webp`);
-    });
-
-    urls.add('videos/beep.mp3');
-    urls.add('images/favicon.png');
-    urls.add('images/placeholder.jpg');
-
-    return Array.from(urls);
+    // Real repository media only. Speculative .jpg/.webp variants previously
+    // produced 51 failed requests, preventing the offline-ready marker.
+    const videoNames = new Set([
+        ...Object.values(window.videoMap || {}),
+        'glutekickbacks', 'onearmpulldowns', 'onearmrows', 'warmup'
+    ]);
+    const imageFiles = [
+        'abcrunches.png', 'bentoverrows.png', 'bicepcurls.png',
+        'chestflys.png', 'chestpress.png', 'cycling.jpg', 'ems.png',
+        'emsimage.png', 'favicon.png', 'glutekickbacks.png',
+        'latpulldowns.png', 'latpulldownsclose.png', 'legextensions.png',
+        'legraisehiplift.png', 'lowrowsseated.png', 'lyingkneeraise.png',
+        'onearmpulldowns.png', 'onearmrows.png', 'placeholder.jpg',
+        'plank.png', 'preacherbicepcurls.png', 'pushups.png',
+        'reversecrunch.png', 'reversegripcablerow.png', 'reverseseatedrows.png',
+        'situps.png', 'straightarmpulldowns.png', 'stretching.png',
+        'triceppulldowns.png', 'uprightrows.png'
+    ];
+    return Array.from(new Set([
+        ...Array.from(videoNames, name => 'videos/' + name + '.mp4'),
+        ...imageFiles.map(name => 'images/' + name),
+        'videos/beep.mp3'
+    ]));
 }
 
 window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
@@ -2013,7 +2012,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
     });
 
     const state = {
-        version: '310',
+        version: '311',
         started: false,
         completed: false,
         percent: 0,
@@ -2023,7 +2022,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
         skipped: 0,
         bytes: 0,
         readyPromise,
-        readyKey: 'pegasus_permanent_assets_ready_v310',
+        readyKey: 'pegasus_permanent_assets_ready_v311',
 
         getReadyMarker() {
             try {
@@ -2103,7 +2102,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
             ];
 
             const all = Array.from(new Set([...staticUrls, ...urls]));
-            const cache = await caches.open('pegasus-permanent-local-v309-page-fallback');
+            const cache = await caches.open('pegasus-permanent-local-v311-page-fallback');
             let done = 0;
             let ok = 0;
             let skipped = 0;
@@ -2168,7 +2167,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
                     }
 
                     const swPath = window.location.pathname.includes('/mobile/') ? '../sw.js' : './sw.js';
-                    await navigator.serviceWorker.register(`${swPath}?v=3.36.310`);
+                    await navigator.serviceWorker.register(`${swPath}?v=3.36.311`);
                     const registration = await navigator.serviceWorker.ready;
                     const target = navigator.serviceWorker.controller || registration.active || registration.waiting || registration.installing;
 

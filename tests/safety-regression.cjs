@@ -23,8 +23,8 @@ async function main() {
     const app = read('app.js'), mobile = read('mobile/mobile.html'), html = read('index.html'), sw = read('sw.js');
     const data = read('data.js'), i18n = read('i18n.js'), manifest = read('manifest.js');
     check('service worker versions match', () => {
-        assert.ok(sw.includes("PEGASUS_STORAGE_VERSION = '310'"));
-        for (const content of [html, mobile, app]) assert.ok(content.includes('v=3.36.310'));
+        assert.ok(sw.includes("PEGASUS_STORAGE_VERSION = '311'"));
+        for (const content of [html, mobile, app]) assert.ok(content.includes('v=3.36.311'));
     });
     check('safe desktop restore never clears all site storage', () => {
         assert.ok(!read('backup.js').includes('localStorage.clear()'));
@@ -48,6 +48,24 @@ async function main() {
         assert.equal(names.length,24);
         for(const [_,name,asset] of pairs)assert.ok(fs.existsSync(path.join(ROOT,'videos',asset+'.mp4')),name+': '+asset);
         assert.equal(pairs.length,24);
+    });
+    check('all preloaded media paths actually exist, with no speculative variants',()=>{
+        const map = {};
+        for(const [, name, asset] of pairs) map[name] = asset;
+        const start = app.indexOf('function getPegasusKnownMediaUrls() {');
+        const end = app.indexOf('\nwindow.PegasusPermanentStorage',start);
+        assert.ok(start>=0&&end>start);
+        const media = vm.runInNewContext(app.slice(start,end) + '\ngetPegasusKnownMediaUrls()', {window:{videoMap:map}});
+        assert.equal(new Set(media).size,media.length);
+        for(const asset of media) assert.ok(fs.existsSync(path.join(ROOT,asset)),asset+' not found');
+        const actual = ['videos','images'].flatMap(folder=>fs.readdirSync(path.join(ROOT,folder)).map(file=>folder+'/'+file));
+        assert.equal(media.length,actual.length);
+        for(const asset of actual) assert.ok(media.includes(asset),'missing in offline manifest: '+asset);
+    });
+    check('service worker references only existing app shell files',()=>{
+        const part=sw.slice(sw.indexOf('const ASSETS_TO_CACHE = ['),sw.indexOf('];',sw.indexOf('const ASSETS_TO_CACHE = [')));
+        const list=[...part.matchAll(/['"]\.\/([^'"]+)['"]/g)].map(m=>m[1]);
+        for(const file of list) assert.ok(fs.existsSync(path.join(ROOT,file)),'missing shell: '+file);
     });
     const pairSection = i18n.slice(i18n.indexOf('const exercisePairs = ['),i18n.indexOf('];',i18n.indexOf('const exercisePairs = [')));
     const translated = [...pairSection.matchAll(/\[\s*['"]([^'"]+)['"]\s*,\s*['"]([^'"]+)['"]\s*\]/g)].map(x=>x[2]);
@@ -131,7 +149,7 @@ async function main() {
         assert.ok(!restore.includes('indexedDB.deleteDatabase('));
     });
     check('loader marks offline ready only when all assets succeeded', () => {
-        assert.ok(app.includes("readyKey: 'pegasus_permanent_assets_ready_v310'"));
+        assert.ok(app.includes("readyKey: 'pegasus_permanent_assets_ready_v311'"));
         assert.ok(app.includes('const offlineVerified = this.total > 0 && this.ok >= this.total && this.skipped === 0'));
         assert.ok(app.includes("marker.skipped > 0 || marker.ok < marker.total"));
     });
@@ -298,6 +316,11 @@ async function main() {
         vm.runInContext("cacheOnePermanentAsset=async()=>({ok:true,cached:true,size:0});",context);
         await vm.runInContext("runPermanentLocalDownload()",context);
         assert.equal([...cached.keys()].some(x=>x.includes('__pegasus_permanent_cache_meta__')),true);
+        // The next app opening must reuse the saved completion marker and
+        // perform zero per-asset network/cache download attempts.
+        vm.runInContext("globalThis.__downloadAttempts=0;cacheOnePermanentAsset=async()=>{globalThis.__downloadAttempts++;return {ok:true,size:0}};",context);
+        await vm.runInContext("runPermanentLocalDownload()",context);
+        assert.equal(context.__downloadAttempts,0,'Completed preload was unexpectedly restarted');
     });
     console.log(n+' safety regression checks passed');
 }
