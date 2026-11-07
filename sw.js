@@ -4,7 +4,7 @@
    Status: FINAL STABLE | ZERO WARMUP FALLBACK | FULL PROGRESS BRIDGE
    ========================================================================== */
 
-const PEGASUS_STORAGE_VERSION = '308';
+const PEGASUS_STORAGE_VERSION = '309';
 const CACHE_NAME = `pegasus-permanent-local-v${PEGASUS_STORAGE_VERSION}`;
 const CACHE_META_URL = './__pegasus_permanent_cache_meta__.json';
 
@@ -277,12 +277,34 @@ async function cacheOnePermanentAsset(cache, urlString) {
     return { ok: true, cached: false, size: blob.size };
 }
 
-async function getPermanentCacheMeta(cache) {
+async function pruneRedundantPegasusCaches(currentCache) {
+    // Never discard the last copy of an exercise video or image.
+    for (const name of await caches.keys()) {
+        if (name === CACHE_NAME || !name.startsWith('pegasus-permanent-local-')) continue;
+        try {
+            const oldCache = await caches.open(name);
+            let preserve = false;
+            for (const request of await oldCache.keys()) {
+                const url = new URL(request.url);
+                if (!isMediaAsset(url.pathname)) continue;
+                if (!(await currentCache.match(makeCacheRequest(url.href), { ignoreSearch: true }))) {
+                    preserve = true;
+                    break;
+                }
+            }
+            if (!preserve) await caches.delete(name);
+        } catch (error) {
+            console.warn('PEGASUS: retaining old cache after verification error', name, error);
+        }
+    }
+}
+
+async function getPermanentCacheMeta(cache, expectedSignature) {
     try {
         const response = await cache.match(makeCacheRequest(CACHE_META_URL), { ignoreSearch: true });
         if (!response) return null;
         const meta = await response.clone().json();
-        if (!meta || meta.version !== PEGASUS_STORAGE_VERSION || meta.completed !== true) return null;
+        if (!meta || meta.version !== PEGASUS_STORAGE_VERSION || meta.completed !== true || meta.signature !== expectedSignature) return null;
         return meta;
     } catch (_) {
         return null;
@@ -312,7 +334,8 @@ async function runPermanentLocalDownload(extraUrls = []) {
     ].filter(Boolean)));
 
     const total = urls.length || 1;
-    const existingMeta = await getPermanentCacheMeta(cache);
+    const signature = urls.map(x => cleanCacheUrl(x).pathname).sort().join('|');
+    const existingMeta = await getPermanentCacheMeta(cache, signature);
     if (existingMeta && Number(existingMeta.total || 0) >= total) {
         await notifyPegasusClients({
             type: 'PEGASUS_PERMANENT_CACHE_COMPLETE',
@@ -369,11 +392,15 @@ async function runPermanentLocalDownload(extraUrls = []) {
             skipped,
             bytes,
             url: urlString,
-            status: percent >= 100 ? 'complete' : 'downloading'
+            status: percent >= 100 ? (skipped ? 'partial' : 'complete') : 'downloading'
         });
     }
 
-    await setPermanentCacheMeta(cache, { done, total, ok, skipped, bytes });
+    // Only successfully downloaded assets count as a complete offline copy.
+    if (skipped === 0) {
+        await setPermanentCacheMeta(cache, { done, total, ok, skipped, bytes, signature });
+        await pruneRedundantPegasusCaches(cache);
+    }
 
     await notifyPegasusClients({
         type: 'PEGASUS_PERMANENT_CACHE_COMPLETE',
@@ -383,7 +410,8 @@ async function runPermanentLocalDownload(extraUrls = []) {
         ok,
         skipped,
         bytes,
-        cache: CACHE_NAME
+        cache: CACHE_NAME,
+        status: skipped ? 'partial' : 'complete'
     });
 
     console.log(`✅ PEGASUS SW: permanent local storage complete ${ok}/${total} assets (${skipped} skipped).`);
