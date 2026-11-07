@@ -1628,6 +1628,19 @@ function startPause() {
     }
 }
 
+// Pure elapsed-time calculation, also exercised by safety regression tests.
+function computePegasusElapsedTick(previousMs, currentMs, speed, carrySeconds, phaseSeconds) {
+    const elapsedMs = Math.max(0, Number(currentMs) - Number(previousMs));
+    const rate = Number.isFinite(Number(speed)) && Number(speed) > 0 ? Number(speed) : 1;
+    const total = Math.max(0, Number(carrySeconds) || 0) + (Number.isFinite(elapsedMs) ? elapsedMs : 0) * rate / 1000;
+    const whole = Math.floor(total);
+    const remainingPhase = Math.max(0, Number(phaseSeconds) || 0);
+    return {
+        advancedSeconds: Math.min(whole, remainingPhase),
+        carrySeconds: total - whole
+    };
+}
+
 function runPhase() {
     if (!running) return;
 
@@ -1712,12 +1725,11 @@ function runPhase() {
     let timerFraction = 0;
     timer = setInterval(() => {
         const nowTick = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
-        timerFraction += Math.max(0, nowTick - lastTimerTick) * SPEED / 1000;
+        const tick = computePegasusElapsedTick(lastTimerTick, nowTick, SPEED, timerFraction, t);
         lastTimerTick = nowTick;
-        const elapsedWholeSeconds = Math.floor(timerFraction);
-        if (elapsedWholeSeconds < 1) return;
-        timerFraction -= elapsedWholeSeconds;
-        const advancedSeconds = Math.min(t, elapsedWholeSeconds);
+        timerFraction = tick.carrySeconds;
+        const advancedSeconds = tick.advancedSeconds;
+        if (advancedSeconds < 1) return;
         t = Math.max(0, t - advancedSeconds);
         phaseRemainingSeconds = t;
 
