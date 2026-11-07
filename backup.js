@@ -278,7 +278,14 @@ window.importPegasusData = function(event) {
                                 tx.oncomplete = () => { db.close(); resolve(); };
                                 tx.onerror = () => { db.close(); reject(tx.error || new Error("Αποτυχία αποθήκευσης φωτογραφιών.")); };
                                 tx.onabort = () => { db.close(); reject(tx.error || new Error("Η αποθήκευση φωτογραφιών ακυρώθηκε.")); };
-                                for (const photo of importedPhotos) tx.objectStore("photos").put(photo);
+                                const photos = tx.objectStore("photos");
+                                // Preserve every existing photo. Add missing IDs only.
+                                for (const photo of importedPhotos) {
+                                    const lookup = photos.get(photo.id);
+                                    lookup.onsuccess = () => {
+                                        if (lookup.result === undefined) photos.add(photo);
+                                    };
+                                }
                             } catch (error) { db.close(); reject(error); }
                         };
                     } catch (error) { reject(error); }
