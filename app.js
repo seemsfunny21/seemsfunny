@@ -2013,7 +2013,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
     });
 
     const state = {
-        version: '309',
+        version: '310',
         started: false,
         completed: false,
         percent: 0,
@@ -2023,7 +2023,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
         skipped: 0,
         bytes: 0,
         readyPromise,
-        readyKey: 'pegasus_permanent_assets_ready_v309',
+        readyKey: 'pegasus_permanent_assets_ready_v310',
 
         getReadyMarker() {
             try {
@@ -2168,7 +2168,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
                     }
 
                     const swPath = window.location.pathname.includes('/mobile/') ? '../sw.js' : './sw.js';
-                    await navigator.serviceWorker.register(`${swPath}?v=3.36.309`);
+                    await navigator.serviceWorker.register(`${swPath}?v=3.36.310`);
                     const registration = await navigator.serviceWorker.ready;
                     const target = navigator.serviceWorker.controller || registration.active || registration.waiting || registration.installing;
 
