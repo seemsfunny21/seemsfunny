@@ -1,3 +1,15 @@
+# PEGASUS 311 — Permanent offline preload
+
+**Root cause of repeat preload:** speculative media extension variants returned 404; incomplete cache was correctly never marked complete. The invalid manifest caused perpetual retries.
+
+**Fix:** `app.js/getPegasusKnownMediaUrls()` enumerates verified media assets. Run `node tests/safety-regression.cjs` before adding any video/image: the tests assert that every listed asset exists and the asset list covers all media in `images/` and `videos/`.
+
+Service worker cache version and page ready-key version must remain aligned (`311`). Existing media should migrate from older `pegasus-permanent-local-v*` caches. Do not change cache version for UI-only edits unless necessary.
+
+For first-load problems, inspect DevTools → Application → Cache Storage and confirm `__pegasus_permanent_cache_meta__.json` exists under `pegasus-permanent-local-v311`. **Do not clear site data to debug**, because localStorage holds personal data.
+
+---
+
 # PEGASUS 310 — Reliability και βίντεο
 
 - Source rollback: `backup/pegasus-309-before-reliability-video-2026-11-07`.
