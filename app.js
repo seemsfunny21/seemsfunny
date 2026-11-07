@@ -2963,7 +2963,7 @@ window.logPegasusSet = function(exName, absoluteDone = null) {
         return false;
     }
 
-    const target = parseFloat((window.PegasusOptimizer?.getTargets?.() || JSON.parse(localStorage.getItem(P_M?.workout?.muscleTargets || 'pegasus_muscle_targets') || '{}'))?.[muscle]) || Infinity;
+    const target = parseFloat((window.PegasusOptimizer?.getTargets?.() || window.PegasusSafeStorage.readJSON(P_M?.workout?.muscleTargets || 'pegasus_muscle_targets', {}))?.[muscle]) || Infinity;
     const addValue = muscle === 'Πόδια' ? Math.max(0, Math.min(deltaSets * perSetValue, target - (Number(history[muscle]) || 0))) : deltaSets * perSetValue;
     if (addValue <= 0) {
         ledger.exercises[ledgerExerciseKey] = nextCounted;
