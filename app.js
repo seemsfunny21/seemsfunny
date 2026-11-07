@@ -2005,7 +2005,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
     });
 
     const state = {
-        version: '294',
+        version: '309',
         started: false,
         completed: false,
         percent: 0,
@@ -2015,14 +2015,14 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
         skipped: 0,
         bytes: 0,
         readyPromise,
-        readyKey: 'pegasus_permanent_assets_ready_v294',
+        readyKey: 'pegasus_permanent_assets_ready_v309',
 
         getReadyMarker() {
             try {
                 const raw = localStorage.getItem(this.readyKey);
                 if (!raw) return null;
                 const marker = JSON.parse(raw);
-                if (!marker || String(marker.version || '') !== this.version) return null;
+                if (!marker || String(marker.version || '') !== this.version || marker.skipped > 0 || marker.ok < marker.total) return null;
                 return marker;
             } catch (_) {
                 return null;
@@ -2054,8 +2054,9 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
             if (this.completed) return;
             this.completed = true;
             this.setLoader(100, data);
+            const offlineVerified = this.total > 0 && this.ok >= this.total && this.skipped === 0 && data.status !== 'partial';
             try {
-                localStorage.setItem(this.readyKey, JSON.stringify({
+                if (offlineVerified) localStorage.setItem(this.readyKey, JSON.stringify({
                     version: this.version,
                     at: Date.now(),
                     done: this.done,
@@ -2064,10 +2065,13 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
                     skipped: this.skipped,
                     bytes: this.bytes
                 }));
+                else localStorage.removeItem(this.readyKey);
             } catch (_) {}
 
             const loaderText = document.querySelector('.loader-text');
-            if (loaderText) loaderText.innerHTML = `Τρέχει από τοπική αποθήκευση<span class="dots"></span> 100%`;
+            if (loaderText) loaderText.innerHTML = offlineVerified
+                ? `Τρέχει από τοπική αποθήκευση<span class="dots"></span> 100%`
+                : `Η εφαρμογή είναι έτοιμη · η offline λήψη δεν ολοκληρώθηκε<span class="dots"></span>`;
 
             resolveReady(true);
         },
@@ -2091,7 +2095,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
             ];
 
             const all = Array.from(new Set([...staticUrls, ...urls]));
-            const cache = await caches.open('pegasus-permanent-local-v294-page-fallback');
+            const cache = await caches.open('pegasus-permanent-local-v309-page-fallback');
             let done = 0;
             let ok = 0;
             let skipped = 0;
@@ -2100,11 +2104,17 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
                 try {
                     const request = new Request(url, { credentials: 'same-origin' });
                     const existing = await cache.match(request, { ignoreSearch: true });
-                    if (!existing) {
+                    if (existing) {
+                        ok++;
+                    } else {
                         const response = await fetch(request, { cache: 'reload' });
-                        if (response && response.ok) await cache.put(request, response.clone());
+                        if (response && response.ok) {
+                            await cache.put(request, response.clone());
+                            ok++;
+                        } else {
+                            skipped++;
+                        }
                     }
-                    ok++;
                 } catch (_) {
                     skipped++;
                 }
@@ -2112,7 +2122,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
                 this.setLoader(Math.round((done / all.length) * 100), { done, total: all.length, ok, skipped });
             }
 
-            this.complete({ done, total: all.length, ok, skipped });
+            this.complete({ done, total: all.length, ok, skipped, status: skipped ? 'partial' : 'complete' });
             return true;
         },
 
