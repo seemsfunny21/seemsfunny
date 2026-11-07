@@ -130,6 +130,11 @@ async function main() {
         assert.ok(!restore.includes('photos.put(photo)'));
         assert.ok(!restore.includes('indexedDB.deleteDatabase('));
     });
+    check('loader marks offline ready only when all assets succeeded', () => {
+        assert.ok(app.includes("readyKey: 'pegasus_permanent_assets_ready_v309'"));
+        assert.ok(app.includes('const offlineVerified = this.total > 0 && this.ok >= this.total && this.skipped === 0'));
+        assert.ok(app.includes("marker.skipped > 0 || marker.ok < marker.total"));
+    });
     check('set counters are capped and workout finish cannot run twice',()=>{
         assert.ok(app.includes('window.__pegasusFinishingSession'));
         assert.ok(app.includes('Math.min(maxSets, previousDone + 1)'));
