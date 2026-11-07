@@ -177,102 +177,136 @@ function finalizeExport(data) {
 }
 
 /* ==========================================================================
-   RESTORE ENGINE (V10.3 - UNIVERSAL UNWRAP & MIGRATION)
+   SAFE RESTORE ENGINE - validation + pre-import local backup + rollback
+   Source: local-only JSON, no cloud; never clears unrelated browser data.
    ========================================================================== */
 window.importPegasusData = function(event) {
-    const file = event.target.files[0];
+    const file = event?.target?.files?.[0];
     if (!file) return;
+    if (file.size > 64 * 1024 * 1024) {
+        alert("Σφάλμα: Το αρχείο είναι υπερβολικά μεγάλο.");
+        return;
+    }
 
     const reader = new FileReader();
+    reader.onerror = () => alert("Σφάλμα ανάγνωσης αρχείου backup.");
     reader.onload = async (e) => {
+        const previousValues = new Map();
+        let writesStarted = false;
         try {
             const imported = JSON.parse(e.target.result);
-
-            // 🛡️ UNIVERSAL UNWRAP: Ανιχνεύει αν τα δεδομένα είναι μέσα στο "localStorage" wrapper
-            const payload = imported.localStorage ? imported.localStorage : imported;
-
-            if (window.GalleryEngine && window.GalleryEngine.db) {
-                window.GalleryEngine.db.close();
+            if (!imported || typeof imported !== 'object' || Array.isArray(imported)) {
+                throw new Error("Το αρχείο δεν περιέχει έγκυρα δεδομένα.");
             }
+            const payload = imported.localStorage || imported.localData || imported.local || imported.data || imported;
+            if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+                throw new Error("Μη έγκυρη μορφή backup.");
+            }
+            const keys = Object.keys(payload);
+            if (!keys.length || keys.length > 10000) throw new Error("Το αρχείο backup είναι άδειο ή μη έγκυρο.");
 
-            const msg = `🚨 PEGASUS OS: Έναρξη ανάκτησης\n\nΘα γίνει αυτόματη διόρθωση ημερομηνιών και πλήρης επαναφορά.\nΤα τρέχοντα δεδομένα θα διαγραφούν. Συνέχεια;`;
-            if (!confirm(msg)) return;
-
-            console.log("%c[RECOVERY] Initializing Universal Migration Engine...", "color: #ff9800; font-weight: bold;");
-
-            const migratedStorage = {};
+            // Only recognized user data, not unknown system settings, saved secrets or restore logs.
+            const migrated = Object.create(null);
             const dateKeys = ["food_log_", "pegasus_cardio_kcal_", "pegasus_routine_injected_", "weight_"];
-
-            Object.keys(payload).forEach(key => {
+            for (const key of keys) {
+                if (!window.PegasusBackup?.isPegasusUserDataKey?.(key)) continue;
                 let newKey = key;
-                let val = payload[key];
-
-                // 🎯 DATE PADDING MIGRATION
                 if (dateKeys.some(prefix => key.startsWith(prefix))) {
                     const parts = key.split('_');
                     const datePart = parts.pop();
                     const dateParts = datePart.split('/');
                     if (dateParts.length === 3) {
-                        const d = dateParts[0].padStart(2, '0');
-                        const m = dateParts[1].padStart(2, '0');
-                        const y = dateParts[2];
-                        newKey = parts.join('_') + `_${d}/${m}/${y}`;
+                        const [day, month, year] = dateParts;
+                        if (/^\d{1,2}$/.test(day) && /^\d{1,2}$/.test(month) && /^\d{4}$/.test(year)) {
+                            newKey = parts.join('_') + '_' + day.padStart(2, '0') + '/' + month.padStart(2, '0') + '/' + year;
+                        }
                     }
                 }
-
-                // 🛡️ STRINGIFICATION SHIELD: Το LocalStorage δέχεται ΜΟΝΟ strings
-                migratedStorage[newKey] = (typeof val === 'object') ? JSON.stringify(val) : String(val);
-            });
-
-            const preserved = {};
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (!key) continue;
-                if (false) {
-                    preserved[key] = localStorage.getItem(key);
-                }
+                const value = payload[key];
+                if (value === undefined) continue;
+                migrated[newKey] = typeof value === "string" ? value : JSON.stringify(value);
+            }
+            const entries = Object.entries(migrated);
+            if (!entries.length) throw new Error("Το αρχείο δεν περιέχει αναγνωρίσιμα δεδομένα PEGASUS.");
+            const importedPhotos = Array.isArray(imported.indexedDB) ? imported.indexedDB : [];
+            if (importedPhotos.length > 5000 || importedPhotos.some(photo => !photo || typeof photo !== "object" || !Object.hasOwn(photo, "id"))) {
+                throw new Error("Τα δεδομένα φωτογραφιών δεν έχουν έγκυρη μορφή.");
             }
 
-            localStorage.clear();
-            Object.entries(migratedStorage).forEach(([k, v]) => localStorage.setItem(k, v));
-            Object.entries(preserved).forEach(([k, v]) => localStorage.setItem(k, v));
+            if (!confirm("Να γίνει ασφαλής επαναφορά;\n\nΘα διατηρηθούν τα υπάρχοντα δεδομένα που δεν περιλαμβάνονται στο αρχείο. Θα δημιουργηθεί αντίγραφο ασφαλείας πριν την εισαγωγή.")) return;
 
-            if (!localStorage.getItem("pegasus_weight")) localStorage.setItem("pegasus_weight", "74");
+            const emergency = window.PegasusBackup.buildSnapshot("before-safe-restore");
+            emergency.indexedDB = []; // Current photos remain untouched; only incoming photos are merged.
+            const emergencyBlob = new Blob([JSON.stringify(emergency, null, 2)], { type: "application/json" });
+            const emergencyUrl = URL.createObjectURL(emergencyBlob);
+            const link = document.createElement("a");
+            try {
+                link.href = emergencyUrl;
+                link.download = "PEGASUS_BEFORE_RESTORE_" + new Date().toISOString().replace(/[:.]/g, "-") + ".json";
+                document.body.appendChild(link);
+                link.click();
+            } finally {
+                link.remove();
+                setTimeout(() => URL.revokeObjectURL(emergencyUrl), 1000);
+            }
 
-            // ΑΝΑΔΟΜΗΣΗ INDEXEDDB
-            setTimeout(() => {
-                const delReq = indexedDB.deleteDatabase("PegasusLevels");
-                delReq.onsuccess = () => {
-                    const dbReq = indexedDB.open("PegasusLevels", 1);
-                    dbReq.onupgradeneeded = (ev) => ev.target.result.createObjectStore("photos", { keyPath: "id" });
-                    dbReq.onsuccess = (ev) => {
-                        const db = ev.target.result;
-                        if (imported.indexedDB && imported.indexedDB.length > 0) {
-                            const tx = db.transaction("photos", "readwrite");
-                            imported.indexedDB.forEach(p => tx.objectStore("photos").add(p));
-                            tx.oncomplete = () => {
+            for (const [key] of entries) previousValues.set(key, localStorage.getItem(key));
+            writesStarted = true;
+            for (const [key, value] of entries) localStorage.setItem(key, value);
+
+            // Existing photos are never deleted. New/imported photos are merged in
+            // one IndexedDB transaction; failed transactions reject before success.
+            if (importedPhotos.length) {
+                await new Promise((resolve, reject) => {
+                    try {
+                        window.GalleryEngine?.db?.close?.();
+                        const request = indexedDB.open("PegasusLevels", 1);
+                        request.onupgradeneeded = ev => {
+                            const db = ev.target.result;
+                            if (!db.objectStoreNames.contains("photos")) db.createObjectStore("photos", { keyPath: "id" });
+                        };
+                        request.onerror = () => reject(request.error || new Error("Αποτυχία πρόσβασης στο IndexedDB."));
+                        request.onsuccess = () => {
+                            const db = request.result;
+                            if (!db.objectStoreNames.contains("photos")) {
                                 db.close();
-                                finalizeRecovery();
-                            };
-                        } else {
-                            db.close();
-                            finalizeRecovery();
-                        }
-                    };
-                };
-            }, 600);
-
-        } catch (err) {
-            console.error("Critical Recovery Failure:", err);
-            alert("FATAL RESTORE ERROR: " + err.message);
+                                reject(new Error("Δεν βρέθηκε ο πίνακας φωτογραφιών."));
+                                return;
+                            }
+                            try {
+                                const tx = db.transaction("photos", "readwrite");
+                                tx.oncomplete = () => { db.close(); resolve(); };
+                                tx.onerror = () => { db.close(); reject(tx.error || new Error("Αποτυχία αποθήκευσης φωτογραφιών.")); };
+                                tx.onabort = () => { db.close(); reject(tx.error || new Error("Η αποθήκευση φωτογραφιών ακυρώθηκε.")); };
+                                for (const photo of importedPhotos) tx.objectStore("photos").put(photo);
+                            } catch (error) { db.close(); reject(error); }
+                        };
+                    } catch (error) { reject(error); }
+                });
+            }
+            await finalizeRecovery();
+        } catch (error) {
+            if (writesStarted) {
+                // Restore only touched keys, never clear the browser's other data.
+                for (const [key, oldValue] of previousValues) {
+                    try {
+                        if (oldValue === null) localStorage.removeItem(key);
+                        else localStorage.setItem(key, oldValue);
+                    } catch (rollbackError) {
+                        console.error("PEGASUS: restore rollback failed for", key, rollbackError);
+                    }
+                }
+            }
+            console.error("PEGASUS SAFE RESTORE:", error);
+            alert("Η επαναφορά δεν ολοκληρώθηκε.\nΤα παλιά δεδομένα αποκαταστάθηκαν όπου ήταν δυνατό.\n" + error.message);
         }
     };
     reader.readAsText(file);
 };
 
 async function finalizeRecovery() {
-    console.log("💾 PEGASUS: Local restore complete.");
-    alert("✅ Η ανάκτηση ολοκληρώθηκε!\n\nΌλα τα δεδομένα διορθώθηκαν τοπικά.");
+    console.log("💾 PEGASUS: safe local restore complete.");
+    alert("✅ Η επαναφορά ολοκληρώθηκε. Τα άλλα τοπικά δεδομένα διατηρήθηκαν.");
     window.location.reload();
 }
 
