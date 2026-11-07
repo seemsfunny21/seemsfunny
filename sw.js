@@ -557,7 +557,9 @@ self.addEventListener('fetch', (event) => {
     const pathname = url.pathname.toLowerCase();
 
     event.respondWith((async () => {
-        const cached = await getCachedResponseForRequest(request, url);
+        let cached = null;
+        try { cached = await getCachedResponseForRequest(request, url); }
+        catch (error) { console.warn('PEGASUS: cache temporarily unavailable, using network', error); }
         if (cached) return cached;
 
         try {
@@ -567,8 +569,10 @@ self.addEventListener('fetch', (event) => {
         } catch (err) {
             console.warn(`[PEGASUS SW]: local fallback for ${url.pathname}`, err);
 
-            const lateCached = await getCachedResponseForRequest(request, url);
-            if (lateCached) return lateCached;
+            try {
+                const lateCached = await getCachedResponseForRequest(request, url);
+                if (lateCached) return lateCached;
+            } catch (_) {}
 
             if (request.mode === 'navigate') {
                 return getOfflineNavigationFallback(pathname);
