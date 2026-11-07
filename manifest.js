@@ -4,6 +4,52 @@
    Status: THE SINGLE SOURCE OF TRUTH | HARDENED: KEY CONSISTENCY + AUDIT SAFETY
    ========================================================================== */
 
+/* Shared, non-destructive storage guards for desktop and mobile.
+   Invalid JSON is left intact so the original value can still be exported or repaired.
+   Visible behavior changes only when browser storage has actually failed. */
+window.PegasusSafeStorage = window.PegasusSafeStorage || {
+    readJSON(key, fallback = {}) {
+        try {
+            const raw = localStorage.getItem(key);
+            if (raw == null || raw === '') return fallback;
+            const parsed = JSON.parse(raw);
+            if (parsed === null || typeof parsed !== typeof fallback ||
+                (Array.isArray(parsed) !== Array.isArray(fallback))) {
+                return fallback;
+            }
+            return parsed;
+        } catch (error) {
+            console.warn('PEGASUS: αποτυχία ανάγνωσης αποθηκευμένων δεδομένων:', key, error?.message || error);
+            return fallback;
+        }
+    },
+    write(key, value, critical = false) {
+        try {
+            localStorage.setItem(key, String(value));
+            return true;
+        } catch (error) {
+            window.__pegasusLastStorageError = String(error?.message || error);
+            console.error('PEGASUS: η αποθήκευση απέτυχε:', key, window.__pegasusLastStorageError);
+            if (critical && !window.__pegasusStorageWarningShown) {
+                window.__pegasusStorageWarningShown = true;
+                const message = '⚠️ Ο browser δεν αποθηκεύει τα δεδομένα του PEGASUS. Μην κλείσεις τη σελίδα πριν ελέγξεις τον διαθέσιμο χώρο και πάρεις αντίγραφο ασφαλείας.';
+                try {
+                    if (typeof window.pegasusAlert === 'function') window.pegasusAlert(message);
+                    else if (typeof window.alert === 'function') window.alert(message);
+                } catch (_) {}
+            }
+            return false;
+        }
+    },
+    writeJSON(key, value, critical = false) {
+        try { return this.write(key, JSON.stringify(value), critical); }
+        catch (error) {
+            console.error('PEGASUS: JSON serialization failed:', key, error?.message || error);
+            return false;
+        }
+    }
+};
+
 window.PegasusManifest = {
     // ---------------------------------------------------------
     // 1. FORENSIC METADATA
