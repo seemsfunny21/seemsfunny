@@ -23,8 +23,8 @@ async function main() {
     const app = read('app.js'), mobile = read('mobile/mobile.html'), html = read('index.html'), sw = read('sw.js');
     const data = read('data.js'), i18n = read('i18n.js'), manifest = read('manifest.js');
     check('service worker versions match', () => {
-        assert.ok(sw.includes("PEGASUS_STORAGE_VERSION = '309'"));
-        for (const content of [html, mobile, app]) assert.ok(content.includes('v=3.36.309'));
+        assert.ok(sw.includes("PEGASUS_STORAGE_VERSION = '310'"));
+        for (const content of [html, mobile, app]) assert.ok(content.includes('v=3.36.310'));
     });
     check('safe desktop restore never clears all site storage', () => {
         assert.ok(!read('backup.js').includes('localStorage.clear()'));
@@ -131,7 +131,7 @@ async function main() {
         assert.ok(!restore.includes('indexedDB.deleteDatabase('));
     });
     check('loader marks offline ready only when all assets succeeded', () => {
-        assert.ok(app.includes("readyKey: 'pegasus_permanent_assets_ready_v309'"));
+        assert.ok(app.includes("readyKey: 'pegasus_permanent_assets_ready_v310'"));
         assert.ok(app.includes('const offlineVerified = this.total > 0 && this.ok >= this.total && this.skipped === 0'));
         assert.ok(app.includes("marker.skipped > 0 || marker.ok < marker.total"));
     });
