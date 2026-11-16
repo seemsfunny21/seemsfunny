@@ -22,9 +22,12 @@ async function main() {
     for (const file of scripts) check('syntax ' + file, () => new vm.Script(read(file), { filename: file }));
     const app = read('app.js'), mobile = read('mobile/mobile.html'), html = read('index.html'), sw = read('sw.js');
     const data = read('data.js'), i18n = read('i18n.js'), manifest = read('manifest.js');
-    check('service worker versions match', () => {
-        assert.ok(sw.includes("PEGASUS_STORAGE_VERSION = '311'"));
-        for (const content of [html, mobile, app]) assert.ok(content.includes('v=3.36.311'));
+    check('Pegasus Mobile theme worker updated without changing desktop loader', () => {
+        assert.ok(sw.includes("PEGASUS_STORAGE_VERSION = '312'"));
+        assert.ok(mobile.includes('v=3.36.312'));
+        for (const content of [html, app]) assert.ok(content.includes('v=3.36.311'));
+        assert.ok(mobile.includes('pegasus_mobile_theme_v1'));
+        assert.ok(mobile.includes('setPegasusMobileTheme'));
     });
     check('safe desktop restore never clears all site storage', () => {
         assert.ok(!read('backup.js').includes('localStorage.clear()'));
