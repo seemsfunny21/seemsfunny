@@ -30,7 +30,26 @@
     </script>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=311">
+        <script>
+    /* Pegasus Mobile palette: device-local, no effect on desktop Pegasus. */
+    (function(){
+      const KEY='pegasus_mobile_theme_v1';
+      let current='green';
+      try{current=localStorage.getItem(KEY)==='blue'?'blue':'green';}catch(_){}
+      document.documentElement.setAttribute('data-pegasus-mobile-theme',current);
+      function apply(value){
+        const theme=value==='blue'?'blue':'green';
+        document.documentElement.setAttribute('data-pegasus-mobile-theme',theme);
+        try{localStorage.setItem(KEY,theme);}catch(_){}
+        document.querySelectorAll('.pg-theme-option').forEach(button=>{
+          button.setAttribute('aria-pressed',String(button.dataset.theme===theme));
+        });
+      }
+      window.setPegasusMobileTheme=apply;
+      document.addEventListener('DOMContentLoaded',()=>apply(current),{once:true});
+    })();
+    </script>
+    <link rel="stylesheet" href="style.css?v=312">
 </head>
 <body>
     <div id="sync-indicator" data-pegasus-raw-label="true">Τοπική λειτουργία</div>
@@ -89,7 +108,7 @@
         <div class="mini-card" style="padding: 25px;">
             <div id="totalProgress" style="font-size: 12px; font-weight: 900; margin-bottom: 10px;">0% ολοκλήρωση</div>
             <div class="bar-bg"><div id="mainProgressBar" class="bar-fill"></div></div>
-            <div id="phaseTimer" style="font-size:55px; font-weight:900; color:#00ff41; margin:20px 0; font-variant-numeric: tabular-nums;">25:00</div>
+            <div id="phaseTimer" style="font-size:55px; font-weight:900; color:var(--main); margin:20px 0; font-variant-numeric: tabular-nums;">25:00</div>
         </div>
         <button id="btnStart" class="primary-btn" onclick="PegasusEMS.start()">Έναρξη συνεδρίας</button>
     </div>
@@ -198,14 +217,23 @@
     <div id="settings_panel" class="view">
         <button class="btn-back" onclick="openView('home')">◀ Επιστροφή</button>
 
-        <div class="mini-card" style="border: 1px solid var(--main); padding: 25px 20px; position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(0,255,65,0.05);">
+        <div class="mini-card" style="margin-top: 14px; padding: 17px; border: 1px solid var(--main);">
+          <span class="mini-label" style="margin-bottom:12px; display:block;">Χρώμα εφαρμογής</span>
+          <div class="pg-theme-options" role="group" aria-label="Επιλογή χρώματος Pegasus Mobile">
+            <button class="pg-theme-option" data-theme="green" aria-pressed="true" type="button" onclick="window.setPegasusMobileTheme('green')">Πράσινο</button>
+            <button class="pg-theme-option" data-theme="blue" aria-pressed="false" type="button" onclick="window.setPegasusMobileTheme('blue')">Μπλε</button>
+          </div>
+        </div>
+
+
+        <div class="mini-card" style="border: 1px solid var(--main); padding: 25px 20px; position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(var(--pg-accent-rgb),0.05);">
             <div style="position: absolute; top: -10px; right: -10px; opacity: 0.05; font-size: 100px; pointer-events: none;">⚖️</div>
             <span class="mini-label" style="font-size: 11px; margin-bottom: 15px; display: block;">Καταγραφή βάρους σώματος</span>
             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
-                <input type="number" id="mobileWeightInput" placeholder="74.0" step="0.1" style="margin: 0; font-size: 24px; font-weight: 900; height: 60px; color: var(--main); background: rgba(0,255,65,0.05); border: 2px solid rgba(0,255,65,0.2); border-radius: 14px;">
+                <input type="number" id="mobileWeightInput" placeholder="74.0" step="0.1" style="margin: 0; font-size: 24px; font-weight: 900; height: 60px; color: var(--main); background: rgba(var(--pg-accent-rgb),0.05); border: 2px solid rgba(var(--pg-accent-rgb),0.2); border-radius: 14px;">
                 <button class="primary-btn" onclick="window.PegasusWeight?.save(document.getElementById('mobileWeightInput').value);" style="height: 60px; margin: 0; flex-shrink: 0; width: 120px; font-size: 11px; border-radius: 14px;">Ενημέρωση</button>
             </div>
-            <div id="mobileWeightAvg" style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 12px; font-size: 12px; color: var(--main); font-weight: 900; border: 1px dashed rgba(0,255,65,0.3); letter-spacing: 1px; text-transform: none;">
+            <div id="mobileWeightAvg" style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 12px; font-size: 12px; color: var(--main); font-weight: 900; border: 1px dashed rgba(var(--pg-accent-rgb),0.3); letter-spacing: 1px; text-transform: none;">
                 Μέσος όρος εβδομάδας: -- kg
             </div>
         </div>
@@ -226,7 +254,7 @@
             <div id="mobileWorkoutTimerStatus" class="pegasus-data-hint">Οι χρόνοι εφαρμόζονται στην επόμενη προπόνηση και μένουν τοπικά στη συσκευή.</div>
         </div>
 
-        <div class="mini-card" style="margin-top: 18px; padding: 20px; border-color: var(--main); background: rgba(0,255,65,0.04);">
+        <div class="mini-card" style="margin-top: 18px; padding: 20px; border-color: var(--main); background: rgba(var(--pg-accent-rgb),0.04);">
             <span class="mini-label" style="margin-bottom: 12px; display: block;">Γλώσσα διεπαφής</span>
             <button id="btnLangToggle" class="secondary-btn pegasus-lang-toggle" style="width:100%; margin:0;">En/Gr</button>
         </div>
