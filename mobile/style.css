@@ -4,6 +4,9 @@
 
 :root {
     --main: #00ff41; --danger: #ff4444; --bg: #050505;
+    --pg-accent-rgb: 0, 255, 65; --pg-soft-accent: #8effa7;
+    --pg-soft-accent-2: #9cffb0; --pg-soft-accent-3: #b8ffd0;
+    --pg-radial-top: #002200; --pg-radial-end: #050505;
     --card: rgba(23, 23, 23, 0.85); --border: #00ff41;
     --pegasus-ghost-clearance: 45px;
     --pegasus-top-sticky-bg: linear-gradient(180deg, rgba(5,5,5,0.98), rgba(5,5,5,0.84));
@@ -20,7 +23,7 @@ body, html {
 
 body {
     padding: 20px 15px calc(20px + var(--pegasus-ghost-clearance) + env(safe-area-inset-bottom, 0px)); box-sizing: border-box;
-    background-image: radial-gradient(circle at 50% -20%, #002200 0%, #050505 60%);
+    background-image: radial-gradient(circle at 50% -20%, var(--pg-radial-top) 0%, var(--pg-radial-end) 60%);
     display: flex; flex-direction: column; align-items: center;
 }
 
@@ -137,11 +140,11 @@ body {
     padding: 15px 10px; /* Μικρύναμε ελάχιστα το εσωτερικό γέμισμα */
     backdrop-filter: blur(12px); transition: 0.15s;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    box-shadow: 0 0 15px rgba(0, 255, 65, 0.15);
+    box-shadow: 0 0 15px rgba(var(--pg-accent-rgb), 0.15);
     min-height: 85px; /* 🔴 ΑΛΛΑΓΗ ΕΔΩ: Από 100px έγινε 85px για να κάτσουν τέλεια 6 σειρές */
     box-sizing: border-box;
 }
-.tile:active { transform: scale(0.94); background: rgba(0,255,65,0.1); }
+.tile:active { transform: scale(0.94); background: rgba(var(--pg-accent-rgb),0.1); }
 .tile-icon { font-size: 26px; margin-bottom: 6px; }
 .tile-label { font-size: 9px; font-weight: 900; text-transform: none; color: #fff; letter-spacing: 1px; }
 
@@ -216,7 +219,7 @@ body {
 @keyframes viewIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
 input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16px; color: #fff; padding: 14px; margin-bottom: 10px; font-size: 16px; box-sizing: border-box; text-align: center; outline: none; }
-.primary-btn { width: 100%; padding: 16px; background: var(--main); border: none; border-radius: 18px; color: #000; font-weight: 900; text-transform: none; font-size: 12px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,255,65,0.2); }
+.primary-btn { width: 100%; padding: 16px; background: var(--main); border: none; border-radius: 18px; color: #000; font-weight: 900; text-transform: none; font-size: 12px; cursor: pointer; box-shadow: 0 4px 15px rgba(var(--pg-accent-rgb),0.2); }
 .secondary-btn { background: transparent; border: 1px solid var(--main); color: var(--main); padding: 14px; border-radius: 16px; font-weight: 800; font-size: 11px; text-transform: none; cursor: pointer; width: 100%; }
 .btn-back { background: rgba(255,255,255,0.05); border: none; color: var(--main); font-weight: 900; padding: 10px 20px; border-radius: 14px; margin-bottom: 20px; text-transform: none; font-size: 10px; letter-spacing: 1px; }
 
@@ -230,7 +233,7 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
 .section-title { font-size: 11px; font-weight: 900; color: var(--main); text-transform: none; letter-spacing: 2px; margin: 25px 0 12px; text-align: center; }
 .compact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 10px; }
 .input-label { font-size: 9px; color: #666; text-transform: none; margin-bottom: 5px; font-weight: 800; letter-spacing: 1px; text-align: center; width: 100%; }
-.icon-parking { color: var(--main); text-shadow: 0 0 10px rgba(0, 255, 65, 0.5); font-style: normal; font-weight: 900; }
+.icon-parking { color: var(--main); text-shadow: 0 0 10px rgba(var(--pg-accent-rgb), 0.5); font-style: normal; font-weight: 900; }
 
 /* ==========================================================================
    PEGASUS SEARCH FIX: Inline Expanding Dropdown (Mobile Optimized)
@@ -245,7 +248,7 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
     overflow-x: hidden !important;
     border: 1px solid var(--main) !important;
     border-radius: 16px !important;
-    box-shadow: inset 0 4px 10px rgba(0,0,0,0.5), 0 8px 22px rgba(0,255,65,0.18) !important;
+    box-shadow: inset 0 4px 10px rgba(0,0,0,0.5), 0 8px 22px rgba(var(--pg-accent-rgb),0.18) !important;
     margin-top: 0 !important;
     margin-bottom: 15px !important;
     padding-top: 0px !important;
@@ -267,7 +270,7 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
 
 .search-item {
     padding: 12px 15px !important;
-    border-bottom: 1px solid rgba(0, 255, 65, 0.2) !important;
+    border-bottom: 1px solid rgba(var(--pg-accent-rgb), 0.2) !important;
     display: flex !important;
     flex-direction: row !important;
     justify-content: space-between !important;
@@ -280,7 +283,7 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
 }
 
 .search-item:active {
-    background: rgba(0, 255, 65, 0.15) !important;
+    background: rgba(var(--pg-accent-rgb), 0.15) !important;
 }
 
 .search-item-empty {
@@ -309,7 +312,7 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
     color: var(--main);
     font-size: 11px;
     font-weight: 900;
-    background: rgba(0, 255, 65, 0.1);
+    background: rgba(var(--pg-accent-rgb), 0.1);
     padding: 4px 8px;
     border-radius: 8px;
 }
@@ -331,10 +334,10 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
         .nav-box {
             width: 45px;
             height: 35px;
-            background: rgba(0, 255, 65, 0.15);
-            border: 1px solid rgba(0, 255, 65, 0.5);
+            background: rgba(var(--pg-accent-rgb), 0.15);
+            border: 1px solid rgba(var(--pg-accent-rgb), 0.5);
             border-radius: 12px;
-            box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
+            box-shadow: 0 0 10px rgba(var(--pg-accent-rgb), 0.2);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -349,8 +352,8 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
 
         .nav-box:active {
             transform: scale(0.92);
-            background: rgba(0, 255, 65, 0.28);
-            box-shadow: 0 0 16px rgba(0, 255, 65, 0.35);
+            background: rgba(var(--pg-accent-rgb), 0.28);
+            box-shadow: 0 0 16px rgba(var(--pg-accent-rgb), 0.35);
         }
 
 /* ==========================================================================
@@ -361,12 +364,12 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
     width: 100%;
     box-sizing: border-box;
     text-align: left;
-    background: linear-gradient(180deg, rgba(0,255,65,0.10), rgba(5,5,5,0.96));
-    border: 1px solid rgba(0,255,65,0.55);
+    background: linear-gradient(180deg, rgba(var(--pg-accent-rgb),0.10), rgba(5,5,5,0.96));
+    border: 1px solid rgba(var(--pg-accent-rgb),0.55);
     border-radius: 22px;
     padding: 16px;
     margin: 8px 0 16px;
-    box-shadow: 0 0 22px rgba(0,255,65,0.12), inset 0 0 18px rgba(0,0,0,0.65);
+    box-shadow: 0 0 22px rgba(var(--pg-accent-rgb),0.12), inset 0 0 18px rgba(0,0,0,0.65);
 }
 .advisor-title {
     color: var(--main);
@@ -375,11 +378,11 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
     font-weight: 900;
     letter-spacing: 1.4px;
     text-transform: none;
-    text-shadow: 0 0 10px rgba(0,255,65,0.45);
+    text-shadow: 0 0 10px rgba(var(--pg-accent-rgb),0.45);
     margin-bottom: 3px;
 }
 .advisor-subtitle {
-    color: #8effa7;
+    color: var(--pg-soft-accent);
     font-size: 9px;
     font-weight: 800;
     letter-spacing: 0.8px;
@@ -404,9 +407,9 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
     border: 1px solid rgba(255,255,255,0.08);
 }
 .advisor-history-card.priority {
-    background: rgba(0,255,65,0.10);
-    border-color: rgba(0,255,65,0.55);
-    box-shadow: 0 0 12px rgba(0,255,65,0.13);
+    background: rgba(var(--pg-accent-rgb),0.10);
+    border-color: rgba(var(--pg-accent-rgb),0.55);
+    box-shadow: 0 0 12px rgba(var(--pg-accent-rgb),0.13);
 }
 .advisor-history-card.watch {
     background: rgba(255,179,0,0.08);
@@ -459,7 +462,7 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
     background: rgba(12,12,12,0.92);
     border: 1px solid rgba(255,179,0,0.45);
 }
-.advisor-option-card.green { border-color: rgba(0,255,65,0.65); box-shadow: 0 0 13px rgba(0,255,65,0.12); }
+.advisor-option-card.green { border-color: rgba(var(--pg-accent-rgb),0.65); box-shadow: 0 0 13px rgba(var(--pg-accent-rgb),0.12); }
 .advisor-option-card.orange { border-color: rgba(255,179,0,0.45); }
 .advisor-option-card.red { border-color: rgba(255,68,68,0.55); opacity: 0.92; }
 .advisor-option-rank {
@@ -469,9 +472,9 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: rgba(0,255,65,0.12);
+    background: rgba(var(--pg-accent-rgb),0.12);
     color: var(--main);
-    border: 1px solid rgba(0,255,65,0.4);
+    border: 1px solid rgba(var(--pg-accent-rgb),0.4);
     font-size: 12px;
     font-weight: 900;
 }
@@ -486,7 +489,7 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
     letter-spacing: 0.6px;
     text-transform: none;
 }
-.advisor-option-badge.green { background: rgba(0,255,65,0.15); color: var(--main); }
+.advisor-option-badge.green { background: rgba(var(--pg-accent-rgb),0.15); color: var(--main); }
 .advisor-option-badge.orange { background: rgba(255,179,0,0.14); color: #ffcc66; }
 .advisor-option-badge.red { background: rgba(255,68,68,0.14); color: #ff9a9a; }
 .advisor-option-name {
@@ -496,7 +499,7 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
     line-height: 1.25;
 }
 .advisor-option-macros {
-    color: #9cffb0;
+    color: var(--pg-soft-accent-2);
     font-size: 10px;
     font-weight: 900;
     margin-top: 3px;
@@ -508,7 +511,7 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
     margin-top: 3px;
 }
 .advisor-option-reason {
-    color: #b8ffd0;
+    color: var(--pg-soft-accent-3);
     font-size: 9px;
     font-weight: 700;
     margin-top: 4px;
@@ -525,7 +528,7 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
     font-size: 9px;
     font-weight: 900;
     cursor: pointer;
-    box-shadow: 0 0 12px rgba(0,255,65,0.18);
+    box-shadow: 0 0 12px rgba(var(--pg-accent-rgb),0.18);
 }
 
 
@@ -548,7 +551,7 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
     font-size: 16px;
     font-weight: 900;
     line-height: 1;
-    text-shadow: 0 0 10px rgba(0, 255, 65, 0.35);
+    text-shadow: 0 0 10px rgba(var(--pg-accent-rgb), 0.35);
 }
 .pegasus-weather-tile-sub {
     color: rgba(255,255,255,0.75);
@@ -564,8 +567,8 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
     box-sizing: border-box;
     border: 1px solid var(--main);
     border-radius: 22px;
-    background: linear-gradient(145deg, rgba(0,255,65,0.08), rgba(5,5,5,0.92));
-    box-shadow: inset 0 0 18px rgba(0,255,65,0.04), 0 0 24px rgba(0,255,65,0.10);
+    background: linear-gradient(145deg, rgba(var(--pg-accent-rgb),0.08), rgba(5,5,5,0.92));
+    box-shadow: inset 0 0 18px rgba(var(--pg-accent-rgb),0.04), 0 0 24px rgba(var(--pg-accent-rgb),0.10);
     padding: 18px 16px;
     text-align: center;
 }
@@ -582,7 +585,7 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
     font-weight: 900;
     line-height: 1.05;
     margin-bottom: 8px;
-    text-shadow: 0 0 18px rgba(0,255,65,0.18);
+    text-shadow: 0 0 18px rgba(var(--pg-accent-rgb),0.18);
 }
 .pegasus-weather-title {
     color: var(--main);
@@ -598,7 +601,7 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
 }
 .pegasus-weather-stat {
     background: rgba(0,0,0,0.35);
-    border: 1px solid rgba(0,255,65,0.24);
+    border: 1px solid rgba(var(--pg-accent-rgb),0.24);
     border-radius: 14px;
     padding: 12px 8px;
 }
@@ -618,8 +621,8 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
 }
 .pegasus-weather-advice {
     color: rgba(255,255,255,0.82);
-    background: rgba(0,255,65,0.06);
-    border: 1px solid rgba(0,255,65,0.18);
+    background: rgba(var(--pg-accent-rgb),0.06);
+    border: 1px solid rgba(var(--pg-accent-rgb),0.18);
     border-radius: 16px;
     padding: 12px;
     font-size: 11px;
@@ -648,7 +651,7 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
     flex: 0 0 74px;
     min-height: 112px;
     box-sizing: border-box;
-    border: 1px solid rgba(0,255,65,0.24);
+    border: 1px solid rgba(var(--pg-accent-rgb),0.24);
     border-radius: 16px;
     background: rgba(0,0,0,0.38);
     padding: 10px 6px;
@@ -688,7 +691,7 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
     justify-content: space-between;
     align-items: center;
     gap: 10px;
-    border: 1px solid rgba(0,255,65,0.24);
+    border: 1px solid rgba(var(--pg-accent-rgb),0.24);
     border-radius: 16px;
     background: rgba(0,0,0,0.38);
     padding: 12px 10px;
@@ -728,7 +731,7 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
 }
 .pegasus-weather-empty {
     color: rgba(255,255,255,0.68);
-    border: 1px dashed rgba(0,255,65,0.22);
+    border: 1px dashed rgba(var(--pg-accent-rgb),0.22);
     border-radius: 14px;
     padding: 12px;
     font-size: 10px;
@@ -784,9 +787,9 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(145deg, rgba(0,255,65,0.10), rgba(0,0,0,0.70));
-    border: 1px solid rgba(0,255,65,0.28);
-    box-shadow: inset 0 0 18px rgba(0,255,65,0.05), 0 0 12px rgba(0,0,0,0.45);
+    background: linear-gradient(145deg, rgba(var(--pg-accent-rgb),0.10), rgba(0,0,0,0.70));
+    border: 1px solid rgba(var(--pg-accent-rgb),0.28);
+    box-shadow: inset 0 0 18px rgba(var(--pg-accent-rgb),0.05), 0 0 12px rgba(0,0,0,0.45);
     flex: 0 0 48px;
     padding: 0;
     cursor: pointer;
@@ -796,7 +799,7 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
 
 .pegasus-ex-thumb:active {
     transform: scale(0.94);
-    border-color: rgba(0,255,65,0.72);
+    border-color: rgba(var(--pg-accent-rgb),0.72);
 }
 
 .pegasus-ex-thumb img {
@@ -914,10 +917,10 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
 .pegasus-ex-zoom-card {
     width: min(92vw, 430px);
     max-height: min(82vh, 560px);
-    border: 1px solid rgba(0,255,65,0.62);
+    border: 1px solid rgba(var(--pg-accent-rgb),0.62);
     border-radius: 24px;
-    background: radial-gradient(circle at 50% 0%, rgba(0,255,65,0.18), rgba(5,5,5,0.96) 58%);
-    box-shadow: 0 0 42px rgba(0,255,65,0.18), 0 24px 70px rgba(0,0,0,0.75);
+    background: radial-gradient(circle at 50% 0%, rgba(var(--pg-accent-rgb),0.18), rgba(5,5,5,0.96) 58%);
+    box-shadow: 0 0 42px rgba(var(--pg-accent-rgb),0.18), 0 24px 70px rgba(0,0,0,0.75);
     padding: 14px;
     position: relative;
     box-sizing: border-box;
@@ -952,7 +955,7 @@ input { width: 100%; background: #000; border: 1px solid #222; border-radius: 16
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    border: 1px solid rgba(0,255,65,0.58);
+    border: 1px solid rgba(var(--pg-accent-rgb),0.58);
     background: rgba(0,0,0,0.72);
     color: var(--main);
     font-size: 24px;
@@ -1102,14 +1105,14 @@ body .ghost-nav-overlay,
 .pegasus-data-card {
     margin-top: 14px !important;
     padding: 18px !important;
-    border-color: rgba(0,255,65,0.28) !important;
-    background: rgba(0,255,65,0.035) !important;
+    border-color: rgba(var(--pg-accent-rgb),0.28) !important;
+    background: rgba(var(--pg-accent-rgb),0.035) !important;
     box-sizing: border-box !important;
 }
 
 .pegasus-data-card-all {
     border-color: var(--main) !important;
-    background: rgba(0,255,65,0.055) !important;
+    background: rgba(var(--pg-accent-rgb),0.055) !important;
 }
 
 .pegasus-data-title {
@@ -1159,8 +1162,8 @@ body .ghost-nav-overlay,
 .pegasus-timer-settings-card {
     margin-top: 18px !important;
     padding: 18px !important;
-    border-color: rgba(0,255,65,0.24) !important;
-    background: rgba(0,255,65,0.032) !important;
+    border-color: rgba(var(--pg-accent-rgb),0.24) !important;
+    background: rgba(var(--pg-accent-rgb),0.032) !important;
     box-sizing: border-box !important;
 }
 
@@ -1190,7 +1193,7 @@ body .ghost-nav-overlay,
     height: 42px !important;
     margin: 0 !important;
     border-radius: 12px !important;
-    border: 1px solid rgba(0,255,65,.35) !important;
+    border: 1px solid rgba(var(--pg-accent-rgb),.35) !important;
     background: rgba(0,0,0,.68) !important;
     color: var(--main) !important;
     text-align: center !important;
@@ -1208,10 +1211,58 @@ body .ghost-nav-overlay,
 /* PEGASUS v296: make workout timer settings easy to find in mobile settings */
 .pegasus-timer-settings-card-priority {
     margin-top: 18px !important;
-    border: 1px solid rgba(0,255,65,0.42) !important;
-    box-shadow: 0 0 18px rgba(0,255,65,0.08) !important;
+    border: 1px solid rgba(var(--pg-accent-rgb),0.42) !important;
+    box-shadow: 0 0 18px rgba(var(--pg-accent-rgb),0.08) !important;
 }
 .pegasus-timer-settings-card-priority .pegasus-data-title {
     font-size: 12px !important;
     color: var(--main) !important;
+}
+
+
+/* Pegasus MOBILE ONLY — selectable theme, stored per device. Desktop stays unchanged. */
+html[data-pegasus-mobile-theme="blue"] {
+    --main: #58adff;
+    --border: #58adff;
+    --bg: #071426;
+    --card: rgba(20, 45, 79, .88);
+    --pg-accent-rgb: 88, 173, 255;
+    --pg-soft-accent: #a8d6ff;
+    --pg-soft-accent-2: #c0e2ff;
+    --pg-soft-accent-3: #e1f1ff;
+    --pg-radial-top: #16416a;
+    --pg-radial-end: #071426;
+    --pegasus-top-sticky-bg: linear-gradient(180deg, rgba(6,20,39,.98), rgba(6,20,39,.84));
+}
+html[data-pegasus-mobile-theme="blue"] body {
+    background-color: var(--bg);
+}
+.pg-theme-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    width: 100%;
+}
+.pg-theme-option {
+    cursor: pointer;
+    min-height: 44px;
+    border-radius: 12px;
+    border: 1px solid rgba(var(--pg-accent-rgb),.35);
+    background: rgba(var(--pg-accent-rgb),.055);
+    color: #e6f1ff;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 800;
+    transition: background .16s ease, border-color .16s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+.pg-theme-option[aria-pressed="true"] {
+    border: 2px solid var(--main);
+    background: rgba(var(--pg-accent-rgb),.23);
+    color: #fff;
+    box-shadow: 0 0 12px rgba(var(--pg-accent-rgb),.19);
+}
+.pg-theme-option:focus-visible {
+    outline: 2px solid var(--main);
+    outline-offset: 2px;
 }
