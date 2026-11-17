@@ -23,8 +23,8 @@ async function main() {
     const app = read('app.js'), mobile = read('mobile/mobile.html'), html = read('index.html'), sw = read('sw.js');
     const data = read('data.js'), i18n = read('i18n.js'), manifest = read('manifest.js');
     check('Pegasus Mobile theme worker updated without changing desktop loader', () => {
-        assert.ok(sw.includes("PEGASUS_STORAGE_VERSION = '315'"));
-        assert.ok(mobile.includes('v=3.36.315'));
+        assert.ok(sw.includes("PEGASUS_STORAGE_VERSION = '316'"));
+        assert.ok(mobile.includes('v=3.36.316'));
         for (const content of [html, app]) assert.ok(content.includes('v=3.36.311'));
         assert.ok(mobile.includes('pegasus_mobile_theme_v1'));
         assert.ok(mobile.includes('setPegasusMobileTheme'));
@@ -37,6 +37,16 @@ async function main() {
         assert.ok(mobile.includes('classList.toggle(\'pegasus-show-page\''));
         assert.ok(read('mobile/style.css').includes('height:clamp(74px,12dvh,112px)!important'));
         assert.ok(sw.includes("'./mobile/pegasus-hero.webp'"));
+    });
+    check('Applications Pegasus hero precedes local status and retains arrows', () => {
+        assert.ok(mobile.includes("banner.after(status)"));
+        assert.ok(mobile.includes("dataset.pegasusInApplications!=='true'"));
+        assert.ok(mobile.includes('id="prevPage"'));
+        assert.ok(mobile.includes('id="nextPage"'));
+        assert.ok(mobile.includes('class="pegasus-hero-art"'));
+        const style=read('mobile/style.css');
+        assert.ok(style.includes('Applications premium alignment v2'));
+        assert.ok(style.includes('#home #sync-indicator'));
     });
     check('ghost navigation hides only inside Applications launcher', () => {
         const marker = '/* Only hide the nonfunctional ghost buttons inside our Applications launcher. */';
