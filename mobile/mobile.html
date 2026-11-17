@@ -63,17 +63,7 @@
       }
     })();
     </script>
-    <script>
-    // Inside Applications only: place local status below the premium artwork,
-    // never above it. The same status node and update logic are preserved.
-    document.addEventListener('DOMContentLoaded', () => {
-      if(document.documentElement.dataset.pegasusInApplications!=='true')return;
-      const banner=document.querySelector('#home .pegasus-premium-banner');
-      const status=document.getElementById('sync-indicator');
-      if(banner&&status)banner.after(status);
-    },{once:true});
-    </script>
-    <link rel="stylesheet" href="style.css?v=317">
+<link rel="stylesheet" href="style.css?v=318">
 </head>
 <body>
     <div id="sync-indicator" data-pegasus-raw-label="true">Τοπική λειτουργία</div>
@@ -1445,7 +1435,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('../sw.js?v=3.36.317')
+                navigator.serviceWorker.register('../sw.js?v=3.36.318')
                     .then(reg => {
                         console.log('📡 PEGASUS: Service Worker Registered.');
                         // No forced reg.update() on every open; this keeps refresh fast after the first local download.
