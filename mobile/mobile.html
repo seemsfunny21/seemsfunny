@@ -63,7 +63,7 @@
       }
     })();
     </script>
-<link rel="stylesheet" href="style.css?v=319">
+<link rel="stylesheet" href="style.css?v=320">
 </head>
 <body>
     <div id="sync-indicator" data-pegasus-raw-label="true">Τοπική λειτουργία</div>
@@ -279,18 +279,9 @@
                 <button class="secondary-btn pegasus-file-restore" type="button" onclick="document.getElementById('pegasusRestoreLocalFile')?.click()">Ασφαλής επαναφορά</button>
                 <input id="pegasusRestoreLocalFile" type="file" style="display:none;" accept=".json,application/json" onchange="PegasusMobileDataManager.restoreLocal(event)">
             </div>
-            <div class="pegasus-data-hint">Για έγγραφα, όχημα, parking και ό,τι μένει μόνο στη συσκευή. Η επαναφορά γίνεται με ασφαλές merge.</div>
+            <div class="pegasus-data-hint">Αντίγραφο των βασικών τοπικών καταχωρίσεων και ασφαλής συγχώνευση σε άλλη συσκευή. Δεν περιλαμβάνει κωδικούς ή φωτογραφίες εκτός localStorage.</div>
         </div>
 
-        <div class="mini-card pegasus-data-card pegasus-data-card-all">
-            <span class="mini-label pegasus-data-title">Πλήρες τοπικό αντίγραφο & επαναφορά</span>
-            <div class="compact-grid pegasus-data-actions">
-                <button class="primary-btn" onclick="PegasusMobileDataManager.backupAll()">Αντίγραφο</button>
-                <button class="primary-btn pegasus-file-restore" type="button" onclick="document.getElementById('pegasusRestoreAllFile')?.click()">Ασφαλής επαναφορά</button>
-                <input id="pegasusRestoreAllFile" type="file" style="display:none;" accept=".json,application/json" onchange="PegasusMobileDataManager.restoreAll(event)">
-            </div>
-            <div class="pegasus-data-hint">Όλα τα δεδομένα είναι τοπικά. Για μεταφορά σε άλλο κινητό ή υπολογιστή, κάνε αντίγραφο και μετά ασφαλή επαναφορά.</div>
-        </div>
 
         <button class="primary-btn" style="background: rgba(255,68,68,0.1); border: 1px solid #ff4444; color: #ff4444; box-shadow: none; font-size: 11px; padding: 18px; margin-top: 16px;" onclick="hardResetSystem()">
             🚨 Γενικό reset συστήματος
@@ -1364,27 +1355,31 @@
     })();
 
     async function hardResetSystem() {
-        if (confirm("🚨 Προσοχή: Διαγραφή Cache;")) {
-            try {
-                stopMobileSyncHeartbeat();
+        // Each GitHub Pages app has its own SW scope but shares Cache Storage.
+        // Never remove the other apps' workers or offline caches.
+        if (!confirm("Καθαρισμός offline cache μόνο του PEGASUS; Τα δεδομένα και οι άλλες εφαρμογές διατηρούνται.")) return;
+        try {
+            stopMobileSyncHeartbeat();
 
-                if ('serviceWorker' in navigator && window.isSecureContext) {
-                    const regs = await navigator.serviceWorker.getRegistrations();
-                    for (const reg of regs) {
-                        await reg.unregister();
-                    }
+            if ('serviceWorker' in navigator && window.isSecureContext) {
+                const appScope = new URL('../', location.href).href;
+                const regs = await navigator.serviceWorker.getRegistrations();
+                for (const reg of regs) {
+                    if (reg.scope === appScope) await reg.unregister();
                 }
-
-                if ('caches' in window) {
-                    const keys = await caches.keys();
-                    await Promise.all(keys.map(key => caches.delete(key)));
-                }
-            } catch (e) {
-                console.error("Hard Reset Cleanup Error:", e);
             }
 
-            location.replace(location.pathname + '?v=' + Date.now());
+            if ('caches' in window) {
+                const keys = await caches.keys();
+                await Promise.all(
+                    keys.filter(key => key.startsWith('pegasus-')).map(key => caches.delete(key))
+                );
+            }
+        } catch (e) {
+            console.error("Pegasus Cache Cleanup Error:", e);
         }
+
+        location.replace(location.pathname + '?v=' + Date.now());
     }
 
     function exportData() {
@@ -1435,7 +1430,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('../sw.js?v=3.36.319')
+                navigator.serviceWorker.register('../sw.js?v=3.36.320')
                     .then(reg => {
                         console.log('📡 PEGASUS: Service Worker Registered.');
                         // No forced reg.update() on every open; this keeps refresh fast after the first local download.
