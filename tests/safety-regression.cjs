@@ -23,8 +23,8 @@ async function main() {
     const app = read('app.js'), mobile = read('mobile/mobile.html'), html = read('index.html'), sw = read('sw.js');
     const data = read('data.js'), i18n = read('i18n.js'), manifest = read('manifest.js');
     check('Pegasus Mobile theme worker updated without changing desktop loader', () => {
-        assert.ok(sw.includes("PEGASUS_STORAGE_VERSION = '320'"));
-        assert.ok(mobile.includes('v=3.36.320'));
+        assert.ok(sw.includes("PEGASUS_STORAGE_VERSION = '321'"));
+        assert.ok(mobile.includes('v=3.36.321'));
         for (const content of [html, app]) assert.ok(content.includes('v=3.36.311'));
         assert.ok(mobile.includes('pegasus_mobile_theme_v1'));
         assert.ok(mobile.includes('setPegasusMobileTheme'));
