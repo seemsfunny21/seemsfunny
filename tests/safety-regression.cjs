@@ -110,20 +110,20 @@ async function main() {
             location:{href:'https://seemsfunny21.github.io/seemsfunny/mobile/mobile.html',pathname:'/seemsfunny/mobile/mobile.html',replace(url){redirects.push(url);}},
             console
         };
-        await vm.runInNewContext(fn+'\\nhardResetSystem()',ctx);
+        await vm.runInNewContext(fn+'\nhardResetSystem()',ctx);
         assert.deepEqual(unregistered,[workerScopes[0]]);
         assert.equal(deleted.length,2);
         assert.ok(deleted.every(key=>key.startsWith('pegasus-')));
         assert.equal(redirects.length,1);
         // Aborting reset must leave all apps and all data untouched.
         const cancelled={...ctx,confirm:()=>false};
-        await vm.runInNewContext(fn+'\\nhardResetSystem()',cancelled);
+        await vm.runInNewContext(fn+'\nhardResetSystem()',cancelled);
         assert.equal(unregistered.length,1);
         assert.equal(deleted.length,2);
         assert.equal(redirects.length,1);
     });
     check('Pegasus backup controls are nonduplicate and accurately scoped',()=>{
-        assert.equal((mobile.match(/PegasusMobileDataManager\\.backupLocal\\(\\)/g)||[]).length,1);
+        assert.equal((mobile.match(/PegasusMobileDataManager\.backupLocal\(\)/g)||[]).length,1);
         assert.equal((mobile.match(/id="pegasusRestoreLocalFile"/g)||[]).length,1);
         assert.ok(!mobile.includes('class="mini-card pegasus-data-card pegasus-data-card-all"'));
         assert.ok(!mobile.includes('Πλήρες τοπικό αντίγραφο & επαναφορά'));
