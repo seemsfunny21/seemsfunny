@@ -40,7 +40,7 @@ async function main() {
     });
     check('Applications Pegasus hero contains the compact local status without moving arrows', () => {
         assert.ok(mobile.includes('banner.appendChild(indicator)'));
-        assert.ok(mobile.includes("dataset.pegasusInApplications!=='true'"));
+        assert.ok(mobile.includes('dataset.pegasusInApplications!=="true"'));
         assert.ok(mobile.includes('id="prevPage"'));
         assert.ok(mobile.includes('id="nextPage"'));
         assert.ok(mobile.includes('class="pegasus-hero-art"'));
