@@ -73,7 +73,7 @@
       if(banner&&status)banner.after(status);
     },{once:true});
     </script>
-    <link rel="stylesheet" href="style.css?v=316">
+    <link rel="stylesheet" href="style.css?v=317">
 </head>
 <body>
     <div id="sync-indicator" data-pegasus-raw-label="true">Τοπική λειτουργία</div>
@@ -1445,7 +1445,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('../sw.js?v=3.36.316')
+                navigator.serviceWorker.register('../sw.js?v=3.36.317')
                     .then(reg => {
                         console.log('📡 PEGASUS: Service Worker Registered.');
                         // No forced reg.update() on every open; this keeps refresh fast after the first local download.
@@ -1469,6 +1469,18 @@
     </script>
 
     <div class="ghost-nav-overlay" id="ghostNavOverlay" aria-label="PEGASUS ghost navigation"></div>
+    <script>
+    /* In Applications only, keep the Pegasus status as a banner badge.
+       The standalone Pegasus keeps its existing status/header arrangement. */
+    (function(){
+      if(document.documentElement.dataset.pegasusInApplications!=="true")return;
+      const banner=document.querySelector("#home > .header.pegasus-premium-banner");
+      const indicator=document.getElementById("sync-indicator");
+      const advisory=document.getElementById("dietAdvisorMobile");
+      if(banner&&indicator)banner.appendChild(indicator);
+      if(banner&&advisory)banner.after(advisory);
+    })();
+    </script>
 
 </body>
 </html>
