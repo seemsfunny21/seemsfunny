@@ -26,6 +26,8 @@
     function getGhostTop() {
         const ghost = document.getElementById('ghostNavOverlay') || document.querySelector('.ghost-nav-overlay');
         const vh = getViewportHeight();
+        // Embedded launcher mode has no ghost navigation; use the available viewport.
+        if (document.documentElement.dataset.pegasusInApplications === 'true') return Math.max(0, vh - 6);
         if (!ghost) return Math.max(0, vh - 43);
 
         const rect = ghost.getBoundingClientRect();
