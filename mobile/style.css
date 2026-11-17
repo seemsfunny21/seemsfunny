@@ -1292,3 +1292,18 @@ html[data-pegasus-mobile-theme] :is(button,input,select,textarea):focus-visible{
 @media(prefers-reduced-motion:reduce){
  html[data-pegasus-mobile-theme] :is(.primary-btn,.secondary-btn,.btn-back,.pg-theme-option){transition:none!important}
 }
+
+
+/* Applications launcher mode only: hide the decorative three-button ghost
+   navigation and release its reserved bottom space. Standalone is untouched. */
+html[data-pegasus-in-applications="true"]{
+    --pegasus-ghost-clearance: 6px;
+}
+html[data-pegasus-in-applications="true"] #ghostNavOverlay,
+html[data-pegasus-in-applications="true"] .ghost-nav-overlay{
+    display: none !important;
+}
+html[data-pegasus-in-applications="true"] .view,
+html[data-pegasus-in-applications="true"] .view-layer{
+    padding-bottom: 6px !important;
+}
