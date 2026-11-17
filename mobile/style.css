@@ -1266,3 +1266,29 @@ html[data-pegasus-mobile-theme="blue"] body {
     outline: 2px solid var(--main);
     outline-offset: 2px;
 }
+
+/* Premium Mobile polish; uses the selected green / blue palette only. */
+html[data-pegasus-mobile-theme] .mini-card{
+ border-color:rgba(var(--pg-accent-rgb),.22);
+ background:linear-gradient(155deg,rgba(var(--pg-accent-rgb),.065),rgba(10,19,32,.35));
+ box-shadow:0 12px 27px rgba(0,0,0,.19),inset 0 1px rgba(255,255,255,.04);
+}
+html[data-pegasus-mobile-theme] .tile{
+ box-shadow:0 11px 24px rgba(0,0,0,.19),inset 0 1px rgba(255,255,255,.06);
+}
+html[data-pegasus-mobile-theme] :is(.primary-btn,.secondary-btn,.btn-back,.pg-theme-option){
+ -webkit-tap-highlight-color:transparent;
+ touch-action:manipulation;
+ transition:filter .17s ease,box-shadow .17s ease,background-color .17s ease;
+}
+html[data-pegasus-mobile-theme] :is(button,input,select,textarea):focus-visible{
+ outline:2px solid var(--main);outline-offset:2px;
+}
+@media(hover:hover){
+ html[data-pegasus-mobile-theme] :is(.primary-btn,.secondary-btn,.btn-back):not(:disabled):hover{
+  filter:brightness(1.10)
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ html[data-pegasus-mobile-theme] :is(.primary-btn,.secondary-btn,.btn-back,.pg-theme-option){transition:none!important}
+}
