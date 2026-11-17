@@ -63,22 +63,19 @@
       }
     })();
     </script>
-    <link rel="stylesheet" href="style.css?v=314">
+    <link rel="stylesheet" href="style.css?v=315">
 </head>
 <body>
     <div id="sync-indicator" data-pegasus-raw-label="true">Τοπική λειτουργία</div>
     <div id="dietAdvisorMobile" style="font-size: 11px; font-weight: 800; color: #ffb300; margin-bottom: 15px; text-transform: none; letter-spacing: 1px;"></div>
 
     <div id="home" class="view active">
-        <div class="header" style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 15px; position: relative; box-sizing: border-box;">
-            <button id="prevPage" onclick="window.PegasusMobileUI.changePage(-1)" style="background:none; border:none; color:var(--main); font-size:32px; cursor:pointer; padding: 10px; z-index: 10; transition: opacity 0.2s;">◀</button>
-
-            <div style="text-align:center; flex: 1;">
-                <h1 style="font-size: 32px; margin: 0; line-height: 1;">PEGASUS</h1>
-                <p id="pageIndicator" style="margin: 5px 0 0 0; font-size: 10px; color: var(--main); font-weight: 800; letter-spacing: 2px; text-transform: none;">Tactical data interface</p>
-            </div>
-
-            <button id="nextPage" onclick="window.PegasusMobileUI.changePage(1)" style="background:none; border:none; color:var(--main); font-size:32px; cursor:pointer; padding: 10px; z-index: 10; transition: opacity 0.2s;">▶</button>
+        <div class="header pegasus-premium-banner" aria-label="PEGASUS Tactical data interface">
+            <img class="pegasus-hero-art" src="pegasus-hero.webp" alt="" width="1000" height="333" decoding="async">
+            <h1 class="pegasus-sr-only">PEGASUS</h1>
+            <button id="prevPage" class="pegasus-hero-arrow pegasus-hero-prev" type="button" aria-label="Προηγούμενη σελίδα" onclick="window.PegasusMobileUI.changePage(-1)">◀</button>
+            <p id="pageIndicator" class="pegasus-page-indicator" aria-live="polite">Tactical data interface</p>
+            <button id="nextPage" class="pegasus-hero-arrow pegasus-hero-next" type="button" aria-label="Επόμενη σελίδα" onclick="window.PegasusMobileUI.changePage(1)">▶</button>
         </div>
 
         <div id="mobileStaticDashboard" class="mobile-static-dashboard" aria-live="polite"></div>
@@ -460,7 +457,10 @@
                     });
                 }
 
-                if (pageTxt) pageTxt.textContent = this.getPageLabel(this.currentPage, maxPages);
+                if (pageTxt) {
+                    pageTxt.textContent = this.getPageLabel(this.currentPage, maxPages);
+                    pageTxt.classList.toggle('pegasus-show-page', this.currentPage > 0);
+                }
 
                 if (btnPrev) {
                     btnPrev.style.opacity = this.currentPage === 0 ? "0.1" : "1";
@@ -1435,7 +1435,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('../sw.js?v=3.36.314')
+                navigator.serviceWorker.register('../sw.js?v=3.36.315')
                     .then(reg => {
                         console.log('📡 PEGASUS: Service Worker Registered.');
                         // No forced reg.update() on every open; this keeps refresh fast after the first local download.
