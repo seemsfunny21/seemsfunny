@@ -23,8 +23,8 @@ async function main() {
     const app = read('app.js'), mobile = read('mobile/mobile.html'), html = read('index.html'), sw = read('sw.js');
     const data = read('data.js'), i18n = read('i18n.js'), manifest = read('manifest.js');
     check('Pegasus Mobile theme worker updated without changing desktop loader', () => {
-        assert.ok(sw.includes("PEGASUS_STORAGE_VERSION = '318'"));
-        assert.ok(mobile.includes('v=3.36.318'));
+        assert.ok(sw.includes("PEGASUS_STORAGE_VERSION = '319'"));
+        assert.ok(mobile.includes('v=3.36.319'));
         for (const content of [html, app]) assert.ok(content.includes('v=3.36.311'));
         assert.ok(mobile.includes('pegasus_mobile_theme_v1'));
         assert.ok(mobile.includes('setPegasusMobileTheme'));
@@ -47,6 +47,16 @@ async function main() {
         const style=read('mobile/style.css');
         assert.ok(style.includes('Applications premium alignment v3'));
         assert.ok(style.includes('.pegasus-premium-banner > #sync-indicator'));
+    });
+    check('Mobile-only local-mode badge is hidden while internal status stays intact', () => {
+        const style=read('mobile/style.css');
+        assert.ok(style.includes('Pegasus Mobile: hide the redundant local-only status label'));
+        assert.ok(style.includes('html body > #sync-indicator'));
+        assert.ok(style.includes('html body #home #sync-indicator'));
+        assert.ok(style.includes('display:none!important'));
+        assert.ok(mobile.includes('id="sync-indicator"'));
+        assert.ok(mobile.includes('function setSyncStatus(status)'));
+        assert.ok(!read('style.css').includes('Pegasus Mobile: hide the redundant local-only status label'));
     });
     check('ghost navigation hides only inside Applications launcher', () => {
         const marker = '/* Only hide the nonfunctional ghost buttons inside our Applications launcher. */';
