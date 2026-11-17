@@ -23,8 +23,8 @@ async function main() {
     const app = read('app.js'), mobile = read('mobile/mobile.html'), html = read('index.html'), sw = read('sw.js');
     const data = read('data.js'), i18n = read('i18n.js'), manifest = read('manifest.js');
     check('Pegasus Mobile theme worker updated without changing desktop loader', () => {
-        assert.ok(sw.includes("PEGASUS_STORAGE_VERSION = '319'"));
-        assert.ok(mobile.includes('v=3.36.319'));
+        assert.ok(sw.includes("PEGASUS_STORAGE_VERSION = '320'"));
+        assert.ok(mobile.includes('v=3.36.320'));
         for (const content of [html, app]) assert.ok(content.includes('v=3.36.311'));
         assert.ok(mobile.includes('pegasus_mobile_theme_v1'));
         assert.ok(mobile.includes('setPegasusMobileTheme'));
@@ -82,6 +82,52 @@ async function main() {
         const shell=read('mobile/shell-layout-mobile.js');
         assert.ok(shell.includes("dataset.pegasusInApplications === 'true'"));
         assert.ok(shell.includes('vh - 6'));
+    });
+    await checkAsync('Pegasus reset only removes its own worker and cache', async () => {
+        const start=mobile.indexOf('async function hardResetSystem()');
+        const end=mobile.indexOf('function exportData()',start);
+        assert.ok(start>=0 && end>start);
+        const fn=mobile.slice(start,end);
+        const workerScopes=[
+            'https://seemsfunny21.github.io/seemsfunny/',
+            'https://seemsfunny21.github.io/applications/',
+            'https://seemsfunny21.github.io/voltes/',
+            'https://seemsfunny21.github.io/reminder/',
+            'https://seemsfunny21.github.io/douleia/',
+            'https://seemsfunny21.github.io/Parking/'
+        ];
+        const deleted=[],unregistered=[],redirects=[];
+        const registrations=workerScopes.map(scope=>({scope,async unregister(){unregistered.push(scope);}}));
+        const cachesApi={
+            async keys(){return ['pegasus-permanent-local-v318','pegasus-permanent-local-v320','applications-shell-v11','podilasia-ui-v80','reminder-pwa-v19','dromologia-github-neon-v13','parking-shell-v14'];},
+            async delete(key){deleted.push(key);return true;}
+        };
+        const ctx={
+            confirm:()=>true,stopMobileSyncHeartbeat:()=>{},
+            navigator:{serviceWorker:{async getRegistrations(){return registrations;}}},
+            window:{isSecureContext:true,caches:cachesApi},
+            caches:cachesApi,URL,Date,
+            location:{href:'https://seemsfunny21.github.io/seemsfunny/mobile/mobile.html',pathname:'/seemsfunny/mobile/mobile.html',replace(url){redirects.push(url);}},
+            console
+        };
+        await vm.runInNewContext(fn+'\\nhardResetSystem()',ctx);
+        assert.deepEqual(unregistered,[workerScopes[0]]);
+        assert.equal(deleted.length,2);
+        assert.ok(deleted.every(key=>key.startsWith('pegasus-')));
+        assert.equal(redirects.length,1);
+        // Aborting reset must leave all apps and all data untouched.
+        const cancelled={...ctx,confirm:()=>false};
+        await vm.runInNewContext(fn+'\\nhardResetSystem()',cancelled);
+        assert.equal(unregistered.length,1);
+        assert.equal(deleted.length,2);
+        assert.equal(redirects.length,1);
+    });
+    check('Pegasus backup controls are nonduplicate and accurately scoped',()=>{
+        assert.equal((mobile.match(/PegasusMobileDataManager\\.backupLocal\\(\\)/g)||[]).length,1);
+        assert.equal((mobile.match(/id="pegasusRestoreLocalFile"/g)||[]).length,1);
+        assert.ok(!mobile.includes('class="mini-card pegasus-data-card pegasus-data-card-all"'));
+        assert.ok(!mobile.includes('Πλήρες τοπικό αντίγραφο & επαναφορά'));
+        assert.ok(mobile.includes('Δεν περιλαμβάνει κωδικούς'));
     });
     check('safe desktop restore never clears all site storage', () => {
         assert.ok(!read('backup.js').includes('localStorage.clear()'));
