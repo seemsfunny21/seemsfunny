@@ -1379,27 +1379,34 @@ html[data-pegasus-in-applications="true"] .view-layer{
  #home .pegasus-hero-arrow{transition:none!important}
 }
 
-/* Applications premium alignment v2: same top offset and image height as other apps. */
+
+/* Applications premium alignment v3: single top banner like the other four apps.
+   The 20px local status is still visible, as a compact badge inside the banner.
+   Standalone mobile and desktop layouts stay unchanged. */
 html[data-pegasus-in-applications="true"] body{
- padding-top:20px!important;
+  padding:12px 12px 0!important;
+}
+html[data-pegasus-in-applications="true"] #home > .header.pegasus-premium-banner{
+  margin:0 0 10px!important;
+}
+html[data-pegasus-in-applications="true"] #home .header.pegasus-premium-banner > #sync-indicator{
+  position:absolute!important;
+  top:5px!important;left:7px!important;right:auto!important;bottom:auto!important;
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  width:auto!important;min-width:0!important;max-width:calc(100% - 16px)!important;
+  height:19px!important;min-height:19px!important;
+  padding:0 7px!important;margin:0!important;
+  border:1px solid rgba(var(--pg-accent-rgb),.36)!important;
+  border-radius:7px!important;
+  background:rgba(1,11,29,.84)!important;
+  font-size:10px!important;line-height:17px!important;letter-spacing:.2px!important;
+  text-shadow:0 0 7px currentColor!important;
+  flex:none!important;z-index:5!important;
+  pointer-events:none!important;
 }
 html[data-pegasus-in-applications="true"] #dietAdvisorMobile:empty{
- display:none!important;
- margin:0!important;
+  display:none!important;margin:0!important;
 }
-html[data-pegasus-in-applications="true"] #home .header.pegasus-premium-banner{
- margin-top:0!important;
- margin-bottom:5px!important;
-}
-html[data-pegasus-in-applications="true"] #home #sync-indicator{
- display:flex!important;
- flex:0 0 auto!important;
- width:100%!important;
- min-width:0!important;
- max-width:100%!important;
- height:20px!important;
- min-height:20px!important;
- font-size:12px!important;
- margin:0 auto 6px!important;
- letter-spacing:.5px!important;
+html[data-pegasus-in-applications="true"] #home #dietAdvisorMobile:not(:empty){
+  margin:0 0 8px!important;
 }
