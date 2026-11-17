@@ -23,11 +23,36 @@ async function main() {
     const app = read('app.js'), mobile = read('mobile/mobile.html'), html = read('index.html'), sw = read('sw.js');
     const data = read('data.js'), i18n = read('i18n.js'), manifest = read('manifest.js');
     check('Pegasus Mobile theme worker updated without changing desktop loader', () => {
-        assert.ok(sw.includes("PEGASUS_STORAGE_VERSION = '313'"));
-        assert.ok(mobile.includes('v=3.36.313'));
+        assert.ok(sw.includes("PEGASUS_STORAGE_VERSION = '314'"));
+        assert.ok(mobile.includes('v=3.36.314'));
         for (const content of [html, app]) assert.ok(content.includes('v=3.36.311'));
         assert.ok(mobile.includes('pegasus_mobile_theme_v1'));
         assert.ok(mobile.includes('setPegasusMobileTheme'));
+    });
+    check('ghost navigation hides only inside Applications launcher', () => {
+        const marker = '/* Only hide the nonfunctional ghost buttons inside our Applications launcher. */';
+        const start = mobile.indexOf(marker);
+        const end = mobile.indexOf('</script>', start);
+        assert.ok(start >= 0 && end > start);
+        const script = mobile.slice(start, end);
+        const verify = (parentPath, parentOrigin='https://seemsfunny21.github.io', standalone=false) => {
+            const windowObj = { location:{origin:'https://seemsfunny21.github.io'} };
+            windowObj.parent = standalone ? windowObj : {location:{origin:parentOrigin, pathname:parentPath}};
+            const documentObj = {documentElement:{dataset:{}}};
+            vm.runInNewContext(script,{window:windowObj,document:documentObj});
+            return documentObj.documentElement.dataset.pegasusInApplications === 'true';
+        };
+        assert.equal(verify('/applications/'),true);
+        assert.equal(verify('/applications/index.html'),true);
+        assert.equal(verify('/seemsfunny/'),false);
+        assert.equal(verify('/applications/',undefined,true),false);
+        assert.equal(verify('/applications/','https://another.example'),false);
+        const css=read('mobile/style.css');
+        assert.ok(css.includes('html[data-pegasus-in-applications="true"] #ghostNavOverlay'));
+        assert.ok(css.includes('display: none !important'));
+        const shell=read('mobile/shell-layout-mobile.js');
+        assert.ok(shell.includes("dataset.pegasusInApplications === 'true'"));
+        assert.ok(shell.includes('vh - 6'));
     });
     check('safe desktop restore never clears all site storage', () => {
         assert.ok(!read('backup.js').includes('localStorage.clear()'));
