@@ -1410,3 +1410,18 @@ html[data-pegasus-in-applications="true"] #dietAdvisorMobile:empty{
 html[data-pegasus-in-applications="true"] #home #dietAdvisorMobile:not(:empty){
   margin:0 0 8px!important;
 }
+
+/* Pegasus Mobile: hide the redundant local-only status label.
+   Keep the DOM node and its internal state logic intact; desktop CSS is untouched. */
+html body > #sync-indicator,
+html body > #sync-indicator.pegasus-sync-indicator-fixed,
+html body #home #sync-indicator,
+html[data-pegasus-in-applications="true"] body #home > .header.pegasus-premium-banner > #sync-indicator{
+  display:none!important;
+  visibility:hidden!important;
+  width:0!important;
+  height:0!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+}
