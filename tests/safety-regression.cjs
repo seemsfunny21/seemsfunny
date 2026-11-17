@@ -23,11 +23,20 @@ async function main() {
     const app = read('app.js'), mobile = read('mobile/mobile.html'), html = read('index.html'), sw = read('sw.js');
     const data = read('data.js'), i18n = read('i18n.js'), manifest = read('manifest.js');
     check('Pegasus Mobile theme worker updated without changing desktop loader', () => {
-        assert.ok(sw.includes("PEGASUS_STORAGE_VERSION = '314'"));
-        assert.ok(mobile.includes('v=3.36.314'));
+        assert.ok(sw.includes("PEGASUS_STORAGE_VERSION = '315'"));
+        assert.ok(mobile.includes('v=3.36.315'));
         for (const content of [html, app]) assert.ok(content.includes('v=3.36.311'));
         assert.ok(mobile.includes('pegasus_mobile_theme_v1'));
         assert.ok(mobile.includes('setPegasusMobileTheme'));
+    });
+    check('Premium Pegasus banner preserves page arrows and local cache', () => {
+        assert.ok(mobile.includes('src="pegasus-hero.webp"'));
+        assert.ok(mobile.includes('class="header pegasus-premium-banner"'));
+        assert.ok(mobile.includes('id="prevPage"'));
+        assert.ok(mobile.includes('id="nextPage"'));
+        assert.ok(mobile.includes('classList.toggle(\'pegasus-show-page\''));
+        assert.ok(read('mobile/style.css').includes('height:clamp(74px,12dvh,112px)!important'));
+        assert.ok(sw.includes("'./mobile/pegasus-hero.webp'"));
     });
     check('ghost navigation hides only inside Applications launcher', () => {
         const marker = '/* Only hide the nonfunctional ghost buttons inside our Applications launcher. */';
