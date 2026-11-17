@@ -1378,3 +1378,28 @@ html[data-pegasus-in-applications="true"] .view-layer{
 @media(prefers-reduced-motion:reduce){
  #home .pegasus-hero-arrow{transition:none!important}
 }
+
+/* Applications premium alignment v2: same top offset and image height as other apps. */
+html[data-pegasus-in-applications="true"] body{
+ padding-top:20px!important;
+}
+html[data-pegasus-in-applications="true"] #dietAdvisorMobile:empty{
+ display:none!important;
+ margin:0!important;
+}
+html[data-pegasus-in-applications="true"] #home .header.pegasus-premium-banner{
+ margin-top:0!important;
+ margin-bottom:5px!important;
+}
+html[data-pegasus-in-applications="true"] #home #sync-indicator{
+ display:flex!important;
+ flex:0 0 auto!important;
+ width:100%!important;
+ min-width:0!important;
+ max-width:100%!important;
+ height:20px!important;
+ min-height:20px!important;
+ font-size:12px!important;
+ margin:0 auto 6px!important;
+ letter-spacing:.5px!important;
+}
