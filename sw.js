@@ -491,7 +491,19 @@ self.addEventListener('install', (event) => {
         // so the user sees exact progress on the PEGASUS loader.
         for (const assetUrl of ['./', './index.html', './style.css', './manifest.js', './app.js', './sw.js']) {
             try {
-                await cacheOnePermanentAsset(cache, assetUrl);
+                if (assetUrl === './style.css') {
+                    // Refresh only the tiny presentation stylesheet after a TV layout update.
+                    // Do not change the permanent cache version: workout videos stay preloaded.
+                    const cssRequest = makeCacheRequest(assetUrl);
+                    const freshCSS = await fetch(cssRequest, { cache: 'reload' });
+                    if (freshCSS.ok && freshCSS.type === 'basic') {
+                        await cache.put(cssRequest, freshCSS.clone());
+                    } else {
+                        await cacheOnePermanentAsset(cache, assetUrl);
+                    }
+                } else {
+                    await cacheOnePermanentAsset(cache, assetUrl);
+                }
             } catch (_) {}
         }
         console.log('✅ PEGASUS SW: shell installed; waiting for permanent local download command.');
