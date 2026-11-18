@@ -1482,3 +1482,60 @@ input:checked + .slider:before { transform: translateX(26px); }
     box-sizing: border-box !important;
     align-self: stretch !important;
 }
+
+
+/* Living-room and desktop workout cockpit. No mobile/tablet overrides. */
+@media (min-width:1450px) and (min-height:720px){
+  .navbar{
+    height:66px!important;
+    min-height:66px;
+    border-bottom-color:#31543a;
+  }
+  .navbar button{
+    min-width:0;
+    font-size:clamp(14px,.85vw,17px);
+    padding:12px 14px;
+  }
+  .pegasus-control-bar{
+    height:66px!important;
+    min-height:66px;
+    padding:0 clamp(14px,1.4vw,28px);
+    gap:9px!important;
+    border-bottom-color:#31543a;
+  }
+  .control-buttons,.info-display{gap:7px!important}
+  .p-btn,.weather-text,.workout-count-text,#totalProgressContainer{
+    height:42px;
+    border-radius:9px;
+    font-size:clamp(12px,.72vw,15px);
+    padding-left:10px;
+    padding-right:10px;
+  }
+  #totalProgressContainer{width:clamp(125px,9vw,170px)}
+  .content{
+    height:calc(100% - 132px);
+    padding:clamp(18px,1.4vw,30px) clamp(18px,2vw,46px);
+  }
+  .exercise-container{gap:clamp(18px,1.5vw,30px);min-width:0}
+  .exercise-list{
+    width:clamp(320px,21vw,430px);
+    max-width:30%;
+    min-width:0;
+  }
+  .exercise{
+    border-radius:14px;
+    padding:18px 16px;
+    margin-bottom:14px;
+  }
+  .video-container{
+    min-width:0;
+    border-radius:18px;
+    box-shadow:0 0 24px rgba(76,175,80,.16);
+  }
+  .next-exercise-video-box{max-width:320px}
+}
+@media (min-width:2100px) and (min-height:1000px){
+  .exercise-list{width:clamp(420px,21vw,540px)}
+  .exercise{font-size:clamp(16px,.85vw,19px)}
+  .navbar button{font-size:18px}
+}
