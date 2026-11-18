@@ -1,3 +1,4 @@
+/* Restoring the original phone-focused desktop stylesheet; keep existing media caches. */
 /* ==========================================================================
    PEGASUS PWA SERVICE WORKER - v3.21 (LOCAL-ONLY)
    Protocol: Cache-first after full local download, persistent same-origin assets
