@@ -1,4 +1,4 @@
-/* Restoring the original phone-focused desktop stylesheet; keep existing media caches. */
+/* Pegasus cache maintenance: refresh the app shell; retain existing downloaded videos. */
 /* ==========================================================================
    PEGASUS PWA SERVICE WORKER - v3.21 (LOCAL-ONLY)
    Protocol: Cache-first after full local download, persistent same-origin assets
@@ -339,19 +339,25 @@ async function runPermanentLocalDownload(extraUrls = []) {
     const signature = urls.map(x => cleanCacheUrl(x).pathname).sort().join('|');
     const existingMeta = await getPermanentCacheMeta(cache, signature);
     if (existingMeta && Number(existingMeta.total || 0) >= total) {
-        await notifyPegasusClients({
-            type: 'PEGASUS_PERMANENT_CACHE_COMPLETE',
-            percent: 100,
-            done: existingMeta.done || existingMeta.total || total,
-            total: existingMeta.total || total,
-            ok: existingMeta.ok || existingMeta.total || total,
-            skipped: existingMeta.skipped || 0,
-            bytes: existingMeta.bytes || 0,
-            cache: CACHE_NAME,
-            status: 'already-local'
-        });
-        console.log(`✅ PEGASUS SW: permanent local storage already ready (${existingMeta.ok || existingMeta.total || total}/${existingMeta.total || total}).`);
-        return;
+        const ready = Number(existingMeta.skipped || 0) === 0 && Number(existingMeta.ok || 0) >= total;
+        // A temporary/missing file must not force a full cache scan every time
+        // the application opens. Retry incomplete downloads after six hours.
+        const retryLater = Number(existingMeta.skipped || 0) > 0 &&
+            Number(existingMeta.nextRetryAt || 0) > Date.now();
+        if (ready || retryLater) {
+            await notifyPegasusClients({
+                type: 'PEGASUS_PERMANENT_CACHE_COMPLETE',
+                percent: 100,
+                done: existingMeta.done || total,
+                total,
+                ok: Number(existingMeta.ok || 0),
+                skipped: Number(existingMeta.skipped || 0),
+                bytes: existingMeta.bytes || 0,
+                cache: CACHE_NAME,
+                status: ready ? 'already-local' : 'partial'
+            });
+            return;
+        }
     }
 
     let done = 0;
@@ -398,11 +404,13 @@ async function runPermanentLocalDownload(extraUrls = []) {
         });
     }
 
-    // Only successfully downloaded assets count as a complete offline copy.
-    if (skipped === 0) {
-        await setPermanentCacheMeta(cache, { done, total, ok, skipped, bytes, signature });
-        await pruneRedundantPegasusCaches(cache);
-    }
+    // Persist both complete and partial audits. Incomplete audits are retried
+    // later, without repeatedly scanning all existing video blobs at startup.
+    await setPermanentCacheMeta(cache, {
+        done, total, ok, skipped, bytes, signature,
+        nextRetryAt: skipped ? Date.now() + 6 * 60 * 60 * 1000 : 0
+    });
+    if (skipped === 0) await pruneRedundantPegasusCaches(cache);
 
     await notifyPegasusClients({
         type: 'PEGASUS_PERMANENT_CACHE_COMPLETE',
@@ -487,25 +495,21 @@ self.addEventListener('install', (event) => {
     self.skipWaiting();
     event.waitUntil((async () => {
         const cache = await caches.open(CACHE_NAME);
-        // Keep installation instant: only shell entries that already arrive during page boot
-        // are allowed to be cached here. The full permanent download is started by the page
-        // so the user sees exact progress on the PEGASUS loader.
+        // On updates, refresh the small app shell even when cached.
+        // Keep the SAME permanent cache version: videos are never invalidated
+        // or redownloaded simply because the application code changed.
         for (const assetUrl of ['./', './index.html', './style.css', './manifest.js', './app.js', './sw.js']) {
             try {
-                if (assetUrl === './style.css') {
-                    // Refresh only the tiny presentation stylesheet after a TV layout update.
-                    // Do not change the permanent cache version: workout videos stay preloaded.
-                    const cssRequest = makeCacheRequest(assetUrl);
-                    const freshCSS = await fetch(cssRequest, { cache: 'reload' });
-                    if (freshCSS.ok && freshCSS.type === 'basic') {
-                        await cache.put(cssRequest, freshCSS.clone());
-                    } else {
-                        await cacheOnePermanentAsset(cache, assetUrl);
-                    }
+                const request = makeCacheRequest(assetUrl);
+                const fresh = await fetch(request, { cache: 'reload' });
+                if (isCacheableResponse(fresh)) {
+                    await cache.put(request, fresh.clone());
                 } else {
                     await cacheOnePermanentAsset(cache, assetUrl);
                 }
-            } catch (_) {}
+            } catch (_) {
+                try { await cacheOnePermanentAsset(cache, assetUrl); } catch (_) {}
+            }
         }
         console.log('✅ PEGASUS SW: shell installed; waiting for permanent local download command.');
     })());
