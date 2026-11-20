@@ -2012,7 +2012,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
     });
 
     const state = {
-        version: '311',
+        version: '321',
         started: false,
         completed: false,
         percent: 0,
@@ -2022,7 +2022,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
         skipped: 0,
         bytes: 0,
         readyPromise,
-        readyKey: 'pegasus_permanent_assets_ready_v311',
+        readyKey: 'pegasus_permanent_assets_ready_v321',
 
         getReadyMarker() {
             try {
@@ -2102,7 +2102,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
             ];
 
             const all = Array.from(new Set([...staticUrls, ...urls]));
-            const cache = await caches.open('pegasus-permanent-local-v311-page-fallback');
+            const cache = await caches.open('pegasus-permanent-local-v321-page-fallback');
             let done = 0;
             let ok = 0;
             let skipped = 0;
@@ -2167,7 +2167,7 @@ window.PegasusPermanentStorage = window.PegasusPermanentStorage || (() => {
                     }
 
                     const swPath = window.location.pathname.includes('/mobile/') ? '../sw.js' : './sw.js';
-                    await navigator.serviceWorker.register(`${swPath}?v=3.36.311`);
+                    await navigator.serviceWorker.register(`${swPath}?v=3.36.321.1`);
                     const registration = await navigator.serviceWorker.ready;
                     const target = navigator.serviceWorker.controller || registration.active || registration.waiting || registration.installing;
 
@@ -3350,15 +3350,16 @@ window.onload = () => {
 
     if (window.PegasusUI?.init) window.PegasusUI.init();
 
-    // PEGASUS 237: hold the visible initialization screen until all known
-    // same-origin system/media files are stored in the permanent local cache.
-    const storageReady = window.PegasusBackgroundAssets?.start
-        ? window.PegasusBackgroundAssets.start()
-        : Promise.resolve(true);
+    // The UI must never wait for an offline-media audit or a failed video.
+    // Missing files are downloaded in the background, while cached videos
+    // remain available instantly through the service worker.
+    Promise.resolve().then(() =>
+        window.PegasusBackgroundAssets?.start
+            ? window.PegasusBackgroundAssets.start()
+            : true
+    ).catch(error => console.warn('PEGASUS: non-blocking media cache update failed', error));
 
-    const minimumLoaderTime = new Promise(resolve => setTimeout(resolve, 600));
-
-    Promise.allSettled([storageReady, minimumLoaderTime]).then(() => {
+    setTimeout(() => {
         const loader = document.getElementById('pegasus-loader');
         if (loader) {
             loader.style.opacity = '0';
@@ -3375,8 +3376,8 @@ window.onload = () => {
         syncPegasusUserRuntime();
         renderPegasusControlState();
 
-        console.log("🛡️ PEGASUS OS: Permanent local initialization complete. Welcome back, Angelos.");
-    });
+        console.log("🛡️ PEGASUS OS: Interface ready; media storage continues independently.");
+    }, 600);
 };
 
 
