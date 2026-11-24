@@ -1790,6 +1790,12 @@ function runPhase() {
                 }
                 if (window.PegasusCloud && typeof window.PegasusCloud.push === "function") window.PegasusCloud.push();
 
+                // No recovery interval is needed after the final available set.
+                if (getNextIndexCircuit() === -1) {
+                    finishWorkout();
+                    return;
+                }
+
                 phase = 2;
                 phaseRemainingSeconds = getPhaseDefaultTime(2);
                 syncPegasusProgressRuntime();
@@ -2645,6 +2651,8 @@ function calculateTotalTime(isUpdate = false) {
         let sets = parseFloat(ex.dataset.total) || 0;
         return acc + (sets * (config.prep + config.work + config.rest));
     }, 0);
+    // Rest is between sets, never after the last set of the session.
+    newTotal = Math.max(0, newTotal - config.rest);
 
     if (isUpdate) {
         let diff = totalSeconds - newTotal;
