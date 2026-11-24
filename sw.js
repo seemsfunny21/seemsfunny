@@ -498,7 +498,7 @@ self.addEventListener('install', (event) => {
         // On updates, refresh the small app shell even when cached.
         // Keep the SAME permanent cache version: videos are never invalidated
         // or redownloaded simply because the application code changed.
-        for (const assetUrl of ['./', './index.html', './style.css', './manifest.js', './app.js', './sw.js']) {
+        for (const assetUrl of ['./', './index.html', './style.css', './manifest.js', './app.js', './pegasusCore.js', './sw.js']) {
             try {
                 const request = makeCacheRequest(assetUrl);
                 const fresh = await fetch(request, { cache: 'reload' });
