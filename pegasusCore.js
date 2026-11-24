@@ -380,6 +380,13 @@
                 break;
         }
 
+        // Guard all runtime timer actions, including restored or malformed state.
+        for (const key of ["totalSeconds", "remainingSeconds", "phaseRemainingSeconds"]) {
+            const value = next.timers[key];
+            if (key === "phaseRemainingSeconds" && value === null) continue;
+            next.timers[key] = Number.isFinite(value) ? Math.max(0, value) : 0;
+        }
+
         next.meta.updatedAt = Date.now();
         next.meta.lastAction = action.type;
 
