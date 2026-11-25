@@ -469,20 +469,23 @@ async function checkPegasusVideoVersion(url) {
         if (!local || local.status !== 200) return 'not-local';
 
         const validationCache = await caches.open(VIDEO_VALIDATION_CACHE);
-        const checked = await validationCache.match(key, { ignoreVary: true });
+        const metadataKey = key + '?pegasus-video-checked=1';
+        const checked = await validationCache.match(metadataKey);
         if (checked) {
             const checkedAt = Number(await checked.text());
             if (Number.isFinite(checkedAt) && Date.now() - checkedAt < VIDEO_CHECK_INTERVAL && checkedAt <= Date.now()) return 'recent';
         }
 
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 15000);
+        let timeout = setTimeout(() => controller.abort(), 15000);
         try {
             const head = await fetch(key, { method: 'HEAD', cache: 'no-store', signal: controller.signal });
             if (!head.ok) throw Error('Video HEAD ' + head.status);
             let result = 'unchanged';
             if (videoValidatorsDiffer(local.headers, head.headers)) {
                 // Full GET only for a known difference; never discard a working local file.
+                clearTimeout(timeout);
+                timeout = setTimeout(() => controller.abort(), 120000);
                 const response = await fetch(key, { cache: 'no-store', signal: controller.signal });
                 const blob = await response.clone().blob();
                 const declared = videoContentLength(response.headers);
@@ -498,7 +501,7 @@ async function checkPegasusVideoVersion(url) {
                 await cache.put(request, new Response(blob, { status: 200, headers }));
                 result = 'updated';
             }
-            try { await validationCache.put(key, new Response(String(Date.now()))); } catch (_) {}
+            try { await validationCache.put(metadataKey, new Response(String(Date.now()))); } catch (_) {}
             return result;
         } finally {
             clearTimeout(timeout);
