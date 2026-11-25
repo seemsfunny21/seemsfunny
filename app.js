@@ -1577,7 +1577,7 @@ function startPause() {
         localStorage.setItem("pegasus_session_kcal", "0.0");
     }
 
-    if (vid && vid.src.includes("warmup")) {
+    if (vid && getPegasusSelectedVideoSrc(vid).includes("warmup")) {
         vid.loop = false;
         vid.pause();
     }
@@ -2290,6 +2290,23 @@ window.PegasusVideoWaiter = window.PegasusVideoWaiter || {
     ready: new Set()
 };
 
+// The browser may fail a range request even when the complete MP4 is local.
+// Keep the logical exercise path separate from the temporary cached Blob URL.
+function getPegasusSelectedVideoSrc(vid) {
+    const raw = vid?.getAttribute('src') || '';
+    return raw && raw === vid?.dataset?.pegasusLocalBlobUrl
+        ? vid.dataset.pegasusLocalBlobSource : normalizePegasusVideoSrc(raw);
+}
+
+function releasePegasusLocalVideo(vid) {
+    if (!vid) return;
+    const objectUrl = vid.dataset.pegasusLocalBlobUrl;
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+    delete vid.dataset.pegasusLocalBlobUrl;
+    delete vid.dataset.pegasusLocalBlobSource;
+    delete vid.dataset.pegasusVideoFailed;
+}
+
 function stopPegasusVideoWaiter(cleanSrc, vid, label, logReady = false) {
     const timer = window.PegasusVideoWaiter.timers.get(cleanSrc);
     if (timer) clearInterval(timer);
@@ -2303,13 +2320,21 @@ function stopPegasusVideoWaiter(cleanSrc, vid, label, logReady = false) {
     }
     if (vid && vid.dataset.pegasusWaitingFor === cleanSrc) delete vid.dataset.pegasusWaitingFor;
     if (vid && vid.dataset.pegasusLoadingCandidate === cleanSrc) delete vid.dataset.pegasusLoadingCandidate;
-    if (label) label.style.color = '';
+    if (label && vid?.dataset.pegasusVideoStatusText) {
+        if (label.textContent === vid.dataset.pegasusVideoStatusText) {
+            label.textContent = vid.dataset.pegasusVideoPreviousText || '';
+            label.style.color = vid.dataset.pegasusVideoPreviousColor || '';
+        }
+        delete vid.dataset.pegasusVideoStatusText;
+        delete vid.dataset.pegasusVideoPreviousText;
+        delete vid.dataset.pegasusVideoPreviousColor;
+    }
     if (logReady) console.log(`✅ PEGASUS VIDEO READY: ${cleanSrc}`);
 }
 
 function markPegasusVideoActuallyReady(src, vid, label) {
     const cleanSrc = normalizePegasusVideoSrc(src || vid?.getAttribute?.('src') || '');
-    if (!cleanSrc || !vid) return;
+    if (!cleanSrc || !vid || getPegasusSelectedVideoSrc(vid) !== cleanSrc) return;
 
     // A 200/206 fetch only means the file exists. The video becomes "ready" only
     // when the actual <video> element has decoded metadata/canplay without error.
@@ -2332,18 +2357,19 @@ function getPegasusPlayableVideoSrc(name, mappedSrc) {
 }
 
 function fallbackPegasusCloseVideo(vid, label) {
-    if (!vid || !normalizePegasusVideoSrc(vid.getAttribute('src') || '').endsWith('videos/latpulldownsclose.mp4')) {
+    if (!vid || !getPegasusSelectedVideoSrc(vid).endsWith('videos/latpulldownsclose.mp4')) {
         return false;
     }
     window.__pegasusCloseVideoUnavailable = true; // only this page session
-    const failed = normalizePegasusVideoSrc(vid.getAttribute('src') || '');
+    const failed = getPegasusSelectedVideoSrc(vid);
     const fallback = 'videos/latpulldowns.mp4';
     stopPegasusVideoWaiter(failed, vid, label, false);
     console.warn('PEGASUS: close-grip video could not be played; using reliable regular-grip video.');
     try { vid.pause(); } catch (_) {}
+    releasePegasusLocalVideo(vid);
     vid.src = fallback;
-    vid.load();
     attachPegasusVideoReadyHandlers(fallback, vid, label);
+    vid.load();
     vid.play().catch(() => {}); // preserve browser autoplay restrictions
     return true;
 }
@@ -2352,7 +2378,7 @@ function monitorPegasusCloseVideo(vid, src, label) {
     if (!normalizePegasusVideoSrc(src).endsWith('videos/latpulldownsclose.mp4')) return;
     // A slow or unsupported MP4 must not leave the workout video waiting indefinitely.
     setTimeout(() => {
-        if (normalizePegasusVideoSrc(vid.getAttribute('src') || '') === normalizePegasusVideoSrc(src)
+        if (getPegasusSelectedVideoSrc(vid) === normalizePegasusVideoSrc(src)
             && (vid.error || vid.readyState < 2)) {
             fallbackPegasusCloseVideo(vid, label);
         }
@@ -2366,75 +2392,109 @@ function attachPegasusVideoReadyHandlers(cleanSrc, vid, label) {
     vid.addEventListener('canplay', onReady, { once: true });
 }
 
-function loadPegasusVideoCandidate(cleanSrc, vid, label, reason = 'retry') {
-    if (!cleanSrc || !vid) return;
-
-    vid.dataset.pegasusLoadingCandidate = cleanSrc;
-    window.PegasusVideoWaiter.loadingSince.set(cleanSrc, Date.now());
-    window.PegasusVideoWaiter.targets.set(cleanSrc, { vid, label });
-    attachPegasusVideoReadyHandlers(cleanSrc, vid, label);
-
-    if (label) {
-        label.textContent = 'Φορτώνει το σωστό βίντεο...';
-        label.style.color = '#ff9800';
+function showPegasusVideoStatus(vid, label, text) {
+    // Do not overwrite the active workout countdown with video diagnostics.
+    if (!label || running) return;
+    if (!vid.dataset.pegasusVideoStatusText) {
+        vid.dataset.pegasusVideoPreviousText = label.textContent || '';
+        vid.dataset.pegasusVideoPreviousColor = label.style.color || '';
     }
-
-    try { vid.pause(); } catch (_) {}
-    vid.preload = 'auto';
-    if (normalizePegasusVideoSrc(vid.getAttribute('src') || '') !== cleanSrc || reason === 'cache-ready') {
-        vid.src = cleanSrc;
-    }
-    vid.load();
-    vid.play().catch(() => {});
+    vid.dataset.pegasusVideoStatusText = text;
+    label.textContent = text;
+    label.style.color = '#ff9800';
 }
 
-// PEGASUS 225: the old per-video cache-ready bridge has been removed.
-// Full project/media storage is handled once at boot by PegasusPermanentStorage.
+async function readPegasusCachedVideo(cleanSrc) {
+    if (!('caches' in window)) return null;
+    const url = new URL(cleanSrc, window.location.href).href;
+    const response = await caches.match(url, { ignoreSearch: true, ignoreVary: true });
+    if (!response || response.status !== 200) return null;
+    const blob = await response.blob();
+    return blob.size > 1024 ? blob : null;
+}
 
 function waitForPegasusVideo(src, vid, label) {
     const cleanSrc = normalizePegasusVideoSrc(src);
-    if (!cleanSrc || !vid) return;
-
-    if (window.PegasusVideoWaiter.timers.has(cleanSrc)) return;
+    if (!cleanSrc || !vid || vid.dataset.pegasusVideoFailed === cleanSrc ||
+        window.PegasusVideoWaiter.timers.has(cleanSrc)) return;
 
     vid.dataset.pegasusWaitingFor = cleanSrc;
     window.PegasusVideoWaiter.targets.set(cleanSrc, { vid, label });
+    let attempts = 0, busy = false, fetched = false;
+    const stillSelected = () => vid.dataset.pegasusWaitingFor === cleanSrc &&
+        getPegasusSelectedVideoSrc(vid) === cleanSrc;
 
     const tryLoad = async () => {
-        if (vid.dataset.pegasusWaitingFor !== cleanSrc) {
+        if (!stillSelected()) {
             stopPegasusVideoWaiter(cleanSrc, vid, label, false);
             return;
         }
-
-        const attempts = (window.PegasusVideoWaiter.attempts.get(cleanSrc) || 0) + 1;
-        window.PegasusVideoWaiter.attempts.set(cleanSrc, attempts);
-
-        if (label) {
-            label.textContent = `Αναμονή τοπικού βίντεο... (${attempts})`;
-            label.style.color = '#ff9800';
-        }
-
-        // PEGASUS 225: do not spam network probes and do not swap to warmup.
-        // The permanent storage pipeline owns all downloads; this loop only
-        // reconnects the requested video when it appears in local Cache Storage.
-        let cached = null;
+        if (busy) return;
+        busy = true;
+        attempts++;
         try {
-            if ('caches' in window) cached = await caches.match(cleanSrc, { ignoreSearch: true });
-        } catch (_) {}
+            let blob = null;
+            try { blob = await readPegasusCachedVideo(cleanSrc); } catch (_) {}
+            if (!stillSelected()) return;
 
-        if (cached || window.PegasusPermanentStorage?.completed) {
-            const now = Date.now();
-            const loadingSince = window.PegasusVideoWaiter.loadingSince.get(cleanSrc) || 0;
-            if (vid.dataset.pegasusLoadingCandidate === cleanSrc && now - loadingSince < 12000) return;
-            loadPegasusVideoCandidate(cleanSrc, vid, label, cached ? 'local-cache-ready' : 'storage-complete');
+            // Fetch the full requested MP4 only if it is genuinely absent.
+            // No new bulk download, no deletion and no repeated network probes.
+            if (!blob && !fetched && navigator.onLine !== false) {
+                fetched = true;
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 12000);
+                try {
+                    const url = new URL(cleanSrc, window.location.href).href;
+                    const response = await fetch(url, { signal: controller.signal });
+                    if (response.status === 200) {
+                        const downloaded = await response.blob();
+                        if (downloaded.size > 1024 && downloaded.type.startsWith('video/')) {
+                            blob = downloaded;
+                            if ('caches' in window) {
+                                try {
+                                    const cache = await caches.open('pegasus-permanent-local-v321');
+                                    await cache.put(url, new Response(blob, { headers: { 'Content-Type': blob.type, 'Content-Length': String(blob.size) } }));
+                                } catch (_) {}
+                            }
+                        }
+                    }
+                } catch (_) {} finally { clearTimeout(timeout); }
+            }
+            if (!stillSelected()) return;
+
+            if (blob) {
+                const timer = window.PegasusVideoWaiter.timers.get(cleanSrc);
+                if (timer) clearInterval(timer);
+                // Keep the waiter entry until loadedmetadata/canplay confirms decoding.
+                releasePegasusLocalVideo(vid);
+                const objectUrl = URL.createObjectURL(blob);
+                vid.dataset.pegasusLocalBlobUrl = objectUrl;
+                vid.dataset.pegasusLocalBlobSource = cleanSrc;
+                vid.dataset.pegasusLoadingCandidate = cleanSrc;
+                vid.pause();
+                vid.preload = 'auto';
+                vid.src = objectUrl;
+                attachPegasusVideoReadyHandlers(cleanSrc, vid, label);
+                vid.load();
+                vid.play().catch(() => {});
+                return;
+            }
+
+            if (attempts >= 3) {
+                stopPegasusVideoWaiter(cleanSrc, vid, label, false);
+                vid.dataset.pegasusVideoFailed = cleanSrc;
+                showPegasusVideoStatus(vid, label, 'Το βίντεο δεν είναι διαθέσιμο τοπικά.');
+            } else {
+                showPegasusVideoStatus(vid, label, 'Αναζήτηση τοπικού βίντεο...');
+            }
+        } finally {
+            busy = false;
         }
     };
 
-    vid.pause();
-    vid.removeAttribute('src');
-    vid.load();
-    tryLoad();
-    window.PegasusVideoWaiter.timers.set(cleanSrc, setInterval(tryLoad, 15000));
+    // Register before the immediate cache lookup, without clearing the source.
+    window.PegasusVideoWaiter.timers.set(cleanSrc, setInterval(tryLoad, 2000));
+    void tryLoad();
 }
 
 
@@ -2554,33 +2614,18 @@ function showVideo(i) {
     if (!vid.dataset.pegasusVideoErrorGuard) {
         vid.dataset.pegasusVideoErrorGuard = "1";
         vid.onerror = function() {
-            const currentSrc = vid.getAttribute('src') || '';
-            const cleanSrc = normalizePegasusVideoSrc(currentSrc);
+            const cleanSrc = getPegasusSelectedVideoSrc(vid);
             if (!cleanSrc) return;
-            if (fallbackPegasusCloseVideo(vid, label)) return;
 
-            const now = Date.now();
-            const alreadyWaiting =
-                vid.dataset.pegasusWaitingFor === cleanSrc ||
-                window.PegasusVideoWaiter?.timers?.has(cleanSrc);
-
-            if (!alreadyWaiting) {
-                const lastErrorAt = window.PegasusVideoWaiter?.lastErrorAt?.get(cleanSrc) || 0;
-                if (now - lastErrorAt > 30000) {
-                    console.warn(`🎬 PEGASUS VIDEO LOCAL WAIT: ${cleanSrc} is not ready locally yet.`);
-                    window.PegasusVideoWaiter?.lastErrorAt?.set(cleanSrc, now);
-                }
+            // A cached Blob that cannot decode must not trigger an endless loop.
+            if (vid.dataset.pegasusLocalBlobSource === cleanSrc &&
+                vid.getAttribute('src') === vid.dataset.pegasusLocalBlobUrl) {
+                if (fallbackPegasusCloseVideo(vid, label)) return;
+                stopPegasusVideoWaiter(cleanSrc, vid, label, false);
+                vid.dataset.pegasusVideoFailed = cleanSrc;
+                showPegasusVideoStatus(vid, label, 'Το τοπικό βίντεο δεν μπορεί να αναπαραχθεί.');
+                return;
             }
-
-            if (label) {
-                label.textContent = 'Αναμονή βίντεο...';
-                label.style.color = '#ff9800';
-            }
-
-            // PEGASUS 225: when a retry loop is already active, do not recursively
-            // create new loops or spam the console. The permanent local storage
-            // pipeline will make the requested video available when it is ready.
-            if (alreadyWaiting) return;
             waitForPegasusVideo(cleanSrc, vid, label);
         };
     }
@@ -2591,10 +2636,13 @@ function showVideo(i) {
 
     if (isRecoveryDay || typeof exercises === 'undefined' || !exercises[i]) {
         const recoverySrc = "videos/stretching.mp4";
-        if (vid.getAttribute('src') !== recoverySrc) {
+        if (getPegasusSelectedVideoSrc(vid) !== recoverySrc) {
+            stopPegasusVideoWaiter(getPegasusSelectedVideoSrc(vid), vid, label, false);
+            releasePegasusLocalVideo(vid);
             delete vid.dataset.pegasusWaitingFor;
             vid.pause();
             vid.src = recoverySrc;
+            attachPegasusVideoReadyHandlers(recoverySrc, vid, label);
             vid.load();
             if (window.PegasusVideoPreloader) window.PegasusVideoPreloader.preload(recoverySrc);
             vid.play().catch(e => console.log("Waiting for user..."));
@@ -2615,16 +2663,17 @@ function showVideo(i) {
 
     const newSrc = getPegasusPlayableVideoSrc(name, `videos/${mappedVal}.mp4`);
     // Preserve an already running fallback for the same exercise during re-renders.
-    if (vid.getAttribute('src') !== newSrc) {
-        const oldCleanSrc = normalizePegasusVideoSrc(vid.getAttribute('src') || '');
+    if (getPegasusSelectedVideoSrc(vid) !== newSrc) {
+        const oldCleanSrc = getPegasusSelectedVideoSrc(vid);
         if (oldCleanSrc && oldCleanSrc !== newSrc) stopPegasusVideoWaiter(oldCleanSrc, vid, label, false);
+        releasePegasusLocalVideo(vid);
         delete vid.dataset.pegasusWaitingFor;
         vid.pause();
         vid.src = newSrc;
+        attachPegasusVideoReadyHandlers(newSrc, vid, label);
         vid.load();
         if (window.PegasusVideoPreloader) window.PegasusVideoPreloader.preload(newSrc);
         preloadPegasusAdjacentVideos(i);
-        attachPegasusVideoReadyHandlers(newSrc, vid, label);
         monitorPegasusCloseVideo(vid, newSrc, label);
         vid.play().catch(() => {
             // PEGASUS 225: autoplay/user-gesture failures must not swap to warmup
@@ -2808,6 +2857,8 @@ function finishWorkout() {
         const vid = document.getElementById("video");
         if (vid) {
             vid.pause();
+            stopPegasusVideoWaiter(getPegasusSelectedVideoSrc(vid), vid, null, false);
+            releasePegasusLocalVideo(vid);
             vid.src = "videos/stretching.mp4";
             vid.load();
             vid.play().catch(() => console.log("Auto-play prevented"));
@@ -3218,9 +3269,11 @@ window.onload = () => {
         "btnWarmup": () => {
             const vid = document.getElementById("video");
             if (!vid) return;
-            if (!vid.src.includes("warmup.mp4")) {
+            if (getPegasusSelectedVideoSrc(vid) !== "videos/warmup.mp4") {
                 vid.pause();
-                vid.src = "videos/warmup.mp4";
+                stopPegasusVideoWaiter(getPegasusSelectedVideoSrc(vid), vid, null, false);
+            releasePegasusLocalVideo(vid);
+            vid.src = "videos/warmup.mp4";
                 vid.load();
                 vid.play().catch(e => console.log(e));
             } else {
