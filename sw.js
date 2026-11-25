@@ -427,6 +427,104 @@ async function runPermanentLocalDownload(extraUrls = []) {
     console.log(`✅ PEGASUS SW: permanent local storage complete ${ok}/${total} assets (${skipped} skipped).`);
 }
 
+// Local playback never waits for this optional background freshness check.
+const VIDEO_VALIDATION_CACHE = 'pegasus-video-validation-v1';
+const VIDEO_CHECK_INTERVAL = 24 * 60 * 60 * 1000;
+const videoValidationInFlight = new Map();
+const videoRetryAfter = new Map();
+
+function videoContentLength(headers) {
+    const raw = headers.get('content-length');
+    if (raw === null || raw === '') return null;
+    const n = Number(raw);
+    return Number.isSafeInteger(n) && n > 0 ? n : null;
+}
+
+function videoValidatorsDiffer(local, remote) {
+    const localSize = videoContentLength(local);
+    const remoteSize = videoContentLength(remote);
+    if (localSize !== null && remoteSize !== null && localSize !== remoteSize) return true;
+    const localTag = local.get('etag'), remoteTag = remote.get('etag');
+    if (localTag && remoteTag) return localTag !== remoteTag;
+    const localDate = local.get('last-modified'), remoteDate = remote.get('last-modified');
+    if (localDate && remoteDate) return localDate !== remoteDate;
+    // Equal length without shared validators is not proof of equal contents.
+    // Keep the local file rather than downloading it blindly.
+    return false;
+}
+
+async function checkPegasusVideoVersion(url) {
+    const key = url.href;
+    if (videoValidationInFlight.has(key)) return videoValidationInFlight.get(key);
+    if ((videoRetryAfter.get(key) || 0) > Date.now()) return 'retry-later';
+
+    const work = (async () => {
+        const cache = await caches.open(CACHE_NAME);
+        const request = makeCacheRequest(key);
+        let local = await cache.match(request, { ignoreSearch: true, ignoreVary: true });
+        if (!local || local.status !== 200) {
+            const older = await findCachedAssetInPegasusCaches(request, url, { excludeCurrent: true });
+            local = older?.response || null;
+        }
+        if (!local || local.status !== 200) return 'not-local';
+
+        const validationCache = await caches.open(VIDEO_VALIDATION_CACHE);
+        const checked = await validationCache.match(key, { ignoreVary: true });
+        if (checked) {
+            const checkedAt = Number(await checked.text());
+            if (Number.isFinite(checkedAt) && Date.now() - checkedAt < VIDEO_CHECK_INTERVAL && checkedAt <= Date.now()) return 'recent';
+        }
+
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
+        try {
+            const head = await fetch(key, { method: 'HEAD', cache: 'no-store', signal: controller.signal });
+            if (!head.ok) throw Error('Video HEAD ' + head.status);
+            let result = 'unchanged';
+            if (videoValidatorsDiffer(local.headers, head.headers)) {
+                // Full GET only for a known difference; never discard a working local file.
+                const response = await fetch(key, { cache: 'no-store', signal: controller.signal });
+                const blob = await response.clone().blob();
+                const declared = videoContentLength(response.headers);
+                const type = (response.headers.get('content-type') || '').toLowerCase();
+                if (!looksLikeValidAsset(url, response, blob) ||
+                    !type.startsWith('video/') ||
+                    (!response.headers.get('content-encoding') && declared !== null && blob.size !== declared)) {
+                    throw Error('Invalid replacement video');
+                }
+                const headers = new Headers(response.headers);
+                headers.set('Content-Length', String(blob.size));
+                headers.set('Accept-Ranges', 'bytes');
+                await cache.put(request, new Response(blob, { status: 200, headers }));
+                result = 'updated';
+            }
+            try { await validationCache.put(key, new Response(String(Date.now()))); } catch (_) {}
+            return result;
+        } finally {
+            clearTimeout(timeout);
+        }
+    })().catch(() => {
+        videoRetryAfter.set(key, Date.now() + 10 * 60 * 1000);
+        return 'offline-or-error';
+    }).finally(() => videoValidationInFlight.delete(key));
+
+    videoValidationInFlight.set(key, work);
+    return work;
+}
+
+async function revalidatePegasusVideos(mediaUrls) {
+    const videoRoot = new URL('./videos/', self.location.href);
+    const urls = new Map();
+    for (const raw of Array.isArray(mediaUrls) ? mediaUrls : []) {
+        try {
+            const url = cleanCacheUrl(raw);
+            if (url.origin === videoRoot.origin && url.pathname.startsWith(videoRoot.pathname) && isVideoAsset(url.pathname)) urls.set(url.href, url);
+        } catch (_) {}
+    }
+    // Sequential, small HEAD requests. Never block startup or playback.
+    for (const url of urls.values()) await checkPegasusVideoVersion(url);
+}
+
 async function getCachedResponseForRequest(request, url) {
     const cache = await caches.open(CACHE_NAME);
     // Media requests usually carry Range. Match the full locally stored asset
@@ -550,6 +648,11 @@ self.addEventListener('activate', (event) => {
 ========================= */
 self.addEventListener('message', (event) => {
     const data = event.data || {};
+
+    if (data.type === 'PEGASUS_REVALIDATE_VIDEOS') {
+        event.waitUntil(revalidatePegasusVideos(data.mediaUrls));
+        return;
+    }
 
     if (
         data.type === 'PEGASUS_PERMANENT_CACHE_ALL' ||
