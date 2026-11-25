@@ -2593,6 +2593,8 @@ function hidePegasusNextExercisePreview() {
     ui.box.classList.remove("next-video-missing");
     if (ui.vid) {
         ui.vid.pause();
+        ui.vid.onerror = null;
+        if (ui.vid.getAttribute('src')) { ui.vid.removeAttribute('src'); ui.vid.load(); }
         releasePegasusLocalVideo(ui.vid);
         delete ui.vid.dataset.nextExerciseSrc;
     }
