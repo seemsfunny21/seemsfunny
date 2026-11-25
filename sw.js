@@ -135,8 +135,8 @@ async function findCachedAssetInPegasusCaches(request, url, { excludeCurrent = f
     for (const cacheName of candidates) {
         try {
             const cache = await caches.open(cacheName);
-            const cached = await cache.match(cleanRequest, { ignoreSearch: true }) || await cache.match(request, { ignoreSearch: true });
-            if (cached) return { cacheName, response: cached.clone() };
+            const cached = await cache.match(cleanRequest, { ignoreSearch: true, ignoreVary: isVideoAsset(url.pathname) }) || await cache.match(request, { ignoreSearch: true });
+            if (cached && (!isVideoAsset(url.pathname) || cached.status === 200)) return { cacheName, response: cached.clone() };
         } catch (_) {}
     }
 
@@ -429,14 +429,19 @@ async function runPermanentLocalDownload(extraUrls = []) {
 
 async function getCachedResponseForRequest(request, url) {
     const cache = await caches.open(CACHE_NAME);
-    let cached = await cache.match(request, { ignoreSearch: true });
+    // Media requests usually carry Range. Match the full locally stored asset
+    // by its canonical URL, not by request headers that can differ from storage.
+    const video = isVideoAsset(url.pathname.toLowerCase());
+    let cached = await cache.match(video ? makeCacheRequest(url.href) : request,
+        { ignoreSearch: true, ignoreVary: video });
+    if (video && cached && cached.status !== 200) cached = null;
 
     // PEGASUS 294: video/media cache must survive version bumps.
     // Older permanent caches are searched before network, so an internet cut
     // during workout still shows the already downloaded exercise video.
     if (!cached && isMediaAsset(url.pathname.toLowerCase())) {
         const migrated = await findCachedAssetInPegasusCaches(request, url, { excludeCurrent: true });
-        if (migrated && migrated.response) {
+        if (migrated && migrated.response && (!video || migrated.response.status === 200)) {
             cached = migrated.response.clone();
             await copyCachedAssetToCurrentCache(request, migrated.response.clone(), url);
         }
