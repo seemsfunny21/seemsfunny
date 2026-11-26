@@ -136,7 +136,7 @@ async function findCachedAssetInPegasusCaches(request, url, { excludeCurrent = f
         try {
             const cache = await caches.open(cacheName);
             const cached = await cache.match(cleanRequest, { ignoreSearch: true, ignoreVary: isVideoAsset(url.pathname) }) || await cache.match(request, { ignoreSearch: true });
-            if (cached && (!isVideoAsset(url.pathname) || cached.status === 200)) return { cacheName, response: cached.clone() };
+            if (cached && (!isVideoAsset(url.pathname) || isCompleteCachedVideo(cached))) return { cacheName, response: cached.clone() };
         } catch (_) {}
     }
 
@@ -150,6 +150,13 @@ async function copyCachedAssetToCurrentCache(request, response, url) {
         const cleanRequest = makeCacheRequest(url.href);
         await cache.put(cleanRequest, response.clone());
     } catch (_) {}
+}
+
+function isCompleteCachedVideo(response) {
+    if (!response || response.status !== 200 || response.headers.has('content-range')) return false;
+    const type = (response.headers.get('content-type') || '').toLowerCase();
+    const size = Number(response.headers.get('content-length') || 0);
+    return (!type || type.startsWith('video/') || type.includes('octet-stream')) && (!size || size > 1024);
 }
 
 function isCacheableResponse(response) {
@@ -213,7 +220,7 @@ function looksLikeValidAsset(url, response, blob) {
     const contentType = (response.headers.get('content-type') || '').toLowerCase();
 
     if (isVideoAsset(pathname)) {
-        return blob.size > 1024 && (contentType.includes('video') || pathname.endsWith('.mp4'));
+        return blob.size > 1024 && (contentType.startsWith('video/') || contentType.includes('octet-stream')) && !response.headers.has('content-range');
     }
 
     if (isMediaAsset(pathname)) {
@@ -235,7 +242,7 @@ async function cacheOnePermanentAsset(cache, urlString) {
 
     const request = makeCacheRequest(url.href);
     const existing = await cache.match(request, { ignoreSearch: true });
-    if (existing) {
+    if (existing && (!isVideoAsset(url.pathname) || isCompleteCachedVideo(existing))) {
         return { ok: true, cached: true, size: Number(existing.headers.get('content-length') || 0) };
     }
 
@@ -535,14 +542,14 @@ async function getCachedResponseForRequest(request, url) {
     const video = isVideoAsset(url.pathname.toLowerCase());
     let cached = await cache.match(video ? makeCacheRequest(url.href) : request,
         { ignoreSearch: true, ignoreVary: video });
-    if (video && cached && cached.status !== 200) cached = null;
+    if (video && cached && !isCompleteCachedVideo(cached)) cached = null;
 
     // PEGASUS 294: video/media cache must survive version bumps.
     // Older permanent caches are searched before network, so an internet cut
     // during workout still shows the already downloaded exercise video.
     if (!cached && isMediaAsset(url.pathname.toLowerCase())) {
         const migrated = await findCachedAssetInPegasusCaches(request, url, { excludeCurrent: true });
-        if (migrated && migrated.response && (!video || migrated.response.status === 200)) {
+        if (migrated && migrated.response && (!video || isCompleteCachedVideo(migrated.response))) {
             cached = migrated.response.clone();
             await copyCachedAssetToCurrentCache(request, migrated.response.clone(), url);
         }
@@ -574,6 +581,37 @@ async function cacheNetworkResponse(request, response, url) {
         statusText: 'OK',
         headers
     }));
+}
+
+// A cold browser media request may return 206. Cache API cannot store partial
+// responses. Complete the same file once in the background for future offline playback.
+const pendingFullVideoDownloads = new Map();
+async function ensureCompleteLocalVideo(url) {
+    const key = cleanCacheUrl(url.href).href;
+    if (pendingFullVideoDownloads.has(key)) return pendingFullVideoDownloads.get(key);
+    const task = (async () => {
+        const cache = await caches.open(CACHE_NAME);
+        const request = makeCacheRequest(key);
+        if (isCompleteCachedVideo(await cache.match(request, {ignoreSearch:true,ignoreVary:true}))) return true;
+        const old = await findCachedAssetInPegasusCaches(request, url, {excludeCurrent:true});
+        if (old && isCompleteCachedVideo(old.response)) {
+            await copyCachedAssetToCurrentCache(request, old.response, url); return true;
+        }
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 120000);
+        try {
+            const response = await fetch(request, {cache:'no-store',signal:controller.signal});
+            const blob = await response.blob();
+            const declared = videoContentLength(response.headers);
+            if (!looksLikeValidAsset(url,response,blob) ||
+                (!response.headers.get('content-encoding') && declared !== null && declared !== blob.size)) return false;
+            const headers = new Headers(response.headers);
+            headers.delete('Content-Encoding');headers.set('Content-Length',String(blob.size));headers.set('Accept-Ranges','bytes');
+            await cache.put(request,new Response(blob,{status:200,headers}));return true;
+        } finally {clearTimeout(timer);}
+    })().catch(() => false).finally(() => pendingFullVideoDownloads.delete(key));
+    pendingFullVideoDownloads.set(key,task);
+    return task;
 }
 
 async function getOfflineNavigationFallback(pathname) {
@@ -694,7 +732,11 @@ self.addEventListener('fetch', (event) => {
 
         try {
             const networkResponse = await fetch(request, { cache: 'reload' });
-            event.waitUntil(cacheNetworkResponse(request, networkResponse.clone(), url));
+            if (isVideoAsset(pathname) && networkResponse.status === 206) {
+                event.waitUntil(ensureCompleteLocalVideo(url));
+            } else {
+                event.waitUntil(cacheNetworkResponse(request, networkResponse.clone(), url).catch(() => {}));
+            }
             return networkResponse;
         } catch (err) {
             console.warn(`[PEGASUS SW]: local fallback for ${url.pathname}`, err);
