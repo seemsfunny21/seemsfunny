@@ -2424,11 +2424,16 @@ async function readPegasusCachedVideo(cleanSrc) {
     const ordered = [current, ...names.filter(name => name !== current && name.startsWith('pegasus-permanent-local-'))];
     for (const name of ordered) {
         if (!names.includes(name)) continue;
-        const cache = await caches.open(name);
-        const response = await cache.match(url, { ignoreSearch: true, ignoreVary: true });
-        if (!response || response.status !== 200) continue;
-        const blob = await response.blob();
-        if (blob.size > 1024) return blob;
+        try {
+            const cache = await caches.open(name);
+            const response = await cache.match(url, { ignoreSearch: true, ignoreVary: true });
+            if (!response || response.status !== 200 || response.headers.has('content-range')) continue;
+            const blob = await response.blob();
+            const type = (response.headers.get('content-type') || blob.type || '').toLowerCase();
+            const declared = Number(response.headers.get('content-length') || 0);
+            if (blob.size > 1024 && (!type || type.startsWith('video/') || type.includes('octet-stream')) &&
+                (!declared || response.headers.has('content-encoding') || declared === blob.size)) return blob;
+        } catch (_) { /* An unreadable cache must not hide a valid older local copy. */ }
     }
     return null;
 }
