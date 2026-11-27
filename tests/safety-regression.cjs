@@ -256,7 +256,9 @@ async function main() {
         assert.ok(!restore.includes('indexedDB.deleteDatabase('));
     });
     check('loader marks offline ready only when all assets succeeded', () => {
-        assert.ok(app.includes("readyKey: 'pegasus_permanent_assets_ready_v311'"));
+        const storageVersion = sw.match(/PEGASUS_STORAGE_VERSION\s*=\s*'([0-9]+)'/)?.[1];
+        assert.ok(storageVersion);
+        assert.ok(app.includes("readyKey: 'pegasus_permanent_assets_ready_v"+storageVersion+"'"));
         assert.ok(app.includes('const offlineVerified = this.total > 0 && this.ok >= this.total && this.skipped === 0'));
         assert.ok(app.includes("marker.skipped > 0 || marker.ok < marker.total"));
     });
