@@ -22,10 +22,14 @@ async function main() {
     for (const file of scripts) check('syntax ' + file, () => new vm.Script(read(file), { filename: file }));
     const app = read('app.js'), mobile = read('mobile/mobile.html'), html = read('index.html'), sw = read('sw.js');
     const data = read('data.js'), i18n = read('i18n.js'), manifest = read('manifest.js');
-    check('Pegasus Mobile theme worker updated without changing desktop loader', () => {
-        assert.ok(sw.includes("PEGASUS_STORAGE_VERSION = '321'"));
-        assert.ok(mobile.includes('v=3.36.321'));
-        for (const content of [html, app]) assert.ok(content.includes('v=3.36.311'));
+    check('Pegasus worker version agrees with mobile and desktop loaders', () => {
+        const version = sw.match(/PEGASUS_STORAGE_VERSION\s*=\s*'([0-9]+)'/)?.[1];
+        assert.ok(version, 'Worker declares a storage version');
+        const prefix = '3.36.' + version;
+        assert.ok(mobile.includes('v=' + prefix));
+        const desktop = [html, app].map(content => content.match(/swPath[^\n]*?\?v=([\d.]+)/)?.[1]);
+        assert.ok(desktop.every(v => v && (v === prefix || v.startsWith(prefix + '.'))), 'Desktop loaders target the current worker version');
+        assert.equal(desktop[0], desktop[1], 'Desktop worker registrations agree');
         assert.ok(mobile.includes('pegasus_mobile_theme_v1'));
         assert.ok(mobile.includes('setPegasusMobileTheme'));
     });
