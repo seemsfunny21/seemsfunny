@@ -640,7 +640,7 @@ self.addEventListener('install', (event) => {
     event.waitUntil((async () => {
         const cache = await caches.open(CACHE_NAME);
         // On updates, refresh the small app shell even when cached.
-        // 2026-11-24: refresh the final-rest workout calculation; preserve video cache.
+        // 2026-11-28: refresh copyright in settings; preserve permanent video cache.
         // Keep the SAME permanent cache version: videos are never invalidated
         // or redownloaded simply because the application code changed.
         for (const assetUrl of ['./', './index.html', './style.css', './manifest.js', './app.js', './pegasusCore.js', './sw.js']) {
