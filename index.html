@@ -222,7 +222,7 @@
             </div>
         </div>
 
-        <button id="btnSaveSettings" class="p-btn" style="width: 100%; margin-top: 15px; background: #4CAF50; color: #000; font-weight: bold;">Αποθήκευση</button>
+        <button id="btnSaveSettings" class="p-btn" style="width: 100%; margin-top: 15px; background: #4CAF50; color: #000; font-weight: bold;">Αποθήκευση</button><div class="seemsfunny-credit" style="display:block;text-align:center;margin:14px 0 2px;padding:4px 0;color:inherit;opacity:.65;font-size:12px;line-height:1.4;letter-spacing:.025em">© <span data-credit-year>2026</span> <strong>seemsfunny</strong></div>
     </div>
 </div>
 
@@ -485,9 +485,9 @@
 
         window.addEventListener('load', () => {
             const swPath = window.location.pathname.includes('mobile/') ? '../sw.js' : './sw.js';
-            navigator.serviceWorker.register(swPath + '?v=3.36.321.1').catch(err => console.error("🛡️ SW Error:", err));
+            navigator.serviceWorker.register(swPath + '?v=3.36.321.2').catch(err => console.error("🛡️ SW Error:", err));
         });
     }
 </script>
-</body>
+<script>document.querySelectorAll("[data-credit-year]").forEach(n=>n.textContent=String(Math.max(2026,new Date().getFullYear())));</script></body>
 </html>
